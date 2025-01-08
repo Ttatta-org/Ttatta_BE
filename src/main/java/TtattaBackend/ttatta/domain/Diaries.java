@@ -21,7 +21,7 @@ public class Diaries extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long diariesId;
+    private Long Id;
 
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -38,8 +38,12 @@ public class Diaries extends BaseEntity {
     private String locationName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "user_id")
     private Users users;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diary_category_id")
+    private DiaryCategories diaryCategories;
 
     public void setUsers(Users users) {
         // 기존에 이미 등록되어 있던 관계를 제거
@@ -52,6 +56,20 @@ public class Diaries extends BaseEntity {
         // 양방향 관계를 설정
         if (users != null) {
             users.getDiariesList().add(this);
+        }
+    }
+
+    public void setDiaryCategories(DiaryCategories diaryCategories) {
+        // 기존에 이미 등록되어 있던 관계를 제거
+        if (this.diaryCategories != null) {
+            this.diaryCategories.getDiariesList().remove(this);
+        }
+
+        this.diaryCategories = diaryCategories;
+
+        // 양방향 관계를 설정
+        if (diaryCategories != null) {
+            diaryCategories.getDiariesList().add(this);
         }
     }
 }
