@@ -23,7 +23,7 @@ public class DiaryCategories extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long diary_category_id;
+    private Long id;
 
     @Column(nullable = false, length = 50)
     private String name;
