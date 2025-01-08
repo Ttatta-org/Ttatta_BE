@@ -1,0 +1,57 @@
+package TtattaBackend.ttatta.domain;
+
+import TtattaBackend.ttatta.domain.common.BaseEntity;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter
+@DynamicUpdate
+@DynamicInsert
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class Diaries extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long diariesId;
+
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
+    private LocalDateTime date;
+
+    @Column(nullable = false, length = 40)
+    private String latitude;
+
+    @Column(nullable = false, length = 40)
+    private String longtitude;
+
+    @Column(nullable = false, length = 50)
+    private String locationName;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "users_id")
+    private Users users;
+
+    public void setUsers(Users users) {
+        // 기존에 이미 등록되어 있던 관계를 제거
+        if (this.users != null) {
+            this.users.getDiariesList().remove(this);
+        }
+
+        this.users = users;
+
+        // 양방향 관계를 설정
+        if (users != null) {
+            users.getDiariesList().add(this);
+        }
+    }
+}
