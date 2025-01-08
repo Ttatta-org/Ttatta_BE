@@ -36,6 +36,9 @@ public class DiaryCategories extends BaseEntity {
     @JoinColumn(name = "users_id")
     private Users users;
 
+    @OneToMany(mappedBy = "diaryCategories", cascade = CascadeType.ALL)
+    private List<Diaries> diariesList = new ArrayList<>();
+
     public void setUsers(Users users) {
         // 기존에 이미 등록되어 있던 관계를 제거
         if (this.users != null) {
