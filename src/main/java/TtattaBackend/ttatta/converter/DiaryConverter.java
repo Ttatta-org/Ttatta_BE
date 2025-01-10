@@ -15,4 +15,13 @@ public class DiaryConverter {
                 .build();
     }
 
+    public static Diaries toDiaries(DiaryRequestDTO.DiaryPostDTO request) {
+        return Diaries.builder()
+                .content(request.getContent())
+                .date(request.getDate())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
+                .locationName(request.getLocationName())
+                .build();
+    }
 }
