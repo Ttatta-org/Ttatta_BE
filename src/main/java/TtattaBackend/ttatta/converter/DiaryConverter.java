@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.converter;
 
 import TtattaBackend.ttatta.domain.Diaries;
+import TtattaBackend.ttatta.domain.DiaryPhotos;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 
@@ -22,6 +23,13 @@ public class DiaryConverter {
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .locationName(request.getLocationName())
+                .build();
+    }
+
+    public static DiaryPhotos toDiaryPhoto(String pictureUrl, Diaries diaries) {
+        return DiaryPhotos.builder()
+                .imageUrl(pictureUrl)
+                .diaries(diaries)
                 .build();
     }
 }
