@@ -32,7 +32,7 @@ public class Diaries extends BaseEntity {
     private String latitude;
 
     @Column(nullable = false, length = 40)
-    private String longtitude;
+    private String longitude;
 
     @Column(nullable = false, length = 50)
     private String locationName;
