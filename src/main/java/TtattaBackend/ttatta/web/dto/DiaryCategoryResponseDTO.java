@@ -31,4 +31,12 @@ public class DiaryCategoryResponseDTO {
         CategoryColor categoryColor;
         LocalDateTime updatedAt;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeleteCategoryResultDTO {
+        Long categoryId; // 삭제한 카테고리 Id
+    }
 }
