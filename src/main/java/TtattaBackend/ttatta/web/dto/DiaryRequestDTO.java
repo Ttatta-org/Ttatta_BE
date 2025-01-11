@@ -9,7 +9,7 @@ public class DiaryRequestDTO {
     public static class DiaryPostDTO {
         private Long userId;
 
-        //private Long diaryCategoryId;
+        private Long diaryCategoryId;
         private String content;
         private LocalDateTime date;
 

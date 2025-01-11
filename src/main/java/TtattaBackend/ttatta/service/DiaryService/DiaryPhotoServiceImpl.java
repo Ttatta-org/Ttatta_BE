@@ -2,11 +2,8 @@ package TtattaBackend.ttatta.service.DiaryService;
 
 import TtattaBackend.ttatta.aws.s3.AmazonS3Manager;
 import TtattaBackend.ttatta.converter.DiaryConverter;
-import TtattaBackend.ttatta.domain.Diaries;
-import TtattaBackend.ttatta.domain.Uuid;
-import TtattaBackend.ttatta.repository.DiaryPhotosRepository;
-import TtattaBackend.ttatta.repository.DiaryRepository;
-import TtattaBackend.ttatta.repository.UuidRepository;
+import TtattaBackend.ttatta.domain.*;
+import TtattaBackend.ttatta.repository.*;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +17,10 @@ import java.util.UUID;
 public class DiaryPhotoServiceImpl implements DiaryPhotoService{
     private final DiaryRepository diaryRepository;
 
+    private final UserRepository userRepository;
+
+    private final DiaryCategoryRepository diaryCategoryRepository;
+
     private final AmazonS3Manager s3Manager;
 
     private final UuidRepository uuidRepository;
@@ -28,7 +29,15 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
 
     @Override
     public Diaries save(DiaryRequestDTO.DiaryPostDTO request, List<MultipartFile> diaryPhotos) {
+        Users user = userRepository.findById(request.getUserId())
+                .orElseThrow (() -> new RuntimeException("User not found"));
+        DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId())
+                .orElseThrow (() -> new RuntimeException("Category not found"));
+
         Diaries diaries = DiaryConverter.toDiaries(request);
+
+        diaries.setUsers(user);
+        diaries.setDiaryCategories(diaryCategories);
 
         String uuid = UUID.randomUUID().toString();
         Uuid savedUuid = uuidRepository.save(Uuid.builder()
