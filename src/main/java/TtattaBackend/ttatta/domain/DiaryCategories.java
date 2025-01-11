@@ -33,8 +33,6 @@ public class DiaryCategories extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(10) DEFAULT 'DEFAULT'")
     private CategoryColor color;
 
-    private LocalDateTime date;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "users_id")
     private Users users;

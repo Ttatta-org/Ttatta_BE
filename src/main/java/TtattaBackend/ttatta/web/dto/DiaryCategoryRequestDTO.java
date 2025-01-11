@@ -8,5 +8,6 @@ public class DiaryCategoryRequestDTO {
     public static class CreateCategoryDTO {
         String categoryName;
         CategoryColor categoryColor;
+        Long userId;
     }
 }
