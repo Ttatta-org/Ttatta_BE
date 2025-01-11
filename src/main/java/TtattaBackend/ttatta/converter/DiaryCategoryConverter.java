@@ -15,7 +15,7 @@ public class DiaryCategoryConverter {
                 .categoryId(diaryCategory.getId())
                 .categoryColor(diaryCategory.getColor())
                 .categoryName(diaryCategory.getName())
-                .createdAt(LocalDateTime.now())
+                .createdAt(diaryCategory.getCreatedAt())
                 .build();
     }
 
@@ -53,7 +53,6 @@ public class DiaryCategoryConverter {
         return DiaryCategories.builder()
                 .name(request.getCategoryName())
                 .color(diaryCategoryColor)
-                .diariesList(new ArrayList<>())
                 .build();
     }
 }
