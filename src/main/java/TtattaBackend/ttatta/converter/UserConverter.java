@@ -31,4 +31,16 @@ public class UserConverter {
                 .createdAt(users.getCreatedAt())
                 .build();
     }
+
+    public static UserResponseDTO.UserInfoResultDTO toUserInfoResultDTO(Users users) {
+        return UserResponseDTO.UserInfoResultDTO.builder()
+                .userId(users.getId())
+                .nickname(users.getNickname())
+                .loginType(users.getLoginType())
+                .email(users.getEmail())
+                .profileImg(users.getProfileImage())
+                .point(users.getPoint())
+                .status(users.getStatus())
+                .build();
+    }
 }

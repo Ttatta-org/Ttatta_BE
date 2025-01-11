@@ -1,19 +1,14 @@
 package TtattaBackend.ttatta.web.controller;
 
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
-import TtattaBackend.ttatta.apiPayload.code.status.SuccessStatus;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.service.UserService.UserCommandService;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -59,6 +54,21 @@ public class UserController {
         Users user = userCommandService.signIn(request);
         return ApiResponse.onSuccess(
                 UserConverter.toUserSignInResultDTO(
+                        user
+                )
+        );
+    }
+
+    @Operation(summary = "회원 정보 조회", description =
+            "# 회원 정보 조회 API 입니다. 회원의 ID를 입력해주세요."
+    )
+    @GetMapping("/{userId}")
+    public ApiResponse<UserResponseDTO.UserInfoResultDTO> getUserInfo(
+            @PathVariable Long userId
+    ) {
+        Users user = userCommandService.getUserInfo(userId);
+        return ApiResponse.onSuccess(
+                UserConverter.toUserInfoResultDTO(
                         user
                 )
         );

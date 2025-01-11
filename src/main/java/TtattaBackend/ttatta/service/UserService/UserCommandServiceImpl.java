@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.service.UserService;
 
+import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.Gender;
@@ -14,11 +15,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -66,5 +68,11 @@ public class UserCommandServiceImpl implements UserCommandService {
         Users user = userRepository.findByUsername(authentication.getName()).orElse(null);
 
         return user;
+    }
+
+    @Override
+    public Users getUserInfo(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
     }
 }
