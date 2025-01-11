@@ -20,4 +20,15 @@ public class DiaryCategoryResponseDTO {
         CategoryColor categoryColor;
         LocalDateTime createdAt;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ModifyCategoryResultDTO {
+        Long categoryId;
+        String categoryName;
+        CategoryColor categoryColor;
+        LocalDateTime updatedAt;
+    }
 }

@@ -26,4 +26,13 @@ public class DiaryCategoryController {
         DiaryCategories diaryCategory = diaryCategoryCommandService.createCategory(request);
         return ApiResponse.onSuccess(DiaryCategoryConverter.toCreateCategoryResultDTO(diaryCategory));
     }
+
+    @Operation(summary = "카테고리 수정 api", description =
+            "카테고리를 수정할 때 사용하는 api 입니다.\n카테고리 이름과 색상, 사용자의 Id 데이터를 넣어주시면 됩니다. 카테고리 Id는 path parameter로 전달받습니다."
+    )
+
+    @PatchMapping("/{categoryId}")
+    public ApiResponse<DiaryCategoryResponseDTO.ModifyCategoryResultDTO> modify(@PathVariable Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.ModifyCategoryDTO request) {
+        return null;
+    }
 }
