@@ -5,6 +5,7 @@ import TtattaBackend.ttatta.apiPayload.code.status.SuccessStatus;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.service.UserService.UserCommandService;
+import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -29,6 +30,36 @@ public class UserController {
         return ApiResponse.onSuccess(
                 UserConverter.toUserSignUpResultDTO(
                         newTestUser
+                )
+        );
+    }
+
+    @Operation(summary = "회원가입", description =
+            "# 회원가입 API 입니다. 닉네임과 아이디, 패스워드를 body에 입력해주세요."
+    )
+    @PostMapping("/signup")
+    public ApiResponse<UserResponseDTO.UserSignUpResultDTO> signUp(
+            @RequestBody UserRequestDTO.SignUpRequestDTO request
+    ) {
+        Users newUser = userCommandService.signUp(request);
+        return ApiResponse.onSuccess(
+                UserConverter.toUserSignUpResultDTO(
+                        newUser
+                )
+        );
+    }
+
+    @Operation(summary = "로그인", description =
+            "# 로그인 API 입니다. 아이디와 패스워드를 body에 입력해주세요."
+    )
+    @PostMapping("/signin")
+    public ApiResponse<UserResponseDTO.UserSignInResultDTO> signIn(
+            @RequestBody UserRequestDTO.SignInRequestDTO request
+    ) {
+        Users user = userCommandService.signIn(request);
+        return ApiResponse.onSuccess(
+                UserConverter.toUserSignInResultDTO(
+                        user
                 )
         );
     }

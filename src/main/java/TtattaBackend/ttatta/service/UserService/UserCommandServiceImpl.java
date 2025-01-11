@@ -1,12 +1,21 @@
 package TtattaBackend.ttatta.service.UserService;
 
+import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.Gender;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
 import TtattaBackend.ttatta.repository.UserRepository;
+import TtattaBackend.ttatta.web.dto.UserRequestDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,6 +26,8 @@ import java.time.LocalDateTime;
 public class UserCommandServiceImpl implements UserCommandService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     @Override
     public Users createTestUser() {
@@ -35,5 +46,25 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .build();
 
         return userRepository.save(newUser);
+    }
+
+    @Override
+    @Transactional // ???
+    public Users signUp(UserRequestDTO.SignUpRequestDTO request) {
+        Users newUser = UserConverter.toUsers(request);
+        newUser.encodePassword(passwordEncoder.encode(request.getPassword()));
+        return userRepository.save(newUser);
+    }
+
+    @Override
+    @Transactional // ???
+    public Users signIn(UserRequestDTO.SignInRequestDTO request) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        Users user = userRepository.findByUsername(authentication.getName()).orElse(null);
+
+        return user;
     }
 }
