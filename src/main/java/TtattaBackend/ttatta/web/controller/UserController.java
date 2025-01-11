@@ -78,7 +78,7 @@ public class UserController {
             "# 회원 정보 수정 API 입니다. 회원의 ID와 수정할 정보를 입력해주세요.\n수정을 원하는 데이터만 보내도 수정 가능합니다."
     )
     @PatchMapping("/{userId}")
-    public ApiResponse<UserResponseDTO.UserInfoResultDTO> updateUserData(
+    public ApiResponse<UserResponseDTO.UserInfoResultDTO> updateUserInfo(
             @PathVariable Long userId,
             @RequestBody UserRequestDTO.UpdateRequestDTO request
     ) {
@@ -88,5 +88,16 @@ public class UserController {
                         user
                 )
         );
+    }
+
+    @Operation(summary = "회원 탈퇴", description =
+            "# 회원 탈퇴 API 입니다. 회원의 ID를 입력해주세요."
+    )
+    @DeleteMapping("/{userId}")
+    public ApiResponse<Object> deleteUser(
+            @PathVariable Long userId
+    ) {
+        userCommandService.deleteUser(userId);
+        return ApiResponse.onSuccess("");
     }
 }

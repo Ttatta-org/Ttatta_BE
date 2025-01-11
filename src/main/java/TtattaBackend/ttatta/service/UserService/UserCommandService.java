@@ -9,4 +9,5 @@ public interface UserCommandService {
     Users signIn(UserRequestDTO.SignInRequestDTO request);
     Users getUserInfo(Long userId);
     Users updateUserInfo(Long userId, UserRequestDTO.UpdateRequestDTO request);
+    void deleteUser(Long userId);
 }

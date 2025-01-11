@@ -90,4 +90,14 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         return userRepository.save(user);
     }
+
+    @Override
+    public void deleteUser(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 이후 유저에 연관된 모든 데이터 삭제해야함 cascade 설정 필요
+
+        userRepository.delete(user);
+    }
 }
