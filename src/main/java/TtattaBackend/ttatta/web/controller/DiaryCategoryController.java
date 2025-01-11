@@ -54,5 +54,13 @@ public class DiaryCategoryController {
         return null;
     }
 
+    @Operation(summary = "일기 개수 조회 api", description =
+            "모든 카테고리의 각각의 일기 개수와 전체 일기 개수를 알려주는 api입니다.\n사용자의 Id데이터를 넣어주시면 됩니다."
+    )
+    @GetMapping("/diary-counts")
+    public ApiResponse<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO> count(@RequestBody @Valid DiaryCategoryRequestDTO.GetAllCategoryCountDTO request) {
+        return null;
+    }
+
 
 }

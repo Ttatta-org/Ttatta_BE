@@ -47,4 +47,15 @@ public class DiaryCategoryResponseDTO {
     public static class DeleteAllCategoryResultDTO {
         Long categoryId; // 삭제한 카테고리 Id
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GetAllCategoryCountResultDTO {
+        Long categoryId;
+        String categoryName;
+        Integer diaryCount;
+        Integer totalDiaryCount;
+    }
 }
