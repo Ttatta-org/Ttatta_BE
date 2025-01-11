@@ -12,7 +12,7 @@ public class DiaryConverter {
     public static DiaryResponseDTO.DiaryPostResultDTO toPostResultDTO(Diaries diaries) {
         return DiaryResponseDTO.DiaryPostResultDTO.builder()
                 .diaryId(diaries.getId())
-                .createdAt(LocalDateTime.now())
+                .createdAt(diaries.getCreatedAt())
                 .build();
     }
 
