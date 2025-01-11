@@ -75,4 +75,19 @@ public class UserCommandServiceImpl implements UserCommandService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
     }
+
+    @Override
+    public Users updateUserInfo(Long userId, UserRequestDTO.UpdateRequestDTO request) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 입력 들어온 값만 업데이트
+        request.getNickname().ifPresent(user::updateNickname);
+        request.getEmail().ifPresent(user::updateEmail);
+        request.getPhoneNumber().ifPresent(user::updatePhoneNumber);
+        request.getProfileImage().ifPresent(user::updateProfileImage);
+        request.getPoint().ifPresent(user::updatePoint);
+
+        return userRepository.save(user);
+    }
 }

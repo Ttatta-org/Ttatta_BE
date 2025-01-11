@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Optional;
+
 public class UserRequestDTO {
     @Getter
     @Builder
@@ -23,5 +25,18 @@ public class UserRequestDTO {
     public static class SignInRequestDTO {
         private String username;
         private String password;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UpdateRequestDTO {
+        // 입력 값을 선택적으로 받기 위해 Optional 사용
+        private Optional<String> nickname = Optional.empty();
+        private Optional<String> email = Optional.empty();
+        private Optional<String> phoneNumber = Optional.empty();
+        private Optional<String> profileImage = Optional.empty();
+        private Optional<Long> point = Optional.empty();
     }
 }

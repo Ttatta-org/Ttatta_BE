@@ -73,4 +73,20 @@ public class UserController {
                 )
         );
     }
+
+    @Operation(summary = "회원 정보 수정", description =
+            "# 회원 정보 수정 API 입니다. 회원의 ID와 수정할 정보를 입력해주세요.\n수정을 원하는 데이터만 보내도 수정 가능합니다."
+    )
+    @PatchMapping("/{userId}")
+    public ApiResponse<UserResponseDTO.UserInfoResultDTO> updateUserData(
+            @PathVariable Long userId,
+            @RequestBody UserRequestDTO.UpdateRequestDTO request
+    ) {
+        Users user = userCommandService.updateUserInfo(userId, request);
+        return ApiResponse.onSuccess(
+                UserConverter.toUserInfoResultDTO(
+                        user
+                )
+        );
+    }
 }
