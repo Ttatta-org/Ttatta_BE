@@ -39,4 +39,12 @@ public class DiaryCategoryResponseDTO {
     public static class DeleteCategoryResultDTO {
         Long categoryId; // 삭제한 카테고리 Id
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeleteAllCategoryResultDTO {
+        Long categoryId; // 삭제한 카테고리 Id
+    }
 }

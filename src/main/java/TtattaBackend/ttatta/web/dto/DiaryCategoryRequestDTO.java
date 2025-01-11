@@ -25,4 +25,9 @@ public class DiaryCategoryRequestDTO {
         Long userId;
     }
 
+    @Getter
+    public static class DeleteAllCategoryDTO {
+        Long userId;
+    }
+
 }
