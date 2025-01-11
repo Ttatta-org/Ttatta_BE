@@ -34,24 +34,24 @@ public class Users extends BaseEntity {
     @Column(nullable = false, length = 10)
     private String username;
 
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 100)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column
     private LoginType loginType;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String email;
 
-    @Column(nullable = false, length = 13)
+    @Column(length = 13)
     private String phoneNumber;
 
     @Column(columnDefinition = "TEXT")
     private String profileImage;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(10) DEFAULT 'DEFAULT'")
+    @Column(columnDefinition = "VARCHAR(10)")
     private Gender gender;
 
     @ColumnDefault("0")
@@ -76,4 +76,8 @@ public class Users extends BaseEntity {
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<DiaryCategories> diaryCategoriesList = new ArrayList<>();
+
+    public void encodePassword(String password) {
+        this.password = password;
+    }
 }

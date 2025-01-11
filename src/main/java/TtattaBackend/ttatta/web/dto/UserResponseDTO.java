@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.web.dto;
 
+import TtattaBackend.ttatta.domain.enums.LoginType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +13,21 @@ public class UserResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class UserSignInResultDTO {
+        Long userId;
+        String nickname;
+        LoginType loginType;
+        LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UserSignUpResultDTO {
         Long userId;
+        String nickname;
+        LoginType loginType;
         LocalDateTime createdAt;
     }
 }
