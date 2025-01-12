@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class DiaryRequestDTO {
     @Getter
-    public static class DiaryPostDTO {
+    public static class PostDTO {
         private Long userId;
 
         private Long diaryCategoryId;

@@ -7,14 +7,14 @@ import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 
 public class DiaryConverter {
 
-    public static DiaryResponseDTO.DiaryPostResultDTO toPostResultDTO(Diaries diaries) {
-        return DiaryResponseDTO.DiaryPostResultDTO.builder()
+    public static DiaryResponseDTO.PostResultDTO toPostResultDTO(Diaries diaries) {
+        return DiaryResponseDTO.PostResultDTO.builder()
                 .diaryId(diaries.getId())
                 .date(diaries.getDate())
                 .build();
     }
 
-    public static Diaries toDiaries(DiaryRequestDTO.DiaryPostDTO request) {
+    public static Diaries toDiaries(DiaryRequestDTO.PostDTO request) {
         return Diaries.builder()
                 .content(request.getContent())
                 .date(request.getDate())

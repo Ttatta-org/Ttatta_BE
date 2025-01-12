@@ -14,7 +14,7 @@ public class DiaryResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class DiaryPostResultDTO {
+    public static class PostResultDTO {
         Long diaryId;
         LocalDateTime date;
     }

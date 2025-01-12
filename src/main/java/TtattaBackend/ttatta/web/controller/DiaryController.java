@@ -32,9 +32,9 @@ public class DiaryController {
     )
 
     @PostMapping(value = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ApiResponse<DiaryResponseDTO.DiaryPostResultDTO> diarySave(@Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-                                                                          @RequestPart @Valid DiaryRequestDTO.DiaryPostDTO request,
-                                                                      @RequestPart("image") List<MultipartFile> diaryPhotos){
+    public ApiResponse<DiaryResponseDTO.PostResultDTO> diarySave(@Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+                                                                          @RequestPart @Valid DiaryRequestDTO.PostDTO request,
+                                                                 @RequestPart("image") List<MultipartFile> diaryPhotos){
         Diaries diaries = diaryPhotoService.save(request, diaryPhotos);
 
         return ApiResponse.onSuccess(
