@@ -10,10 +10,7 @@ import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -61,6 +58,66 @@ public class UserController {
                 UserConverter.toUserSignInResultDTO(
                         user
                 )
+        );
+    }
+
+    @Operation(summary = "아이디 중복 확인 API", description =
+            "# 아이디 중복 확인 API 입니다. 확인할 아이디를 body에 입력해주세요."
+    )
+    @GetMapping("/signup/same")
+    public ApiResponse<UserResponseDTO.CheckUsernameSameResultDTO> checkUsernameSame(
+            @RequestBody UserRequestDTO.CheckUsernameSameRequestDTO request
+    ) {
+        return ApiResponse.onSuccess(
+                null
+        );
+    }
+
+    @Operation(summary = "로그아웃 API", description =
+            "# 로그아웃 API 입니다. 로그아웃하고자 하는 userId를 body에 입력해주세요."
+    )
+    @DeleteMapping("/logout")
+    public ApiResponse<?> logout(
+            @RequestBody UserRequestDTO.LogoutRequestDTO request
+    ) {
+        return ApiResponse.onSuccess(
+                null
+        );
+    }
+
+    @Operation(summary = "인증번호 발송 API", description =
+            "# 인증번호 발송 API 입니다. 인증번호를 발송할 이메일을 body에 입력해주세요."
+    )
+    @PostMapping("/code")
+    public ApiResponse<UserResponseDTO.SendVerificationCodeResultDTO> sendVerificationCode(
+            @RequestBody UserRequestDTO.SendVerificationCodeRequestDTO request
+    ) {
+        return ApiResponse.onSuccess(
+                null
+        );
+    }
+
+    @Operation(summary = "인증번호 확인 API (아이디 찾기용)", description =
+            "# 인증번호 확인 API 입니다 (아이디 찾기용). 확인할 인증코드를 query string에 입력해주세요."
+    )
+    @GetMapping("/verify/id")
+    public ApiResponse<UserResponseDTO.VerifyVerificationCodeForUsernameResultDTO> verifyVerificationCodeForUsername(
+            @RequestParam Integer verificationCode
+    ) {
+        return ApiResponse.onSuccess(
+                null
+        );
+    }
+
+    @Operation(summary = "인증번호 확인 API (비밀번호 찾기용)", description =
+            "# 인증번호 확인 API 입니다 (비밀번호 찾기용). 확인할 인증코드를 query string에 입력해주세요."
+    )
+    @GetMapping("/verify/pw")
+    public ApiResponse<UserResponseDTO.VerifyVerificationCodeForPasswordResultDTO> verifyVerificationCodeForPassword(
+            @RequestParam Integer verificationCode
+    ) {
+        return ApiResponse.onSuccess(
+                null
         );
     }
 }
