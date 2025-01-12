@@ -21,7 +21,7 @@ public class Diaries extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -32,7 +32,7 @@ public class Diaries extends BaseEntity {
     private String latitude;
 
     @Column(nullable = false, length = 40)
-    private String longtitude;
+    private String longitude;
 
     @Column(nullable = false, length = 50)
     private String locationName;
@@ -44,6 +44,9 @@ public class Diaries extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_category_id")
     private DiaryCategories diaryCategories;
+
+    @OneToMany(mappedBy = "diaries", cascade = CascadeType.ALL)
+    private List<DiaryPhotos> diaryPhotosList = new ArrayList<>();
 
     public void setUsers(Users users) {
         // 기존에 이미 등록되어 있던 관계를 제거
