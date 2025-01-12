@@ -28,7 +28,7 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
     private final DiaryPhotosRepository diaryPhotosRepository;
 
     @Override
-    public Diaries save(DiaryRequestDTO.DiaryPostDTO request, List<MultipartFile> diaryPhotos) {
+    public Diaries save(DiaryRequestDTO.PostDTO request, List<MultipartFile> diaryPhotos) {
         Users user = userRepository.findById(request.getUserId())
                 .orElseThrow (() -> new RuntimeException("User not found"));
         DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId())
