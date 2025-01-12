@@ -70,6 +70,27 @@ public class UserCommandServiceImpl implements UserCommandService {
         return user;
     }
 
+    // 미구현
+    @Override
+    public Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request) {
+        // 서비스 구현
+        return null;
+    }
+
+    // 미구현
+    @Override
+    public Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request) {
+        // 서비스 구현
+        return null;
+    }
+
+    // 미구현
+    @Override
+    public Users refresh(String request) {
+        // 서비스 구현
+        return null;
+    }
+
     @Override
     public Users getUserInfo(Long userId) {
         return userRepository.findById(userId)

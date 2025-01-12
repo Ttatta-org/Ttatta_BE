@@ -27,6 +27,25 @@ public class UserRequestDTO {
         private String password;
     }
 
+    // 미구현
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SignUpKakaoRequestDTO {
+        private String kakaoToken;
+        private String nickname;
+    }
+
+    // 미구현
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SignInKakaoRequestDTO {
+        private String kakaoToken;
+    }
+
     @Getter
     @Builder
     @AllArgsConstructor

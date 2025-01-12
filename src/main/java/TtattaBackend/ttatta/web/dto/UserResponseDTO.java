@@ -33,6 +33,17 @@ public class UserResponseDTO {
         LocalDateTime createdAt;
     }
 
+    // 미구현
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RefreshResultDTO {
+        Long userId;
+        String accessToken;
+        String refreshToken;
+    }
+
     @Getter
     @Builder
     @NoArgsConstructor

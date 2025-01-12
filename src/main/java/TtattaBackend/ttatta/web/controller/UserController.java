@@ -59,6 +59,55 @@ public class UserController {
         );
     }
 
+
+    // 미구현
+    @Operation(summary = "카카오 회원가입", description =
+            "# 카카오 회원가입 API 입니다."
+    )
+    @PostMapping("/signup/kakao")
+    public ApiResponse<UserResponseDTO.UserSignUpResultDTO> signUpKakao(
+            @RequestBody UserRequestDTO.SignUpKakaoRequestDTO request
+    ) {
+        Users newUser = userCommandService.signUpKakao(request);
+        return ApiResponse.onSuccess(
+                UserConverter.toUserSignUpResultDTO(
+                        newUser
+                )
+        );
+    }
+
+    // 미구현
+    @Operation(summary = "카카오 로그인", description =
+            "# 카카오 로그인 API 입니다."
+    )
+    @PostMapping("/signin/kakao")
+    public ApiResponse<UserResponseDTO.UserSignInResultDTO> signInKakao(
+            @RequestBody UserRequestDTO.SignInKakaoRequestDTO request
+    ) {
+        Users user = userCommandService.signInKakao(request);
+        return ApiResponse.onSuccess(
+                UserConverter.toUserSignInResultDTO(
+                        user
+                )
+        );
+    }
+
+    // 미구현
+    @Operation(summary = "토큰 갱신", description =
+            "# 토큰 갱신 API 입니다. 리프레시 토큰을 header에 입력해주세요."
+    )
+    @PostMapping("/refresh")
+    public ApiResponse<UserResponseDTO.RefreshResultDTO> refreshToken(
+            @RequestHeader("refreshToken") String refreshToken
+    ) {
+        Users user = userCommandService.refresh(refreshToken);
+        return ApiResponse.onSuccess(
+                UserConverter.toRefreshResultDTO(
+                        user
+                )
+        );
+    }
+
     @Operation(summary = "회원 정보 조회", description =
             "# 회원 정보 조회 API 입니다. 회원의 ID를 입력해주세요."
     )
