@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class DiaryCategoryResponseDTO {
 
@@ -19,5 +20,50 @@ public class DiaryCategoryResponseDTO {
         String categoryName;
         CategoryColor categoryColor;
         LocalDateTime createdAt;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ModifyCategoryResultDTO {
+        Long categoryId;
+        String categoryName;
+        CategoryColor categoryColor;
+        LocalDateTime updatedAt;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeleteCategoryResultDTO {
+        Long categoryId; // 삭제한 카테고리 Id
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeleteAllCategoryResultDTO {
+        Long categoryId; // 삭제한 카테고리 Id
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GetAllCategoryCountResultDTO {
+        List<CategoryDetail> categories;
+        Integer totalDiaryCount;
+        @Builder
+        @Getter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class CategoryDetail {
+            Long categoryId;
+            String categoryName;
+            Integer diaryCount;
+        }
     }
 }

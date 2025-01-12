@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.service.UserService;
 
+import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.Gender;
@@ -14,11 +15,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -66,5 +68,57 @@ public class UserCommandServiceImpl implements UserCommandService {
         Users user = userRepository.findByUsername(authentication.getName()).orElse(null);
 
         return user;
+    }
+
+    // 미구현
+    @Override
+    public Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request) {
+        // 서비스 구현
+        return null;
+    }
+
+    // 미구현
+    @Override
+    public Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request) {
+        // 서비스 구현
+        return null;
+    }
+
+    // 미구현
+    @Override
+    public Users refresh(String request) {
+        // 서비스 구현
+        return null;
+    }
+
+    @Override
+    public Users getUserInfo(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+    }
+
+    @Override
+    public Users updateUserInfo(Long userId, UserRequestDTO.UpdateRequestDTO request) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 입력 들어온 값만 업데이트
+        request.getNickname().ifPresent(user::updateNickname);
+        request.getEmail().ifPresent(user::updateEmail);
+        request.getPhoneNumber().ifPresent(user::updatePhoneNumber);
+        request.getProfileImage().ifPresent(user::updateProfileImage);
+        request.getPoint().ifPresent(user::updatePoint);
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 이후 유저에 연관된 모든 데이터 삭제해야함 cascade 설정 필요
+
+        userRepository.delete(user);
     }
 }
