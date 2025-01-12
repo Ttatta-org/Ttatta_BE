@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.web.dto;
 
+import TtattaBackend.ttatta.domain.enums.IsSame;
 import TtattaBackend.ttatta.domain.enums.Gender;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
@@ -38,6 +39,15 @@ public class UserResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class CheckUsernameSameResultDTO {
+        IsSame isSame;
+    }
+  
+    // 미구현
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class RefreshResultDTO {
         Long userId;
         String accessToken;
@@ -58,5 +68,32 @@ public class UserResponseDTO {
         UserStatus status;
         Gender gender;
         String phoneNum;
+    }
+  
+    // 미구현
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SendVerificationCodeResultDTO {
+        Integer verificationCode;
+    }
+
+    // 미구현
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class VerifyVerificationCodeForUsernameResultDTO {
+        String username;
+    }
+
+    // 미구현
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class VerifyVerificationCodeForPasswordResultDTO {
+        String newPassword;
     }
 }
