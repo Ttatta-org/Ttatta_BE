@@ -31,4 +31,24 @@ public class UserConverter {
                 .createdAt(users.getCreatedAt())
                 .build();
     }
+
+    // 미구현
+    public static UserResponseDTO.RefreshResultDTO toRefreshResultDTO(Users users) {
+        return UserResponseDTO.RefreshResultDTO.builder()
+                .userId(users.getId())
+                .refreshToken(users.getRefreshToken())
+                .build();
+    }
+
+    public static UserResponseDTO.UserInfoResultDTO toUserInfoResultDTO(Users users) {
+        return UserResponseDTO.UserInfoResultDTO.builder()
+                .userId(users.getId())
+                .nickname(users.getNickname())
+                .loginType(users.getLoginType())
+                .email(users.getEmail())
+                .profileImg(users.getProfileImage())
+                .point(users.getPoint())
+                .status(users.getStatus())
+                .build();
+    }
 }

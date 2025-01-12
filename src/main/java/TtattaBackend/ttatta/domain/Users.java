@@ -80,4 +80,21 @@ public class Users extends BaseEntity {
     public void encodePassword(String password) {
         this.password = password;
     }
+
+    // setter 대신 명시적인 표현을 위해 update 표현 사용
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+    public void updatePoint(Long point) {
+        this.point = point;
+    }
 }
