@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class DiaryCategoryResponseDTO {
 
@@ -53,9 +54,16 @@ public class DiaryCategoryResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class GetAllCategoryCountResultDTO {
-        Long categoryId;
-        String categoryName;
-        Integer diaryCount;
+        List<CategoryDetail> categories;
         Integer totalDiaryCount;
+        @Builder
+        @Getter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class CategoryDetail {
+            Long categoryId;
+            String categoryName;
+            Integer diaryCount;
+        }
     }
 }
