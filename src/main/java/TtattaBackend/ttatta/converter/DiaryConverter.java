@@ -5,8 +5,6 @@ import TtattaBackend.ttatta.domain.DiaryPhotos;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 
-import java.time.LocalDateTime;
-
 public class DiaryConverter {
 
     public static DiaryResponseDTO.DiaryPostResultDTO toPostResultDTO(Diaries diaries) {
@@ -31,5 +29,24 @@ public class DiaryConverter {
                 .imageUrl(pictureUrl)
                 .diaries(diaries)
                 .build();
+    }
+
+    public static DiaryResponseDTO.KeepResultDTO toKeepResultDTO(Diaries diaries) {
+        return null;
+    }
+
+    public static DiaryResponseDTO.MapResultDTO toMapResultDTO(Diaries diaries) {
+        return DiaryResponseDTO.MapResultDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .date(diaries.getDate())
+                .content(diaries.getContent())
+                .image(diaries.getDiaryPhotosList().toString())
+                .build();
+
+    }
+
+    public static DiaryResponseDTO.SearchResultDTO toSearchResultDTO(Diaries diaries) {
+        return null;
     }
 }
