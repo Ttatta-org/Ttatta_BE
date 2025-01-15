@@ -50,7 +50,7 @@ public class UserController {
     )
     @PostMapping("/signin")
     public ApiResponse<UserResponseDTO.UserSignInResultDTO> signIn(
-            @RequestBody UserRequestDTO.SignInRequestDTO request
+            @RequestBody @Valid UserRequestDTO.SignInRequestDTO request
     ) {
         Users user = userCommandService.signIn(request);
         return ApiResponse.onSuccess(
