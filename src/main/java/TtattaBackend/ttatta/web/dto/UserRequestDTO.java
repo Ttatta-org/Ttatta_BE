@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.web.dto;
 
+import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
