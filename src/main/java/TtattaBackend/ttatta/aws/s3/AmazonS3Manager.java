@@ -45,6 +45,10 @@ public class AmazonS3Manager{
         return amazonConfig.getDiaryPath() + '/' + uuid.getUuid();
     }
 
+    public String getUuidByUrl(String pictureUrl) {
+        return pictureUrl.substring(pictureUrl.lastIndexOf("/") + 1);
+    }
+
     public void deleteFile(String keyName) {
         try {
             amazonS3.deleteObject(new DeleteObjectRequest(amazonConfig.getBucket(), keyName));

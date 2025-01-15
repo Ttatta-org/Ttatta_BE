@@ -6,13 +6,13 @@ import TtattaBackend.ttatta.converter.DiaryConverter;
 import TtattaBackend.ttatta.domain.*;
 import TtattaBackend.ttatta.repository.*;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
@@ -60,17 +60,23 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
    }
 
    @Override
+   @Transactional
     public void deleteDiary(DiaryRequestDTO.DeleteDTO request, Long diaryId) {
         Users user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
-       Diaries diaries = diaryRepository.findById(diaryId)
-               .orElseThrow (() -> new RuntimeException("Diary not found"));
+        Diaries diaries = diaryRepository.findById(diaryId)
+                .orElseThrow (() -> new RuntimeException("Diary not found"));
 
         List<DiaryPhotos> diaryPhotos = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
 
         for (DiaryPhotos diaryPhoto : diaryPhotos) {
-           s3Manager.deleteFile(diaryPhoto.getImageUrl());
+            String savedUuid = s3Manager.getUuidByUrl(diaryPhoto.getImageUrl());
+
+            Uuid uuid = uuidRepository.findByUuid(savedUuid);
+            uuidRepository.delete(uuid);
+
+            s3Manager.deleteFile(s3Manager.generateDiaryKeyName(uuid));
         }
 
         diaryRepository.delete(diaries);
