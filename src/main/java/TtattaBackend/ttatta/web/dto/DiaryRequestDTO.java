@@ -14,8 +14,8 @@ public class DiaryRequestDTO {
         private String content;
         private LocalDateTime date;
 
-        private String latitude;
-        private String longitude;
+        private Double latitude;
+        private Double longitude;
         private String locationName;
 
     }
@@ -40,8 +40,8 @@ public class DiaryRequestDTO {
     @Getter
     public static class MapDTO {
         private Long userId;
-        private String latitude;
-        private String longitude;
+        private Double latitude;
+        private Double longitude;
     }
 
     @Getter

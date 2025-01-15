@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import software.amazon.ion.Decimal;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +30,9 @@ public class Diaries extends BaseEntity {
 
     private LocalDateTime date;
 
-    @Column(nullable = false, length = 40)
-    private String latitude;
+    private Double latitude;
 
-    @Column(nullable = false, length = 40)
-    private String longitude;
+    private Double longitude;
 
     @Column(nullable = false, length = 50)
     private String locationName;
