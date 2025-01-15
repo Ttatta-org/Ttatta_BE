@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface DiaryPhotoService {
     Diaries save(DiaryRequestDTO.PostDTO postDTO, List<MultipartFile> diaryPhotos);
+    void deleteDiary(DiaryRequestDTO.DeleteDTO request, Long diaryId);
 }

@@ -1,17 +1,23 @@
 package TtattaBackend.ttatta.service.DiaryService;
 
+import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.aws.s3.AmazonS3Manager;
 import TtattaBackend.ttatta.converter.DiaryConverter;
 import TtattaBackend.ttatta.domain.*;
 import TtattaBackend.ttatta.repository.*;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DiaryPhotoServiceImpl implements DiaryPhotoService{
@@ -52,4 +58,23 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
 
         return savedDiaries;
    }
+
+   @Override
+    public void deleteDiary(DiaryRequestDTO.DeleteDTO request, Long diaryId) {
+        Users user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+       Diaries diaries = diaryRepository.findById(diaryId)
+               .orElseThrow (() -> new RuntimeException("Diary not found"));
+
+        List<DiaryPhotos> diaryPhotos = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
+
+        for (DiaryPhotos diaryPhoto : diaryPhotos) {
+           s3Manager.deleteFile(diaryPhoto.getImageUrl());
+        }
+
+        diaryRepository.delete(diaries);
+
+   }
+
 }

@@ -51,7 +51,9 @@ public class DiaryController {
     @DeleteMapping("/delete/{diaryId}")
     public ApiResponse<Object> deleteDiary(@PathVariable Long diaryId,
                                            @RequestBody @Valid DiaryRequestDTO.DeleteDTO request) {
-        return null;
+        diaryPhotoService.deleteDiary(request,diaryId);
+
+        return ApiResponse.onSuccess("");
     }
 
     @Operation(summary = "일기 수정",
