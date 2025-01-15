@@ -1,6 +1,8 @@
 package TtattaBackend.ttatta.web.dto;
 
 import TtattaBackend.ttatta.validation.annotation.ExistUser;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,8 +16,13 @@ public class UserRequestDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SignUpRequestDTO {
+        @NotBlank(message = "이름은 빈값일 수 없습니다.")
+        @Size(max = 8, message = "닉네임은 1 ~ 8자이어야 합니다.")
         private String nickname;
+        @NotBlank(message = "아이디는 빈값일 수 없습니다.")
+        @Size(max = 15, message = "아이디는 1 ~ 15자이어야 합니다.")
         private String username;
+        @NotBlank(message = "비밀번호는 빈값일 수 없습니다.")
         private String password;
     }
 

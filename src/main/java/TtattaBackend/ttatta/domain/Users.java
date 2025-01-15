@@ -31,7 +31,7 @@ public class Users extends BaseEntity {
     @Column(nullable = false, length = 8)
     private String nickname;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 15)
     private String username;
 
     @Column(nullable = false, length = 100)
