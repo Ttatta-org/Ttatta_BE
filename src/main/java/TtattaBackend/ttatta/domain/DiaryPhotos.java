@@ -28,14 +28,14 @@ public class DiaryPhotos extends BaseEntity {
 
     public void setDiaries(Diaries diaries) {
         // 기존에 이미 등록되어 있던 관계를 제거
-        if (this.diaries != null) {
+        if (this.diaries != null && diaries.getDiaryPhotosList() != null) {
             this.diaries.getDiaryPhotosList().remove(this);
         }
 
         this.diaries = diaries;
 
         // 양방향 관계를 설정
-        if (diaries != null) {
+        if (diaries != null && diaries.getDiaryPhotosList() != null) {
             diaries.getDiaryPhotosList().add(this);
         }
     }

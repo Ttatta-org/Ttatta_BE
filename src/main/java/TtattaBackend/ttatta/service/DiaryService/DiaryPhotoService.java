@@ -7,6 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface DiaryPhotoService {
-    Diaries save(DiaryRequestDTO.PostDTO postDTO, List<MultipartFile> diaryPhotos);
+    Diaries save(DiaryRequestDTO.PostDTO postDTO, MultipartFile diaryPhotos);
     void delete(Long diaryId);
 }

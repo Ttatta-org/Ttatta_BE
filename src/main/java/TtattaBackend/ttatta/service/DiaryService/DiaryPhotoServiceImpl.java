@@ -34,23 +34,30 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
     private final DiaryPhotosRepository diaryPhotosRepository;
 
     @Override
-    public Diaries save(DiaryRequestDTO.PostDTO request, MultipartFile diaryPhotos) {
+    public Diaries save(DiaryRequestDTO.PostDTO request, MultipartFile diaryPhoto) {
         Users user = userRepository.findById(request.getUserId()).get();
         DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId()).get();
 
+        // 일기
         Diaries diaries = DiaryConverter.toDiaries(request);
 
         diaries.setUsers(user);
         diaries.setDiaryCategories(diaryCategories);
 
+        Diaries savedDiaries = diaryRepository.save(diaries);
+
+        // 일기 사진
         String uuid = UUID.randomUUID().toString();
         Uuid savedUuid = uuidRepository.save(Uuid.builder()
                 .uuid(uuid).build());
 
-        Diaries savedDiaries = diaryRepository.save(diaries);
+        String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
 
-        String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhotos);
-        diaryPhotosRepository.save(DiaryConverter.toDiaryPhoto(pictureUrl, diaries));
+        DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(pictureUrl, savedDiaries);
+
+        diaryPhotos.setDiaries(savedDiaries);
+
+        diaryPhotosRepository.save(diaryPhotos);
 
         return savedDiaries;
    }
