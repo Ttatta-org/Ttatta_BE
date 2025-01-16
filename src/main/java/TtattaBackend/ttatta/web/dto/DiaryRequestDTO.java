@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.web.dto;
 
+import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.util.Optional;
 public class DiaryRequestDTO {
     @Getter
     public static class PostDTO {
+        @ExistUser
         private Long userId;
 
         private Long diaryCategoryId;

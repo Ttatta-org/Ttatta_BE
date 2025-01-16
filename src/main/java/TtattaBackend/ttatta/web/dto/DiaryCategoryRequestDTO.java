@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.web.dto;
 
 import TtattaBackend.ttatta.domain.enums.CategoryColor;
+import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import lombok.Getter;
 
 public class DiaryCategoryRequestDTO {
@@ -9,6 +10,7 @@ public class DiaryCategoryRequestDTO {
     public static class CreateCategoryDTO {
         String categoryName;
         CategoryColor categoryColor;
+        @ExistUser
         Long userId;
     }
 
