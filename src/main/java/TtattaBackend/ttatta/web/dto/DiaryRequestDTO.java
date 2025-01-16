@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.web.dto;
 
+import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -8,14 +9,15 @@ import java.util.Optional;
 public class DiaryRequestDTO {
     @Getter
     public static class PostDTO {
+        @ExistUser
         private Long userId;
 
         private Long diaryCategoryId;
         private String content;
         private LocalDateTime date;
 
-        private String latitude;
-        private String longitude;
+        private double latitude;
+        private double longitude;
         private String locationName;
 
     }
@@ -40,8 +42,8 @@ public class DiaryRequestDTO {
     @Getter
     public static class MapDTO {
         private Long userId;
-        private String latitude;
-        private String longitude;
+        private double latitude;
+        private double longitude;
     }
 
     @Getter

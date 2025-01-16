@@ -7,6 +7,7 @@ import TtattaBackend.ttatta.service.UserService.UserCommandService;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class UserController {
     )
     @PostMapping("/signup")
     public ApiResponse<UserResponseDTO.UserSignUpResultDTO> signUp(
-            @RequestBody UserRequestDTO.SignUpRequestDTO request
+            @RequestBody @Valid UserRequestDTO.SignUpRequestDTO request
     ) {
         Users newUser = userCommandService.signUp(request);
         return ApiResponse.onSuccess(
@@ -49,7 +50,7 @@ public class UserController {
     )
     @PostMapping("/signin")
     public ApiResponse<UserResponseDTO.UserSignInResultDTO> signIn(
-            @RequestBody UserRequestDTO.SignInRequestDTO request
+            @RequestBody @Valid UserRequestDTO.SignInRequestDTO request
     ) {
         Users user = userCommandService.signIn(request);
         return ApiResponse.onSuccess(
