@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
-import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 
 @Slf4j
 @Service
@@ -36,9 +36,9 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
     @Override
     public Diaries save(DiaryRequestDTO.PostDTO request, List<MultipartFile> diaryPhotos) {
         Users user = userRepository.findById(request.getUserId())
-                .orElseThrow (() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
         DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId())
-                .orElseThrow (() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ExceptionHandler(CATEGORY_NOT_FOUND));
 
         Diaries diaries = DiaryConverter.toDiaries(request);
 
@@ -64,20 +64,17 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
     public void deleteDiary(DiaryRequestDTO.DeleteDTO request, Long diaryId) {
         Users user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
-
         Diaries diaries = diaryRepository.findById(diaryId)
-                .orElseThrow (() -> new RuntimeException("Diary not found"));
+                .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
 
-        List<DiaryPhotos> diaryPhotos = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
+        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
 
-        for (DiaryPhotos diaryPhoto : diaryPhotos) {
-            String savedUuid = s3Manager.getUuidByUrl(diaryPhoto.getImageUrl());
+        String savedUuid = s3Manager.getUuidByUrl(diaryPhoto.getImageUrl());
 
-            Uuid uuid = uuidRepository.findByUuid(savedUuid);
-            uuidRepository.delete(uuid);
+        Uuid uuid = uuidRepository.findByUuid(savedUuid);
+        uuidRepository.delete(uuid);
 
-            s3Manager.deleteFile(s3Manager.generateDiaryKeyName(uuid));
-        }
+        s3Manager.deleteFile(s3Manager.generateDiaryKeyName(uuid));
 
         diaryRepository.delete(diaries);
 
