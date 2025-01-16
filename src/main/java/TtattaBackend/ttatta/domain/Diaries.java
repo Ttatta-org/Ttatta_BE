@@ -30,9 +30,9 @@ public class Diaries extends BaseEntity {
 
     private LocalDateTime date;
 
-    private Double latitude;
+    private double latitude;
 
-    private Double longitude;
+    private double longitude;
 
     @Column(nullable = false, length = 50)
     private String locationName;
