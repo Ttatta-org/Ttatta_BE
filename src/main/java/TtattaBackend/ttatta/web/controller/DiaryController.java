@@ -34,7 +34,7 @@ public class DiaryController {
     @PostMapping(value = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ApiResponse<DiaryResponseDTO.PostResultDTO> diarySave(@Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
                                                                           @RequestPart @Valid DiaryRequestDTO.PostDTO request,
-                                                                 @RequestPart("image") @Valid List<MultipartFile> diaryPhotos){
+                                                                 @RequestPart("image") List<MultipartFile> diaryPhotos){
         Diaries diaries = diaryPhotoService.save(request, diaryPhotos);
 
         return ApiResponse.onSuccess(
@@ -49,9 +49,9 @@ public class DiaryController {
                     """
     )
     @DeleteMapping("/delete/{diaryId}")
-    public ApiResponse<Object> deleteDiary(@PathVariable Long diaryId,
+    public ApiResponse<Object> deleteDiary(@PathVariable  Long diaryId,
                                            @RequestBody @Valid DiaryRequestDTO.DeleteDTO request) {
-        diaryPhotoService.deleteDiary(request,diaryId);
+        diaryPhotoService.delete(diaryId);
 
         return ApiResponse.onSuccess("");
     }

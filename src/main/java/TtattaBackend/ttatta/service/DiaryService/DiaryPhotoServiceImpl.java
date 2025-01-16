@@ -35,10 +35,8 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
 
     @Override
     public Diaries save(DiaryRequestDTO.PostDTO request, List<MultipartFile> diaryPhotos) {
-        Users user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
-        DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId())
-                .orElseThrow(() -> new ExceptionHandler(DIARY_CATEGORY_NOT_FOUND));
+        Users user = userRepository.findById(request.getUserId()).get();
+        DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId()).get();
 
         Diaries diaries = DiaryConverter.toDiaries(request);
 
@@ -61,9 +59,7 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
 
    @Override
    @Transactional
-    public void deleteDiary(DiaryRequestDTO.DeleteDTO request, Long diaryId) {
-        Users user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+    public void delete(Long diaryId) {
         Diaries diaries = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
 
