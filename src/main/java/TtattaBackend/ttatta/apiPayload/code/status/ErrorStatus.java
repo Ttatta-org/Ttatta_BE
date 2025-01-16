@@ -23,9 +23,11 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 일기 관련 응답 2000
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY_2001", "해당하는 일기가 존재하지 않습니다."),
+    DIARY_IS_NULL(HttpStatus.BAD_REQUEST, "DIARY_2002", "일기는 필수 입니다."),
 
     // 일기 카테고리 관련 응답 3000
-    DIARY_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY_CATEGORY_3001", "해당하는 일기 카테고리가 존재하지 않습니다.");
+    DIARY_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY_CATEGORY_3001", "해당하는 일기 카테고리가 존재하지 않습니다."),
+    DIARY_CATEGORY_IS_NULL(HttpStatus.BAD_REQUEST, "DIARY_CATEGORY_3002", "일기 카테고리는 필수 입니다.");
 
     // ~~~ 관련 응답 ....
 
