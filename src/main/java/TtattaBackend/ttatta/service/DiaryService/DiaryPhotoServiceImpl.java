@@ -38,7 +38,7 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
         Users user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
         DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId())
-                .orElseThrow(() -> new ExceptionHandler(CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new ExceptionHandler(DIARY_CATEGORY_NOT_FOUND));
 
         Diaries diaries = DiaryConverter.toDiaries(request);
 
