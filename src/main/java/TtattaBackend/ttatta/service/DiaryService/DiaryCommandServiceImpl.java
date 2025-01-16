@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
@@ -20,7 +19,7 @@ import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DiaryPhotoServiceImpl implements DiaryPhotoService{
+public class DiaryCommandServiceImpl implements DiaryCommandService {
     private final DiaryRepository diaryRepository;
 
     private final UserRepository userRepository;
