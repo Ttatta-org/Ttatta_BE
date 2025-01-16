@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.web.dto;
 
+import TtattaBackend.ttatta.validation.annotation.ExistDiaryCategory;
 import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import lombok.Getter;
 
@@ -12,6 +13,7 @@ public class DiaryRequestDTO {
         @ExistUser
         private Long userId;
 
+        @ExistDiaryCategory
         private Long diaryCategoryId;
         private String content;
         private LocalDateTime date;
@@ -24,6 +26,7 @@ public class DiaryRequestDTO {
 
     @Getter
     public static class DeleteDTO {
+        @ExistUser
         private Long userId;
     }
 
