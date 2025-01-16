@@ -2,14 +2,16 @@ package TtattaBackend.ttatta.service.DiaryService;
 
 import TtattaBackend.ttatta.aws.s3.AmazonS3Manager;
 import TtattaBackend.ttatta.converter.DiaryConverter;
-import TtattaBackend.ttatta.domain.*;
+import TtattaBackend.ttatta.domain.Diaries;
+import TtattaBackend.ttatta.domain.DiaryCategories;
+import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.domain.Uuid;
 import TtattaBackend.ttatta.repository.*;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,7 +30,7 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
     private final DiaryPhotosRepository diaryPhotosRepository;
 
     @Override
-    public Diaries save(DiaryRequestDTO.PostDTO request, List<MultipartFile> diaryPhotos) {
+    public Diaries save(DiaryRequestDTO.PostDTO request, MultipartFile diaryPhotos) {
         Users user = userRepository.findById(request.getUserId())
                 .orElseThrow (() -> new RuntimeException("User not found"));
         DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId())
@@ -45,10 +47,8 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
 
         Diaries savedDiaries = diaryRepository.save(diaries);
 
-        for(MultipartFile diaryPhoto : diaryPhotos) {
-            String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
-            diaryPhotosRepository.save(DiaryConverter.toDiaryPhoto(pictureUrl, diaries));
-        }
+        String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhotos);
+        diaryPhotosRepository.save(DiaryConverter.toDiaryPhoto(pictureUrl, diaries));
 
         return savedDiaries;
    }
