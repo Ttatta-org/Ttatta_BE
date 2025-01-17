@@ -42,20 +42,16 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
         diaries.setUsers(user);
         diaries.setDiaryCategories(diaryCategories);
-
         Diaries savedDiaries = diaryRepository.save(diaries);
 
         // 일기 사진
         String uuid = UUID.randomUUID().toString();
         Uuid savedUuid = uuidRepository.save(Uuid.builder()
                 .uuid(uuid).build());
-
         String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
-
-        DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(pictureUrl, savedDiaries);
+        DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(pictureUrl);
 
         diaryPhotos.setDiaries(savedDiaries);
-
         diaryPhotosRepository.save(diaryPhotos);
 
         return savedDiaries;
