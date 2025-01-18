@@ -53,4 +53,11 @@ public class DiaryCategories extends BaseEntity {
             users.getDiaryCategoriesList().add(this);
         }
     }
+
+    public void modifyCategoryName(String newName) {
+        this.name = newName;
+    }
+    public void modifyCategoryColor(CategoryColor newColor) {
+        this.color = newColor;
+    }
 }

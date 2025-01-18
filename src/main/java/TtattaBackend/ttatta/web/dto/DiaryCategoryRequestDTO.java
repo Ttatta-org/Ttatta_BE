@@ -4,6 +4,8 @@ import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import lombok.Getter;
 
+import java.util.Optional;
+
 public class DiaryCategoryRequestDTO {
 
     @Getter
@@ -16,9 +18,9 @@ public class DiaryCategoryRequestDTO {
 
     @Getter
     public static class ModifyCategoryDTO {
-        String categoryName;
-        CategoryColor categoryColor;
-        Long userId;
+        private Optional<String> categoryName = Optional.empty();
+        private Optional<String> categoryColor = Optional.empty();
+        private Optional<Long> userId = Optional.empty();
     }
 
     @Getter

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class DiaryCategoryConverter {
+
     public static DiaryCategoryResponseDTO.CreateCategoryResultDTO toCreateCategoryResultDTO(DiaryCategories diaryCategory) {
         return DiaryCategoryResponseDTO.CreateCategoryResultDTO.builder()
                 .categoryId(diaryCategory.getId())
@@ -53,6 +54,15 @@ public class DiaryCategoryConverter {
         return DiaryCategories.builder()
                 .name(request.getCategoryName())
                 .color(diaryCategoryColor)
+                .build();
+    }
+
+    public static DiaryCategoryResponseDTO.ModifyCategoryResultDTO toModifyCategoryResultDTO(DiaryCategories diaryCategory) {
+        return DiaryCategoryResponseDTO.ModifyCategoryResultDTO.builder()
+                .categoryId(diaryCategory.getId())
+                .categoryColor(diaryCategory.getColor())
+                .categoryName(diaryCategory.getName())
+                .updatedAt(diaryCategory.getUpdatedAt())
                 .build();
     }
 }
