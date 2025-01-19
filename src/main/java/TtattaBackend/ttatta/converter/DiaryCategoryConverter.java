@@ -48,6 +48,18 @@ public class DiaryCategoryConverter {
             case VIOLET:
                 diaryCategoryColor = CategoryColor.VIOLET;
                 break;
+            case BROWN:
+                diaryCategoryColor = CategoryColor.BROWN;
+                break;
+            case WHITE:
+                diaryCategoryColor = CategoryColor.WHITE;
+                break;
+            case PINK:
+                diaryCategoryColor = CategoryColor.PINK;
+                break;
+            case BLACK:
+                diaryCategoryColor = CategoryColor.BLACK;
+                break;
         }
 
 
