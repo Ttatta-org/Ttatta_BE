@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
 import TtattaBackend.ttatta.domain.DiaryCategories;
+import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import TtattaBackend.ttatta.service.DiaryCategoryService.DiaryCategoryCommandService;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
@@ -44,6 +45,11 @@ public class DiaryCategoryController {
         return ApiResponse.onSuccess(DiaryCategoryConverter.toDiaryCategoryExceptionDTO(categoryId));
     }
 
+    @PatchMapping("/color/exception")
+    public ApiResponse<DiaryCategoryResponseDTO.DiaryCategoryColorExceptionDTO> colorExceptionAPI (@RequestParam String categoryColor) {
+        diaryCategoryCommandService.checkCategoryColor(categoryColor);
+        return ApiResponse.onSuccess(DiaryCategoryConverter.toDiaryCategoryColorExceptionDTO(categoryColor));
+    }
 
 
     @Operation(summary = "카테고리 삭제 api", description =

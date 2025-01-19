@@ -19,7 +19,7 @@ public class DiaryCategoryRequestDTO {
     @Getter
     public static class ModifyCategoryDTO {
         private Optional<String> categoryName = Optional.empty();
-        private Optional<CategoryColor> categoryColor = Optional.empty();
+        private Optional<String> categoryColor = Optional.empty();
         private Optional<Long> userId = Optional.empty();
     }
 

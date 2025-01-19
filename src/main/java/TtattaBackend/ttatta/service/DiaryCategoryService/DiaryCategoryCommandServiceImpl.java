@@ -13,6 +13,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Service
 @RequiredArgsConstructor
 public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandService {
@@ -35,28 +37,35 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
     public DiaryCategories modifyCategory(Long categoryId, DiaryCategoryRequestDTO.ModifyCategoryDTO request) {
 //        DiaryCategories diaryCategory = categoryRepository.findById(categoryId)
 //                        .orElseThrow(() -> new RuntimeException("Category not found"));
+
         DiaryCategories diaryCategory = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new TempHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND));
 
         request.getCategoryName().ifPresent(diaryCategory::modifyCategoryName);
-        request.getCategoryColor().ifPresent(diaryCategory::modifyCategoryColor);
+        request.getCategoryColor().ifPresent(categoryColor -> {
+            checkCategoryColor(categoryColor);
+            diaryCategory.modifyCategoryColor(CategoryColor.valueOf(categoryColor.toUpperCase()));
+        });
 //        request.getCategoryColor().ifPresent(categoryColor -> diaryCategory.modifyCategoryColor(fromString(categoryColor)));
 
         return diaryCategoryRepository.save(diaryCategory);
     }
 
-//    @Override
-//    public void checkCategory(Long categoryId) {
-//        if (!categoryRepository.findById(categoryId).isPresent()) {
-//            throw new TempHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND);
-//        }
-//    }
+    @Override
+    public void checkCategoryColor(String categoryColor) {
+        fromString(categoryColor);
+        boolean isValid = Arrays.stream(CategoryColor.values())
+                .anyMatch(color -> color.equals(categoryColor));
+        if (!isValid) {
+            throw new TempHandler(ErrorStatus.DIARY_CATEGORY_COLOR_NOT_FOUND);
+        }
+    }
 
-//    public CategoryColor fromString(String color) {
-//        try {
-//            return CategoryColor.valueOf(color.toUpperCase());
-//        } catch (IllegalArgumentException e) {
-//            throw new RuntimeException("Invalid category color: " + color);
-//        }
-//    }
+    public CategoryColor fromString(String color) {
+        try {
+            return CategoryColor.valueOf(color.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new TempHandler(ErrorStatus.DIARY_CATEGORY_COLOR_NOT_FOUND);
+        }
+    }
 }
