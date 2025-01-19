@@ -66,4 +66,12 @@ public class DiaryCategoryResponseDTO {
             Integer diaryCount;
         }
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiaryCategoryExceptionDTO{
+        Long categoryId;
+    }
 }

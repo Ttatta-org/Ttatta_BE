@@ -77,4 +77,10 @@ public class DiaryCategoryConverter {
                 .updatedAt(diaryCategory.getUpdatedAt())
                 .build();
     }
+
+    public static DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO toDiaryCategoryExceptionDTO(Long categoryId) {
+        return DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO.builder()
+                .categoryId(categoryId)
+                .build();
+    }
 }

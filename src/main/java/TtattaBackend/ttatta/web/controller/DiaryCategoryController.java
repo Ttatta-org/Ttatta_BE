@@ -39,6 +39,11 @@ public class DiaryCategoryController {
        return ApiResponse.onSuccess(DiaryCategoryConverter.toModifyCategoryResultDTO(diaryCategory));
     }
 
+    @PatchMapping("/exception")
+    public ApiResponse<DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO> exceptionAPI (@RequestParam Long categoryId) {
+        return ApiResponse.onSuccess(DiaryCategoryConverter.toDiaryCategoryExceptionDTO(categoryId));
+    }
+
 
 
     @Operation(summary = "카테고리 삭제 api", description =
