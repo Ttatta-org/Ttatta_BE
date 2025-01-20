@@ -51,7 +51,7 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
     @Override
     public void deleteAllCategory(Long categoryId, DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
         DiaryCategories diaryCategory = diaryCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND));
+                .orElseThrow();
 
         diaryCategoryRepository.delete(diaryCategory);
     }

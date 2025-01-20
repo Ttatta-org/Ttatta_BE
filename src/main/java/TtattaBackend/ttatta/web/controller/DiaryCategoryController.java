@@ -54,7 +54,7 @@ public class DiaryCategoryController {
     )
 
     @DeleteMapping("/all/{categoryId}")
-    public ApiResponse<DiaryCategoryResponseDTO.DeleteCategoryResultDTO> delete(@PathVariable Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
+    public ApiResponse<DiaryCategoryResponseDTO.DeleteCategoryResultDTO> delete(@PathVariable @ExistDiaryCategory Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
         diaryCategoryCommandService.deleteAllCategory(categoryId, request);
         return ApiResponse.onSuccess(null);
     }
