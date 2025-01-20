@@ -41,20 +41,20 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
                 .orElseThrow();
 
         request.getCategoryName().ifPresent(diaryCategory::modifyCategoryName);
-        request.getCategoryColor().ifPresent(diaryCategory::modifyCategoryColor);
-//        request.getCategoryColor().ifPresent(categoryColor -> {
-//            checkCategoryColor(categoryColor);
-//            diaryCategory.modifyCategoryColor(CategoryColor.valueOf(categoryColor.toUpperCase()));
-//        });
+//        request.getCategoryColor().ifPresent(diaryCategory::modifyCategoryColor);
+        request.getCategoryColor().ifPresent(categoryColor -> {
+            verifyCategoryColor(categoryColor);
+            diaryCategory.modifyCategoryColor(CategoryColor.valueOf(categoryColor.toUpperCase()));
+        });
 
 //        request.getCategoryColor().ifPresent(categoryColor -> diaryCategory.modifyCategoryColor(fromString(categoryColor)));
 
         return diaryCategoryRepository.save(diaryCategory);
     }
 
-    private void verifyCategoryColor(CategoryColor categoryColor) {
+    private void verifyCategoryColor(String categoryColor) {
         boolean isValid = Arrays.stream(CategoryColor.values())
-                .anyMatch(color -> color.equals(categoryColor));
+                .anyMatch(color -> color.name().equalsIgnoreCase(categoryColor));
         if (!isValid) {
             throw new TempHandler(ErrorStatus.DIARY_CATEGORY_COLOR_NOT_FOUND);
         }

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @Validated
-@Valid
 @RequestMapping("/categories")
 public class DiaryCategoryController {
     private final DiaryCategoryCommandService diaryCategoryCommandService;
