@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class DiaryCategoryConverter {
+
     public static DiaryCategoryResponseDTO.CreateCategoryResultDTO toCreateCategoryResultDTO(DiaryCategories diaryCategory) {
         return DiaryCategoryResponseDTO.CreateCategoryResultDTO.builder()
                 .categoryId(diaryCategory.getId())
@@ -47,6 +48,18 @@ public class DiaryCategoryConverter {
             case VIOLET:
                 diaryCategoryColor = CategoryColor.VIOLET;
                 break;
+            case BROWN:
+                diaryCategoryColor = CategoryColor.BROWN;
+                break;
+            case WHITE:
+                diaryCategoryColor = CategoryColor.WHITE;
+                break;
+            case PINK:
+                diaryCategoryColor = CategoryColor.PINK;
+                break;
+            case BLACK:
+                diaryCategoryColor = CategoryColor.BLACK;
+                break;
         }
 
 
@@ -55,4 +68,20 @@ public class DiaryCategoryConverter {
                 .color(diaryCategoryColor)
                 .build();
     }
+
+    public static DiaryCategoryResponseDTO.ModifyCategoryResultDTO toModifyCategoryResultDTO(DiaryCategories diaryCategory) {
+        return DiaryCategoryResponseDTO.ModifyCategoryResultDTO.builder()
+                .categoryId(diaryCategory.getId())
+                .categoryColor(diaryCategory.getColor())
+                .categoryName(diaryCategory.getName())
+                .updatedAt(diaryCategory.getUpdatedAt())
+                .build();
+    }
+
+    public static DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO toDiaryCategoryExceptionDTO(Long categoryId) {
+        return DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO.builder()
+                .categoryId(categoryId)
+                .build();
+    }
+
 }

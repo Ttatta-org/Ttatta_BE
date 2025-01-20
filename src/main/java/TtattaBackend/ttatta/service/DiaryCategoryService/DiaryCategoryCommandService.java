@@ -5,4 +5,5 @@ import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 
 public interface DiaryCategoryCommandService {
     DiaryCategories createCategory(DiaryCategoryRequestDTO.CreateCategoryDTO request);
+    DiaryCategories modifyCategory(Long categoryId, DiaryCategoryRequestDTO.ModifyCategoryDTO request);
 }
