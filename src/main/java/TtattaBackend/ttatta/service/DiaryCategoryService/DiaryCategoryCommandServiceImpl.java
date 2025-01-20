@@ -41,13 +41,10 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
                 .orElseThrow();
 
         request.getCategoryName().ifPresent(diaryCategory::modifyCategoryName);
-//        request.getCategoryColor().ifPresent(diaryCategory::modifyCategoryColor);
         request.getCategoryColor().ifPresent(categoryColor -> {
             verifyCategoryColor(categoryColor);
             diaryCategory.modifyCategoryColor(CategoryColor.valueOf(categoryColor.toUpperCase()));
         });
-
-//        request.getCategoryColor().ifPresent(categoryColor -> diaryCategory.modifyCategoryColor(fromString(categoryColor)));
 
         return diaryCategoryRepository.save(diaryCategory);
     }

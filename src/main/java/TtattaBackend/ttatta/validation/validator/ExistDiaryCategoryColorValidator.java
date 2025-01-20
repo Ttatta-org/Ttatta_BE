@@ -30,7 +30,7 @@ public class ExistDiaryCategoryColorValidator implements ConstraintValidator<Exi
 
         String colorValue = categoryColor.orElse(null);
         if(colorValue == null) {
-            errorStatus = ErrorStatus.DIARY_CATEGORY_COLOR_NOT_FOUND;
+            errorStatus = ErrorStatus.DIARY_CATEGORY_COLOR_NULL;
             isValid = false;
         } else {
             errorStatus = ErrorStatus.DIARY_CATEGORY_COLOR_NOT_FOUND;

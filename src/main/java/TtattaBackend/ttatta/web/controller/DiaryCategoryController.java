@@ -3,7 +3,6 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
 import TtattaBackend.ttatta.domain.DiaryCategories;
-import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import TtattaBackend.ttatta.service.DiaryCategoryService.DiaryCategoryCommandService;
 import TtattaBackend.ttatta.validation.annotation.ExistDiaryCategory;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
