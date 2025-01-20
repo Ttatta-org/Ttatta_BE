@@ -48,22 +48,24 @@ public class DiaryCategoryController {
     }
 
 
-    @Operation(summary = "카테고리 삭제 api", description =
-            "카테고리를 삭제할 때 사용하는 api 입니다.\n일상 카테고리의 Id와 사용자의 Id 데이터를 넣어주시면 됩니다. 삭제할 카테고리 Id는 path parameter로 전달받습니다."
-    )
-
-    @DeleteMapping("/{categoryId}")
-    public ApiResponse<DiaryCategoryResponseDTO.DeleteCategoryResultDTO> delete(@PathVariable Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
-        return null;
-    }
-
-
 
     @Operation(summary = "모든 기록 삭제 api", description =
             "카테고리 및 모든 기록을 삭제할 때 사용하는 api 입니다.\n사용자의 Id 데이터를 넣어주시면 됩니다. 삭제할 카테고리 Id는 path parameter로 전달받습니다."
     )
 
     @DeleteMapping("/all/{categoryId}")
+    public ApiResponse<DiaryCategoryResponseDTO.DeleteCategoryResultDTO> delete(@PathVariable Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
+        diaryCategoryCommandService.deleteAllCategory(categoryId, request);
+        return ApiResponse.onSuccess(null);
+    }
+
+
+
+    @Operation(summary = "카테고리 삭제 api", description =
+            "카테고리를 삭제할 때 사용하는 api 입니다.\n일상 카테고리의 Id와 사용자의 Id 데이터를 넣어주시면 됩니다. 삭제할 카테고리 Id는 path parameter로 전달받습니다."
+    )
+
+    @DeleteMapping("/{categoryId}")
     public ApiResponse<DiaryCategoryResponseDTO.DeleteAllCategoryResultDTO> deleteAll(@PathVariable Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.DeleteAllCategoryDTO request) {
         return null;
     }

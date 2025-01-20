@@ -1,7 +1,6 @@
 package TtattaBackend.ttatta.service.DiaryCategoryService;
 
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
-import TtattaBackend.ttatta.apiPayload.exception.GeneralException;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.apiPayload.exception.handler.TempHandler;
 import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
@@ -47,6 +46,14 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
         });
 
         return diaryCategoryRepository.save(diaryCategory);
+    }
+
+    @Override
+    public void deleteAllCategory(Long categoryId, DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
+        DiaryCategories diaryCategory = diaryCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND));
+
+        diaryCategoryRepository.delete(diaryCategory);
     }
 
     private void verifyCategoryColor(String categoryColor) {
