@@ -29,7 +29,6 @@ public class DiaryCategoryRequestDTO {
 
     @Getter
     public static class DeleteCategoryDTO {
-        Long targetCategoryId; // "일상" 카테고리의 id
         Long userId;
     }
 
