@@ -84,9 +84,4 @@ public class DiaryCategoryConverter {
                 .build();
     }
 
-    public static DiaryCategoryResponseDTO.DiaryCategoryColorExceptionDTO toDiaryCategoryColorExceptionDTO(String categoryColor) {
-        return DiaryCategoryResponseDTO.DiaryCategoryColorExceptionDTO.builder()
-                .categoryColor(categoryColor)
-                .build();
-    }
 }

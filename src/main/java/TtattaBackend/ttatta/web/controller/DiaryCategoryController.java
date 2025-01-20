@@ -5,15 +5,19 @@ import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
 import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import TtattaBackend.ttatta.service.DiaryCategoryService.DiaryCategoryCommandService;
+import TtattaBackend.ttatta.validation.annotation.ExistDiaryCategory;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
+@Valid
 @RequestMapping("/categories")
 public class DiaryCategoryController {
     private final DiaryCategoryCommandService diaryCategoryCommandService;
@@ -35,7 +39,7 @@ public class DiaryCategoryController {
     )
 
     @PatchMapping("/{categoryId}")
-    public ApiResponse<DiaryCategoryResponseDTO.ModifyCategoryResultDTO> modify(@PathVariable Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.ModifyCategoryDTO request) {
+    public ApiResponse<DiaryCategoryResponseDTO.ModifyCategoryResultDTO> modify(@PathVariable @ExistDiaryCategory Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.ModifyCategoryDTO request) {
        DiaryCategories diaryCategory = diaryCategoryCommandService.modifyCategory(categoryId, request);
        return ApiResponse.onSuccess(DiaryCategoryConverter.toModifyCategoryResultDTO(diaryCategory));
     }
@@ -43,12 +47,6 @@ public class DiaryCategoryController {
     @PatchMapping("/exception")
     public ApiResponse<DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO> exceptionAPI (@RequestParam Long categoryId) {
         return ApiResponse.onSuccess(DiaryCategoryConverter.toDiaryCategoryExceptionDTO(categoryId));
-    }
-
-    @PatchMapping("/color/exception")
-    public ApiResponse<DiaryCategoryResponseDTO.DiaryCategoryColorExceptionDTO> colorExceptionAPI (@RequestParam String categoryColor) {
-        diaryCategoryCommandService.checkCategoryColor(categoryColor);
-        return ApiResponse.onSuccess(DiaryCategoryConverter.toDiaryCategoryColorExceptionDTO(categoryColor));
     }
 
 
