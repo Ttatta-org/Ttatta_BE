@@ -8,6 +8,7 @@ import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
+import TtattaBackend.ttatta.repository.DiaryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import jakarta.transaction.Transactional;
@@ -22,6 +23,7 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
     private final DiaryCategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final DiaryCategoryRepository diaryCategoryRepository;
+    private final DiaryRepository diaryRepository;
 
 
     @Override
@@ -52,8 +54,25 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
     public void deleteAllCategory(Long categoryId, DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
         DiaryCategories diaryCategory = diaryCategoryRepository.findById(categoryId)
                 .orElseThrow();
-
         diaryCategoryRepository.delete(diaryCategory);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCategory(Long categoryId, DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
+        Users user = userRepository.findById(request.getUserId())
+                .orElseThrow();
+
+        DiaryCategories diaryCategoryToDelete = diaryCategoryRepository.findById(categoryId)
+                .orElseThrow();
+
+        DiaryCategories defaultCategory = diaryCategoryRepository.findByNameAndId("일상", user.getId())
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND));
+
+        diaryRepository.updateCategoryForDiaries(diaryCategoryToDelete.getId(), defaultCategory.getId());
+
+
+        diaryCategoryRepository.delete(diaryCategoryToDelete);
     }
 
     private void verifyCategoryColor(String categoryColor) {

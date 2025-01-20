@@ -34,7 +34,7 @@ public class DiaryCategories extends BaseEntity {
     private CategoryColor color;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "user_id")
     private Users users;
 
     @OneToMany(mappedBy = "diaryCategories", cascade = CascadeType.ALL)
