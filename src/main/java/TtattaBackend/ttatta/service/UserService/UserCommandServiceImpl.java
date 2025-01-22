@@ -6,11 +6,14 @@ import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.Gender;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
+import TtattaBackend.ttatta.jwt.JwtUtils;
 import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
+import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -19,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 
@@ -27,9 +31,14 @@ import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 @Slf4j
 public class UserCommandServiceImpl implements UserCommandService {
 
+    @Value("${jwt.ACCESS_EXP_TIME}")
+    private int accessExpTime;
+    @Value("${jwt.REFRESH_EXP_TIME}")
+    private int refreshExpTime;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final JwtUtils jwtUtils;
 
     @Override
     public Users createTestUser() {
@@ -60,14 +69,20 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     @Transactional // ???
-    public Users signIn(UserRequestDTO.SignInRequestDTO request) {
+    public UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        SecurityContextHolder.getContext().setAuthentication(authentication); // 로그인을 한 후 인증 정보를 사용할 일은 없을 것 같다.
 
-        Users user = userRepository.findByUsername(authentication.getName()).orElse(null);
+        Users user = userRepository.findByUsername(authentication.getName()).orElseThrow();
 
-        return user;
+        // 인증 완료 후 jwt 생성
+        Map<String, Object> valueMap = Map.of(
+                "userId", user.getId()
+        );
+        String accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
+
+        return UserConverter.toUserSignInResultDTO(user, accessToken);
     }
 
     // 미구현

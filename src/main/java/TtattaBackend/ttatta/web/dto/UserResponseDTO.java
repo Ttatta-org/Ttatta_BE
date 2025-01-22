@@ -17,6 +17,7 @@ public class UserResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserSignInResultDTO {
+        String accessToken;
         Long userId;
         String nickname;
         LoginType loginType;

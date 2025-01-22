@@ -52,11 +52,8 @@ public class UserController {
     public ApiResponse<UserResponseDTO.UserSignInResultDTO> signIn(
             @RequestBody @Valid UserRequestDTO.SignInRequestDTO request
     ) {
-        Users user = userCommandService.signIn(request);
         return ApiResponse.onSuccess(
-                UserConverter.toUserSignInResultDTO(
-                        user
-                )
+                userCommandService.signIn(request)
         );
     }
 
@@ -99,7 +96,7 @@ public class UserController {
         Users user = userCommandService.signInKakao(request);
         return ApiResponse.onSuccess(
                 UserConverter.toUserSignInResultDTO(
-                        user
+                        user, null
                 )
         );
     }
