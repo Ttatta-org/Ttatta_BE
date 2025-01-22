@@ -32,6 +32,7 @@ public class DiaryRequestDTO {
 
     @Getter
     public static class EditDTO {
+        @ExistUser
         private Long userId;
         private String content;
     }

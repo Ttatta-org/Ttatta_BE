@@ -23,6 +23,15 @@ public class DiaryResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class EditResultDTO {
+        Long diaryId;
+        LocalDateTime updatedAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class KeepResultDTO {
         List<KeepDiary> diaryList;
 
