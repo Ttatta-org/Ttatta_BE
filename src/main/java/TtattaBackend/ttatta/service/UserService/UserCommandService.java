@@ -1,12 +1,14 @@
 package TtattaBackend.ttatta.service.UserService;
 
 import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.domain.enums.IsAvailable;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 
 public interface UserCommandService {
     Users createTestUser();
     Users signUp(UserRequestDTO.SignUpRequestDTO request);
     Users signIn(UserRequestDTO.SignInRequestDTO request);
+    IsAvailable verifyUsernameOverlap(String username);
     Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request);    // 미구현
     Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
     Users refresh(String request);  // 미구현
