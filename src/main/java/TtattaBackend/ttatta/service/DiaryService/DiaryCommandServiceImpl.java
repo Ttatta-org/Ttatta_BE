@@ -76,4 +76,14 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
    }
 
+   @Override
+   public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId) {
+        Diaries diaries = diaryRepository.findById((diaryId))
+                .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
+
+        request.getContent().ifPresent(diaries::setContent);
+
+        return diaryRepository.save(diaries);
+   }
+
 }

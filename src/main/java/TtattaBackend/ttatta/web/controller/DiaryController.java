@@ -61,9 +61,14 @@ public class DiaryController {
                     """
     )
     @PatchMapping("/edit/{diaryId}")
-    public ApiResponse<Object> editDiary(@PathVariable Long diaryId,
+    public ApiResponse<DiaryResponseDTO.EditResultDTO> editDiary(@PathVariable Long diaryId,
                                          @RequestBody @Valid DiaryRequestDTO.EditDTO request) {
-        return null;
+
+        Diaries diaries = diaryCommandService.edit(request, diaryId);
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toEditResultDTO(diaries)
+        );
     }
 
     @Operation(summary = "일기 보관함",
