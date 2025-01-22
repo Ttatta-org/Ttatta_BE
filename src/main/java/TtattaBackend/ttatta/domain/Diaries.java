@@ -45,7 +45,7 @@ public class Diaries extends BaseEntity {
     @JoinColumn(name = "diary_category_id")
     private DiaryCategories diaryCategories;
 
-    @OneToMany(mappedBy = "diaries", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "diaries", cascade = CascadeType.ALL)
     private List<DiaryPhotos> diaryPhotosList = new ArrayList<>();
 
     public void setUsers(Users users) {
