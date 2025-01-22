@@ -5,6 +5,8 @@ import TtattaBackend.ttatta.domain.DiaryPhotos;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 
+import java.util.ArrayList;
+
 public class DiaryConverter {
 
     public static DiaryResponseDTO.PostResultDTO toPostResultDTO(Diaries diaries) {
@@ -21,13 +23,13 @@ public class DiaryConverter {
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .locationName(request.getLocationName())
+                .diaryPhotosList(new ArrayList<>()) // 여기서 diaryPhotosList명시적으로 초기화!
                 .build();
     }
 
-    public static DiaryPhotos toDiaryPhoto(String pictureUrl, Diaries diaries) {
+    public static DiaryPhotos toDiaryPhoto(String pictureUrl) {
         return DiaryPhotos.builder()
                 .imageUrl(pictureUrl)
-                .diaries(diaries)
                 .build();
     }
 
