@@ -67,7 +67,7 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
                 .orElseThrow();
 
         DiaryCategories defaultCategory = diaryCategoryRepository.findByNameAndId("일상", user.getId())
-                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND));
+                .orElseThrow();
 
         diaryRepository.updateCategoryForDiaries(diaryCategoryToDelete.getId(), defaultCategory.getId());
 
