@@ -23,20 +23,19 @@ public class DiaryResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class FootprintResultDTO {
-        List<FootprintDiary> footprintList;
-
-        @Getter
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class FootprintDiary {
-            Long diaryId;
-            Long diaryCategoryId;
-            String categoryColor;
-            double latitude;
-            double longitude;
-        }
+    public static class FootprintDiaryListDTO {
+        List<FootprintDiaryDTO> footprintList;
+    }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FootprintDiaryDTO {
+        Long diaryId;
+        Long diaryCategoryId;
+        String categoryColor;
+        double latitude;
+        double longitude;
     }
 
     @Getter
