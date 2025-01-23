@@ -37,6 +37,12 @@ public class DiaryRequestDTO {
     }
 
     @Getter
+    public static class FootprintDTO {
+        @ExistUser
+        private Long userId;
+    }
+
+    @Getter
     public static class KeepDTO {
         private Long userId;
         private Optional<LocalDateTime> date = Optional.empty();
