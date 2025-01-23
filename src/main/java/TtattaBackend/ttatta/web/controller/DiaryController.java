@@ -66,6 +66,16 @@ public class DiaryController {
         return null;
     }
 
+    @Operation(summary = "일기 지도(발자국) 전체 조회",
+            description = """
+                    지도 화면에서 발자국 표현을 위한 일기 전체 조회입니다.
+                    """
+    )
+    @GetMapping("/footprint")
+    public ApiResponse<DiaryResponseDTO.FootprintResultDTO> getFootprintDiary(@RequestBody @Valid DiaryRequestDTO.FootprintDTO request) {
+        return null;
+    }
+
     @Operation(summary = "일기 보관함",
         description = """
                 사용자 id, 날짜, 페이징 번호를 작성해주세요.
