@@ -75,12 +75,4 @@ public class DiaryCategoryResponseDTO {
     public static class DiaryCategoryExceptionDTO{
         Long categoryId;
     }
-
-//    @Builder
-//    @Getter
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    public static class DiaryCategoryColorExceptionDTO{
-//        String categoryColor;
-//    }
 }
