@@ -23,9 +23,10 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.UserSignInResultDTO toUserSignInResultDTO(Users users, String accessToken) {
+    public static UserResponseDTO.UserSignInResultDTO toUserSignInResultDTO(Users users, String accessToken, String refreshToken) {
         return UserResponseDTO.UserSignInResultDTO.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .userId(users.getId())
                 .nickname(users.getNickname())
                 .loginType(users.getLoginType())

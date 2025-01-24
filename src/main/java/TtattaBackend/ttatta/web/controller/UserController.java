@@ -96,7 +96,7 @@ public class UserController {
         Users user = userCommandService.signInKakao(request);
         return ApiResponse.onSuccess(
                 UserConverter.toUserSignInResultDTO(
-                        user, null
+                        user, null, null
                 )
         );
     }

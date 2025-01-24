@@ -90,7 +90,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         redisTemplate.opsForValue().set(user.getId().toString(), refreshToken);
         System.out.println("redis에 저장된 refreshToken: " + (String) redisTemplate.opsForValue().get(user.getId().toString()));
 
-        return UserConverter.toUserSignInResultDTO(user, accessToken);
+        return UserConverter.toUserSignInResultDTO(user, accessToken, refreshToken);
     }
 
     // 미구현
