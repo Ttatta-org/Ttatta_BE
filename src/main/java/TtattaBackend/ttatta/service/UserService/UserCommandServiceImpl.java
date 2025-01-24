@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.service.UserService;
 
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
+import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.Gender;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 
@@ -81,16 +83,42 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // 인증 완료 후 jwt토큰(accessToken) 생성
         Map<String, Object> valueMap = Map.of(
-                "userId", user.getId()
+                "userId", user.getId() // String으로 저장??? 그래서 SecurityUtil에서 Long으로 타입변환 해주나?
         );
         String accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
 
         // 인증 완료 후 jwt토큰(refreshToken) 생성
         String refreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
-        redisTemplate.opsForValue().set(user.getId().toString(), refreshToken);
+        redisTemplate.opsForValue().set(user.getId().toString(), refreshToken, refreshExpTime, TimeUnit.MINUTES);
         System.out.println("redis에 저장된 refreshToken: " + (String) redisTemplate.opsForValue().get(user.getId().toString()));
 
         return UserConverter.toUserSignInResultDTO(user, accessToken, refreshToken);
+    }
+
+    @Override
+    public UserResponseDTO.RefreshResultDTO refresh(String refreshToken) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        String accessToken;
+        String newRefreshToken;
+
+        // 전달된 refresh token과 redis의 refresh token비교
+        String getUserIdFromRedis = redisTemplate.opsForValue().get(userId.toString());
+        System.out.println("userId: " + userId);
+        System.out.println("redis에서 가져온 refreshToken: " + getUserIdFromRedis);
+        if (refreshToken.equals(getUserIdFromRedis)) {
+            // 인증 완료 후 jwt토큰(accessToken) 생성
+            Map<String, Object> valueMap = Map.of(
+                    "userId", userId
+            );
+            accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
+            // 인증 완료 후 jwt토큰(refreshToken) 생성
+            newRefreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
+            redisTemplate.opsForValue().set(userId.toString(), newRefreshToken, refreshExpTime, TimeUnit.MINUTES);
+        } else {
+            throw new ExceptionHandler(REFRESHTOKEN_NOT_EQUAL);
+        }
+
+        return UserConverter.toRefreshResultDTO(userId, accessToken, newRefreshToken);
     }
 
     // 미구현
@@ -103,13 +131,6 @@ public class UserCommandServiceImpl implements UserCommandService {
     // 미구현
     @Override
     public Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request) {
-        // 서비스 구현
-        return null;
-    }
-
-    // 미구현
-    @Override
-    public Users refresh(String request) {
         // 서비스 구현
         return null;
     }

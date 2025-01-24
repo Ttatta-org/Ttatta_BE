@@ -34,11 +34,11 @@ public class UserConverter {
                 .build();
     }
 
-    // 미구현
-    public static UserResponseDTO.RefreshResultDTO toRefreshResultDTO(Users users) {
+    public static UserResponseDTO.RefreshResultDTO toRefreshResultDTO(Long userId, String accessToken, String refreshToken) {
         return UserResponseDTO.RefreshResultDTO.builder()
-                .userId(users.getId())
-                .refreshToken(users.getRefreshToken())
+                .userId(userId)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 

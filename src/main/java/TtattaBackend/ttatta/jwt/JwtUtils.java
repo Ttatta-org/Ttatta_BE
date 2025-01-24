@@ -3,7 +3,9 @@ package TtattaBackend.ttatta.jwt;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.jwt.exception.CustomExpiredJwtException;
 import TtattaBackend.ttatta.jwt.exception.CustomJwtException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -69,11 +71,44 @@ public class JwtUtils {
                     .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
                     .getBody();
         } catch(ExpiredJwtException expiredJwtException){
-            throw new CustomExpiredJwtException("토큰이 만료되었습니다", expiredJwtException);
+            throw new CustomExpiredJwtException("access token이 만료되었습니다", expiredJwtException);
         } catch(Exception e){
             throw new CustomJwtException("Error");
         }
         return claim;
+    }
+
+    public Claims validateTokenOnlySignature(String token) { // static 제거
+        Claims claims = null;
+        try {
+            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+            claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
+                    .getBody();
+        } catch(ExpiredJwtException expiredJwtException){
+            return claims;
+        } catch(Exception e){
+            throw new CustomJwtException("Error access token 검증 못함");
+        }
+        return claims;
+    }
+
+    public void validateRefreshToken(String token) { // static 제거
+        Map<String, Object> claim = null;
+        try {
+            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+            claim = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
+                    .getBody();
+        } catch(ExpiredJwtException expiredJwtException){
+            throw new CustomExpiredJwtException("refresh token이 만료되었습니다. 재로그인 해주세요.", expiredJwtException);
+        } catch(Exception e){
+            throw new CustomJwtException("Error");
+        }
     }
 
     // 토큰이 만료되었는지 판단하는 메서드

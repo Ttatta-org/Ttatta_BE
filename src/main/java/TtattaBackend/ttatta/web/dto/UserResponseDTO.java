@@ -44,8 +44,7 @@ public class UserResponseDTO {
     public static class CheckUsernameSameResultDTO {
         IsSame isSame;
     }
-  
-    // 미구현
+
     @Getter
     @Builder
     @NoArgsConstructor

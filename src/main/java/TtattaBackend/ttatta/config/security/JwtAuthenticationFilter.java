@@ -4,6 +4,7 @@ import TtattaBackend.ttatta.jwt.JwtUtils;
 import TtattaBackend.ttatta.jwt.exception.CustomExpiredJwtException;
 import TtattaBackend.ttatta.jwt.exception.CustomJwtException;
 import com.google.gson.Gson;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -40,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //            "/index.html"
     };
     private final JwtUtils jwtUtils;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private static void checkAuthorizationHeader(String header) {
         if(header == null) {
@@ -60,7 +63,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("--------------------------- JwtVerifyFilter ---------------------------");
 
+        String requestUri = request.getRequestURI();
         String authHeader = request.getHeader(jwtHeader);
+        String refreshToken = request.getHeader("refreshToken");
+
+        // 특정 경로에서만 Refresh Token 처리
+        if ("/users/refresh".equals(requestUri)) { // if문 마지막에 return하지 말고 refresh token검증하는 로직을 service로 옮겨야 하나???
+            if (refreshToken != null) {
+                try {
+                    // access token 검증
+                    checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
+                    String token = JwtUtils.getTokenFromHeader(authHeader);
+                    Claims claims = jwtUtils.validateTokenOnlySignature(token); // 토큰 검증
+                    Authentication authentication = jwtUtils.getAuthentication(token); // 사용자 인증 정보 생성
+                    SecurityContextHolder.getContext().setAuthentication(authentication); // 사용자 인증 정보 저장
+                    // refresh token 검증
+                    jwtUtils.validateRefreshToken(refreshToken); // 토큰 검증
+                    filterChain.doFilter(request, response);    // 다음 필터로 이동
+                } catch (Exception e) {
+                    Gson gson = new Gson();
+                    String json = "";
+                    json = gson.toJson(Map.of("error", e.getMessage()));
+                }
+            }
+            return;
+        }
 
         try {
             checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
