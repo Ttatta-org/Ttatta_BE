@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Map;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
@@ -39,6 +41,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtils jwtUtils;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public Users createTestUser() {
@@ -76,11 +79,16 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         Users user = userRepository.findByUsername(authentication.getName()).orElseThrow();
 
-        // 인증 완료 후 jwt 생성
+        // 인증 완료 후 jwt토큰(accessToken) 생성
         Map<String, Object> valueMap = Map.of(
                 "userId", user.getId()
         );
         String accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
+
+        // 인증 완료 후 jwt토큰(refreshToken) 생성
+        String refreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
+        redisTemplate.opsForValue().set(user.getId().toString(), refreshToken);
+        System.out.println("redis에 저장된 refreshToken: " + (String) redisTemplate.opsForValue().get(user.getId().toString()));
 
         return UserConverter.toUserSignInResultDTO(user, accessToken);
     }
