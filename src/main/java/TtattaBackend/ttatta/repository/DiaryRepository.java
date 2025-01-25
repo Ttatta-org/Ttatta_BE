@@ -20,5 +20,15 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     void updateCategoryForDiaries(@Param("sourceCategoryId") Long sourceCategoryId,
                                   @Param("targetCategoryId") Long targetCategoryId);
 
+
+    @Query("SELECT d " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "AND d.date IN ( " +
+            "SELECT MAX(d2.date) " +
+            "FROM Diaries d2 " +
+            "WHERE d2.users = :user " +
+            "AND FLOOR(d2.latitude * 10000.0) = FLOOR(d.latitude * 10000.0) " +
+            "AND FLOOR(d2.longitude * 10000.0) = FLOOR(d.longitude * 10000.0))")
     List<Diaries> findAllByUsers(Users user);
 }
