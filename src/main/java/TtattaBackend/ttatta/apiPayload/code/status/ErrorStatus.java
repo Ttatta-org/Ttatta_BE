@@ -19,7 +19,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // 회원 관련 응답 1000
     USER_ID_NULL(HttpStatus.BAD_REQUEST, "USER_1001", "사용자 아이디는 필수 입니다."),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER_1002", "해당하는 사용자가 존재하지 않습니다."),
-    NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER4002", "닉네임은 필수 입니다."),
+    NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER1003", "닉네임은 필수 입니다."),
 
     // 일기 관련 응답 2000
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY_2001", "해당하는 일기가 존재하지 않습니다."),

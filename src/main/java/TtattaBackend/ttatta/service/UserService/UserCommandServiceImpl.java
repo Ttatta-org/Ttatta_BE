@@ -5,6 +5,7 @@ import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.Gender;
+import TtattaBackend.ttatta.domain.enums.IsAvailable;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
 import TtattaBackend.ttatta.jwt.JwtUtils;
@@ -120,6 +121,17 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         return UserConverter.toRefreshResultDTO(userId, accessToken, newRefreshToken);
     }
+
+    @Override
+    public IsAvailable verifyUsernameOverlap(String username) {
+        Users getUser = userRepository.findByUsername(username).orElse(null);
+        System.out.println("getUser");
+        if (getUser == null) {
+            return IsAvailable.AVAILABLE;
+        }
+        return IsAvailable.UNAVAILABLE;
+    }
+
 
     // 미구현
     @Override

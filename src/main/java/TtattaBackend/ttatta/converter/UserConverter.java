@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.converter;
 
 import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.domain.enums.IsAvailable;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
@@ -31,6 +32,12 @@ public class UserConverter {
                 .nickname(users.getNickname())
                 .loginType(users.getLoginType())
                 .createdAt(users.getCreatedAt())
+                .build();
+    }
+
+    public static UserResponseDTO.VerifyUsernameOverlapResultDTO toVerifyUsernameOverlapResultDTO(IsAvailable isAvailable) {
+        return UserResponseDTO.VerifyUsernameOverlapResultDTO.builder()
+                .isAvailable(isAvailable)
                 .build();
     }
 

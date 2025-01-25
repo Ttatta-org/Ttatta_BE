@@ -57,15 +57,18 @@ public class UserController {
         );
     }
 
-    @Operation(summary = "아이디 중복 확인 API", description =
-            "# 아이디 중복 확인 API 입니다. 확인할 아이디를 body에 입력해주세요."
+    @Operation(summary = "회원가입 중 아이디 중복 확인 API", description =
+            "# 회원가입 중 아이디 중복 확인 API 입니다. 중복을 확인할 아이디를 body에 입력해주세요.\n"
+            + "# 아이디가 사용가능하면 AVAILABLE, 사용불가능하다면 UNAVAILABLE을 반환합니다."
     )
-    @GetMapping("/signup/same")
-    public ApiResponse<UserResponseDTO.CheckUsernameSameResultDTO> checkUsernameSame(
-            @RequestBody UserRequestDTO.CheckUsernameSameRequestDTO request
+    @GetMapping("/signup/verify/overlap")
+    public ApiResponse<UserResponseDTO.VerifyUsernameOverlapResultDTO> checkUsernameSame(
+            @RequestParam String username
     ) {
         return ApiResponse.onSuccess(
-                null
+                UserConverter.toVerifyUsernameOverlapResultDTO(
+                        userCommandService.verifyUsernameOverlap(username)
+                )
         );
     }
 

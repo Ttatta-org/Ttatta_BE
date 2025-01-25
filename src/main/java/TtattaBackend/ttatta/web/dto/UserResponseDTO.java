@@ -1,7 +1,7 @@
 package TtattaBackend.ttatta.web.dto;
 
-import TtattaBackend.ttatta.domain.enums.IsSame;
 import TtattaBackend.ttatta.domain.enums.Gender;
+import TtattaBackend.ttatta.domain.enums.IsAvailable;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
 import lombok.AllArgsConstructor;
@@ -41,8 +41,8 @@ public class UserResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CheckUsernameSameResultDTO {
-        IsSame isSame;
+    public static class VerifyUsernameOverlapResultDTO {
+        IsAvailable isAvailable;
     }
 
     @Getter
