@@ -17,6 +17,8 @@ public class UserResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserSignInResultDTO {
+        String accessToken;
+        String refreshToken;
         Long userId;
         String nickname;
         LoginType loginType;
@@ -42,8 +44,7 @@ public class UserResponseDTO {
     public static class VerifyUsernameOverlapResultDTO {
         IsAvailable isAvailable;
     }
-  
-    // 미구현
+
     @Getter
     @Builder
     @NoArgsConstructor

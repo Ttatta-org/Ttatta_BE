@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
-import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -74,6 +74,20 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
         diaryRepository.delete(diaries);
 
+   }
+
+   @Override
+   public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId) {
+        Diaries diaries = diaryRepository.findById((diaryId))
+                .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
+
+        request.getContent().ifPresent(diaries::updateContent);
+        request.getDiaryCategoryId().ifPresent(diaryCategoryId -> {
+            DiaryCategories diaryCategories = diaryCategoryRepository.findDiaryCategoriesById(diaryCategoryId);
+            diaries.setDiaryCategories(diaryCategories);
+        });
+
+        return diaryRepository.save(diaries);
    }
 
 }

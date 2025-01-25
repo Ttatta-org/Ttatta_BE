@@ -1,0 +1,37 @@
+package TtattaBackend.ttatta.service.DiaryCategoryService;
+
+import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
+import TtattaBackend.ttatta.repository.DiaryRepository;
+import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class DiaryCategoryQueryServiceImpl implements DiaryCategoryQueryService {
+
+    private final DiaryRepository diaryRepository;
+    private final DiaryCategoryRepository diaryCategoryRepository;
+
+
+    @Override
+    public Integer getTotalDiaryCount(Long userId) {
+        return diaryRepository.countDiariesByUsersId(userId);
+    }
+
+    @Override
+    public List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> getCategoryDetails(Long userId) {
+        return diaryCategoryRepository.findCategoriesByUsersId(userId).stream()
+                .map(category -> DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail.builder()
+                        .categoryId(category.getId())
+                        .categoryName(category.getName())
+                        .categoryColor(category.getColor())
+                        .diaryCount(diaryRepository.countDiariesByDiaryCategoriesId(category.getId()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+}
