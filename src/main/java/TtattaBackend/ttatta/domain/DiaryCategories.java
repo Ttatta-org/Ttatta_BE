@@ -2,14 +2,10 @@ package TtattaBackend.ttatta.domain;
 
 import TtattaBackend.ttatta.domain.common.BaseEntity;
 import TtattaBackend.ttatta.domain.enums.CategoryColor;
-import TtattaBackend.ttatta.domain.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import java.awt.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +30,7 @@ public class DiaryCategories extends BaseEntity {
     private CategoryColor color;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "user_id")
     private Users users;
 
     @OneToMany(mappedBy = "diaryCategories", cascade = CascadeType.ALL)

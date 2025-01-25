@@ -7,4 +7,5 @@ public interface DiaryCategoryCommandService {
     DiaryCategories createCategory(DiaryCategoryRequestDTO.CreateCategoryDTO request);
     DiaryCategories modifyCategory(Long categoryId, DiaryCategoryRequestDTO.ModifyCategoryDTO request);
     void deleteAllCategory(Long categoryId, DiaryCategoryRequestDTO.DeleteCategoryDTO request);
+    void deleteCategory(Long categoryId, DiaryCategoryRequestDTO.DeleteCategoryDTO request);
 }

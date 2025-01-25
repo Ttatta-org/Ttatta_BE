@@ -54,7 +54,7 @@ public class DiaryCategoryResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class GetAllCategoryCountResultDTO {
-        List<CategoryDetail> categories;
+        List<CategoryDetail> categoryDetails;
         Integer totalDiaryCount;
         @Builder
         @Getter
@@ -64,6 +64,7 @@ public class DiaryCategoryResponseDTO {
             Long categoryId;
             String categoryName;
             Integer diaryCount;
+            CategoryColor categoryColor;
         }
     }
 
@@ -73,13 +74,5 @@ public class DiaryCategoryResponseDTO {
     @AllArgsConstructor
     public static class DiaryCategoryExceptionDTO{
         Long categoryId;
-    }
-
-    @Builder
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class DiaryCategoryColorExceptionDTO{
-        String categoryColor;
     }
 }

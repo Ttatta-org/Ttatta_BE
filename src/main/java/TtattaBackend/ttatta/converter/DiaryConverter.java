@@ -29,6 +29,13 @@ public class DiaryConverter {
                 .build();
     }
 
+    public static DiaryResponseDTO.EditResultDTO toEditResultDTO(Diaries diaries) {
+        return DiaryResponseDTO.EditResultDTO.builder()
+                .diaryId(diaries.getId())
+                .updatedAt(diaries.getUpdatedAt())
+                .build();
+    }
+
     public static DiaryPhotos toDiaryPhoto(String pictureUrl) {
         return DiaryPhotos.builder()
                 .imageUrl(pictureUrl)

@@ -32,8 +32,10 @@ public class DiaryRequestDTO {
 
     @Getter
     public static class EditDTO {
+        @ExistUser
         private Long userId;
-        private String content;
+        private Optional<String> content = Optional.empty();
+        private Optional<Long> diaryCategoryId = Optional.empty();
     }
 
     @Getter
