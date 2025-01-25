@@ -61,13 +61,13 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
     @Transactional
     public void deleteCategory(Long categoryId, DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
         Users user = userRepository.findById(request.getUserId())
-                .orElseThrow();
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
 
         DiaryCategories diaryCategoryToDelete = diaryCategoryRepository.findById(categoryId)
-                .orElseThrow();
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND));
 
         DiaryCategories defaultCategory = diaryCategoryRepository.findByNameAndId("일상", user.getId())
-                .orElseThrow();
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND));
 
         diaryRepository.updateCategoryForDiaries(diaryCategoryToDelete.getId(), defaultCategory.getId());
 

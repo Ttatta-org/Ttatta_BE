@@ -75,4 +75,8 @@ public class Diaries extends BaseEntity {
             diaryCategories.getDiariesList().add(this);
         }
     }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }
