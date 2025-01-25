@@ -14,5 +14,5 @@ import java.util.Optional;
 public interface DiaryCategoryRepository extends JpaRepository<DiaryCategories, Long> {
     List<DiaryCategories> findCategoriesByUsersId(Long userId);
     DiaryCategories findDiaryCategoriesById(Long diaryCategoriesId);
-    Optional<DiaryCategories> findByNameAndId(@ExistDiaryCategory @Param("name")String name, @ExistUser @Param("userId")Long userId);
+    Optional<DiaryCategories> findByName(@ExistDiaryCategory @Param("name")String name);
 }

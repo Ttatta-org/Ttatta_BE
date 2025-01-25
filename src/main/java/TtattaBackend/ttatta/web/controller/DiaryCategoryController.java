@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
+import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
 import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.repository.UserRepository;
@@ -62,8 +63,8 @@ public class DiaryCategoryController {
     )
 
     @DeleteMapping("/all/{categoryId}")
-    public ApiResponse<Object> delete(@PathVariable @ExistDiaryCategory Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
-        diaryCategoryCommandService.deleteAllCategory(categoryId, request);
+    public ApiResponse<Object> delete(@PathVariable @ExistDiaryCategory Long categoryId) {
+        diaryCategoryCommandService.deleteAllCategory(categoryId);
         return ApiResponse.onSuccess("");
     }
 
@@ -74,8 +75,8 @@ public class DiaryCategoryController {
     )
 
     @DeleteMapping("/{categoryId}")
-    public ApiResponse<Object> deleteAll(@PathVariable @ExistDiaryCategory Long categoryId, @RequestBody @Valid DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
-        diaryCategoryCommandService.deleteCategory(categoryId,request);
+    public ApiResponse<Object> deleteAll(@PathVariable @ExistDiaryCategory Long categoryId) {
+        diaryCategoryCommandService.deleteCategory(categoryId);
         return ApiResponse.onSuccess(new DiaryCategoryResponseDTO.DeleteCategoryResultDTO(categoryId));
     }
 

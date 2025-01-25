@@ -30,6 +30,8 @@ public enum ErrorStatus implements BaseErrorCode {
     DIARY_CATEGORY_IS_NULL(HttpStatus.BAD_REQUEST, "DIARY_CATEGORY_3002", "일기 카테고리는 필수 입니다."),
     DIARY_CATEGORY_COLOR_NOT_FOUND(HttpStatus.NOT_FOUND,"DIARY_CATEGORY_3003","해당하는 일기 카테고리 색상은 존재하지 않습니다."),
     DIARY_CATEGORY_COLOR_NULL(HttpStatus.BAD_REQUEST, "DIARY_CATEGORY_3004", "일기 카테고리 색상은 필수 입니다."),
+    DIARY_CATEGORY_DELETE_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY_CATEGORY_3005","삭제하려고하는 카테고리 id에 해당하는 사용자가 존재하지 않습니다."),
+    DIARY_CATEGORY_DEFAULT_NOT_FOUND(HttpStatus.NOT_FOUND,"DIARY_CATEGORY_3006","일상 카테고리가 존재하지 않습니다."),
 
     // jwt 토큰 관련 응답 4000
     TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "TOKEN_4001", "토큰이 전달되지 않았습니다."),

@@ -27,19 +27,15 @@ public class DiaryCategoryRequestDTO {
         private Long userId;
     }
 
-    @Getter
-    public static class DeleteCategoryDTO {
-        @ExistUser
-        Long userId;
-    }
-
-    @Getter
-    public static class DeleteAllCategoryDTO {
-        @ExistUser
-        Long userId;
-    }
-
-    @Getter
-    public static class GetAllCategoryCountDTO {
-    }
+//    @Getter
+//    public static class DeleteCategoryDTO {
+//        @ExistUser
+//        Long userId;
+//    }
+//
+//    @Getter
+//    public static class DeleteAllCategoryDTO {
+//        @ExistUser
+//        Long userId;
+//    }
 }
