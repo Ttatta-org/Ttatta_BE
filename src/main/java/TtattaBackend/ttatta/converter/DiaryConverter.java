@@ -35,7 +35,7 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryDTO footprintDiaryDTO(Diaries diaries) {
+    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries) {
         return DiaryResponseDTO.FootprintDiaryDTO.builder()
                 .diaryId(diaries.getId())
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
@@ -45,9 +45,9 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryListDTO footprintDiaryListDTO(List<Diaries> diariesList) {
+    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList) {
        List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
-               .map(DiaryConverter::footprintDiaryDTO).collect(Collectors.toList());
+               .map(DiaryConverter::toFootprintDiaryDTO).collect(Collectors.toList());
 
        return DiaryResponseDTO.FootprintDiaryListDTO.builder()
                .footprintList(footprintDiaryDTOList)

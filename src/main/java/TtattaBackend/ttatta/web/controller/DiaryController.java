@@ -85,7 +85,7 @@ public class DiaryController {
         List<Diaries> diariesList = diaryQueryService.getDiaryList(userId);
 
         return ApiResponse.onSuccess(
-                DiaryConverter.footprintDiaryListDTO(diariesList)
+                DiaryConverter.toFootprintDiaryListDTO(diariesList)
         );
     }
 
