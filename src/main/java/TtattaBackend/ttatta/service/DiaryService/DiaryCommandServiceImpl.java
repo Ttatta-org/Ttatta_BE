@@ -81,7 +81,7 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         Diaries diaries = diaryRepository.findById((diaryId))
                 .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
 
-        request.getContent().ifPresent(diaries::setContent);
+        request.getContent().ifPresent(diaries::updateContent);
         request.getDiaryCategoryId().ifPresent(diaryCategoryId -> {
             DiaryCategories diaryCategories = diaryCategoryRepository.findDiaryCategoriesById(diaryCategoryId);
             diaries.setDiaryCategories(diaryCategories);
