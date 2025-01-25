@@ -30,8 +30,12 @@ public enum ErrorStatus implements BaseErrorCode {
     DIARY_CATEGORY_IS_NULL(HttpStatus.BAD_REQUEST, "DIARY_CATEGORY_3002", "일기 카테고리는 필수 입니다."),
     DIARY_CATEGORY_COLOR_NOT_FOUND(HttpStatus.NOT_FOUND,"DIARY_CATEGORY_3003","해당하는 일기 카테고리 색상은 존재하지 않습니다."),
     DIARY_CATEGORY_COLOR_NULL(HttpStatus.BAD_REQUEST, "DIARY_CATEGORY_3004", "일기 카테고리 색상은 필수 입니다.");
-    // ~~~ 관련 응답 ....
 
+    // jwt 토큰 관련 응답 4000
+    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "TOKEN_4001", "토큰이 전달되지 않았습니다."),
+    INVALID_TOKEN_PREFIX(HttpStatus.NOT_FOUND, "TOKEN_4002", "BEARER 로 시작하지 않는 올바르지 않은 토큰 형식입니다."),
+    TOKEN_ERROR(HttpStatus.NOT_FOUND, "TOKEN_4003", "토큰관련 에러가 발생했습니다."),
+    REFRESHTOKEN_NOT_EQUAL(HttpStatus.NOT_FOUND, "TOKEN_4004", "refresh token이 일치하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

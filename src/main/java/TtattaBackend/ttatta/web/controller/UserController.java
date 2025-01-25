@@ -52,11 +52,8 @@ public class UserController {
     public ApiResponse<UserResponseDTO.UserSignInResultDTO> signIn(
             @RequestBody @Valid UserRequestDTO.SignInRequestDTO request
     ) {
-        Users user = userCommandService.signIn(request);
         return ApiResponse.onSuccess(
-                UserConverter.toUserSignInResultDTO(
-                        user
-                )
+                userCommandService.signIn(request)
         );
     }
 
@@ -69,6 +66,19 @@ public class UserController {
     ) {
         return ApiResponse.onSuccess(
                 null
+        );
+    }
+
+    // 미구현
+    @Operation(summary = "토큰 갱신", description =
+            "# access token 갱신 API 입니다. access token과 refresh token을 header에 입력해주세요."
+    )
+    @PostMapping("/refresh")
+    public ApiResponse<UserResponseDTO.RefreshResultDTO> refreshToken(
+            @RequestHeader("RefreshToken") String refreshToken
+    ) {
+        return ApiResponse.onSuccess(
+                userCommandService.refresh(refreshToken)
         );
     }
 
@@ -99,23 +109,7 @@ public class UserController {
         Users user = userCommandService.signInKakao(request);
         return ApiResponse.onSuccess(
                 UserConverter.toUserSignInResultDTO(
-                        user
-                )
-        );
-    }
-
-    // 미구현
-    @Operation(summary = "토큰 갱신", description =
-            "# 토큰 갱신 API 입니다. 리프레시 토큰을 header에 입력해주세요."
-    )
-    @PostMapping("/refresh")
-    public ApiResponse<UserResponseDTO.RefreshResultDTO> refreshToken(
-            @RequestHeader("refreshToken") String refreshToken
-    ) {
-        Users user = userCommandService.refresh(refreshToken);
-        return ApiResponse.onSuccess(
-                UserConverter.toRefreshResultDTO(
-                        user
+                        user, null, null
                 )
         );
     }

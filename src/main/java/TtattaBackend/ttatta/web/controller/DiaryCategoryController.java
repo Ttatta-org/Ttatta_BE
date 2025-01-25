@@ -13,6 +13,7 @@ import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -29,9 +30,9 @@ public class DiaryCategoryController {
     private final DiaryCategoryQueryService diaryCategoryQueryService;
     private final UserRepository userRepository;
 
-    @Operation(summary = "카테고리 생성 api", description =
-            "새로운 카테고리를 생성할 때 사용하는 api 입니다.\n카테고리 이름과 색상, 사용자의 id 데이터를 넣어주시면 됩니다."
-    )
+    @Operation(
+            summary = "카테고리 생성 api",
+            description = "새로운 카테고리를 생성할 때 사용하는 api 입니다.\n카테고리 이름과 색상, 사용자의 id 데이터를 넣어주시면 됩니다.")
 
     @PostMapping("/")
     public ApiResponse<DiaryCategoryResponseDTO.CreateCategoryResultDTO> create(@RequestBody @Valid DiaryCategoryRequestDTO.CreateCategoryDTO request) {
@@ -39,10 +40,8 @@ public class DiaryCategoryController {
         return ApiResponse.onSuccess(DiaryCategoryConverter.toCreateCategoryResultDTO(diaryCategory));
     }
 
-
-
-    @Operation(summary = "카테고리 수정 api", description =
-            "카테고리를 수정할 때 사용하는 api 입니다.\n카테고리 이름과 색상, 사용자의 Id 데이터를 넣어주시면 됩니다. 카테고리 Id는 path parameter로 전달받습니다."
+    @Operation(summary = "카테고리 수정 api",
+            description = "카테고리를 수정할 a때 사용하는 api 입니다.\n카테고리 이름과 색상, 사용자의 Id 데이터를 넣어주시면 됩니다. 카테고리 Id는 path parameter로 전달받습니다."
     )
 
     @PatchMapping("/{categoryId}")
