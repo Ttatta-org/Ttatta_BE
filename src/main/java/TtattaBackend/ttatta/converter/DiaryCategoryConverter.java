@@ -5,9 +5,8 @@ import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
 
-import java.awt.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
+
 
 public class DiaryCategoryConverter {
 
@@ -84,4 +83,13 @@ public class DiaryCategoryConverter {
                 .build();
     }
 
+
+    public static DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO toGetAllCategoryCountResultDTO(
+            List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> categoryDetails,
+            Integer totalDiaryCount) {
+        return DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.builder()
+                .categoryDetails(categoryDetails)
+                .totalDiaryCount(totalDiaryCount)
+                .build();
+    }
 }

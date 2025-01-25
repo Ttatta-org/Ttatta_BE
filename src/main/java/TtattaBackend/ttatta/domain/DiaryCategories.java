@@ -2,14 +2,10 @@ package TtattaBackend.ttatta.domain;
 
 import TtattaBackend.ttatta.domain.common.BaseEntity;
 import TtattaBackend.ttatta.domain.enums.CategoryColor;
-import TtattaBackend.ttatta.domain.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import java.awt.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -41,7 +41,5 @@ public class DiaryCategoryRequestDTO {
 
     @Getter
     public static class GetAllCategoryCountDTO {
-        Long userId;
     }
-
 }
