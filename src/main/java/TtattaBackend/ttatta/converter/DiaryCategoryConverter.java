@@ -5,11 +5,11 @@ import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
 
-import java.awt.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
+
 
 public class DiaryCategoryConverter {
+
     public static DiaryCategoryResponseDTO.CreateCategoryResultDTO toCreateCategoryResultDTO(DiaryCategories diaryCategory) {
         return DiaryCategoryResponseDTO.CreateCategoryResultDTO.builder()
                 .categoryId(diaryCategory.getId())
@@ -47,12 +47,49 @@ public class DiaryCategoryConverter {
             case VIOLET:
                 diaryCategoryColor = CategoryColor.VIOLET;
                 break;
+            case BROWN:
+                diaryCategoryColor = CategoryColor.BROWN;
+                break;
+            case WHITE:
+                diaryCategoryColor = CategoryColor.WHITE;
+                break;
+            case PINK:
+                diaryCategoryColor = CategoryColor.PINK;
+                break;
+            case BLACK:
+                diaryCategoryColor = CategoryColor.BLACK;
+                break;
         }
 
 
         return DiaryCategories.builder()
                 .name(request.getCategoryName())
                 .color(diaryCategoryColor)
+                .build();
+    }
+
+    public static DiaryCategoryResponseDTO.ModifyCategoryResultDTO toModifyCategoryResultDTO(DiaryCategories diaryCategory) {
+        return DiaryCategoryResponseDTO.ModifyCategoryResultDTO.builder()
+                .categoryId(diaryCategory.getId())
+                .categoryColor(diaryCategory.getColor())
+                .categoryName(diaryCategory.getName())
+                .updatedAt(diaryCategory.getUpdatedAt())
+                .build();
+    }
+
+    public static DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO toDiaryCategoryExceptionDTO(Long categoryId) {
+        return DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO.builder()
+                .categoryId(categoryId)
+                .build();
+    }
+
+
+    public static DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO toGetAllCategoryCountResultDTO(
+            List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> categoryDetails,
+            Integer totalDiaryCount) {
+        return DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.builder()
+                .categoryDetails(categoryDetails)
+                .totalDiaryCount(totalDiaryCount)
                 .build();
     }
 }

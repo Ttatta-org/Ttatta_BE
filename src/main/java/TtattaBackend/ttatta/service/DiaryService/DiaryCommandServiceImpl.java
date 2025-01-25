@@ -12,15 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
-import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_NOT_FOUND;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DiaryPhotoServiceImpl implements DiaryPhotoService{
+public class DiaryCommandServiceImpl implements DiaryCommandService {
     private final DiaryRepository diaryRepository;
 
     private final UserRepository userRepository;
@@ -34,25 +33,26 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
     private final DiaryPhotosRepository diaryPhotosRepository;
 
     @Override
-    public Diaries save(DiaryRequestDTO.PostDTO request, List<MultipartFile> diaryPhotos) {
+    public Diaries save(DiaryRequestDTO.PostDTO request, MultipartFile diaryPhoto) {
         Users user = userRepository.findById(request.getUserId()).get();
         DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId()).get();
 
+        // 일기
         Diaries diaries = DiaryConverter.toDiaries(request);
 
         diaries.setUsers(user);
         diaries.setDiaryCategories(diaryCategories);
+        Diaries savedDiaries = diaryRepository.save(diaries);
 
+        // 일기 사진
         String uuid = UUID.randomUUID().toString();
         Uuid savedUuid = uuidRepository.save(Uuid.builder()
                 .uuid(uuid).build());
+        String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
+        DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(pictureUrl);
 
-        Diaries savedDiaries = diaryRepository.save(diaries);
-
-        for(MultipartFile diaryPhoto : diaryPhotos) {
-            String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
-            diaryPhotosRepository.save(DiaryConverter.toDiaryPhoto(pictureUrl, diaries));
-        }
+        diaryPhotos.setDiaries(savedDiaries);
+        diaryPhotosRepository.save(diaryPhotos);
 
         return savedDiaries;
    }
@@ -74,6 +74,20 @@ public class DiaryPhotoServiceImpl implements DiaryPhotoService{
 
         diaryRepository.delete(diaries);
 
+   }
+
+   @Override
+   public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId) {
+        Diaries diaries = diaryRepository.findById((diaryId))
+                .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
+
+        request.getContent().ifPresent(diaries::updateContent);
+        request.getDiaryCategoryId().ifPresent(diaryCategoryId -> {
+            DiaryCategories diaryCategories = diaryCategoryRepository.findDiaryCategoriesById(diaryCategoryId);
+            diaries.setDiaryCategories(diaryCategories);
+        });
+
+        return diaryRepository.save(diaries);
    }
 
 }

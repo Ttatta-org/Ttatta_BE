@@ -35,7 +35,7 @@ public class ExistDiaryCategoryValidator implements ConstraintValidator<ExistDia
 
         if (!isValid) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(errorStatus.getMessage()).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(errorStatus.toString()).addConstraintViolation();
         }
 
         return isValid;

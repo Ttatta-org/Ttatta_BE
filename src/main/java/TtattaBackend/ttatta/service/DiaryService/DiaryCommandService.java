@@ -4,9 +4,8 @@ import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
-public interface DiaryPhotoService {
-    Diaries save(DiaryRequestDTO.PostDTO postDTO, List<MultipartFile> diaryPhotos);
+public interface DiaryCommandService {
+    Diaries save(DiaryRequestDTO.PostDTO postDTO, MultipartFile diaryPhotos);
     void delete(Long diaryId);
+    Diaries edit(DiaryRequestDTO.EditDTO editDTO, Long diaryId);
 }
