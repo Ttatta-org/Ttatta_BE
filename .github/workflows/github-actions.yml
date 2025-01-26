@@ -77,5 +77,6 @@ jobs:
           sudo docker rm -f $(docker ps -qa)
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ttatta
           sudo docker run -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+                          -e JWT_HEADER=${{ secrets.JWT_HEADER }} \
                           -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/ttatta
           docker image prune -f
