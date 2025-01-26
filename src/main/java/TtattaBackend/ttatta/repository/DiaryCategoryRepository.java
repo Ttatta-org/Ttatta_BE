@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.repository;
 
 import TtattaBackend.ttatta.domain.DiaryCategories;
+import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.validation.annotation.ExistDiaryCategory;
 import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,5 +15,5 @@ import java.util.Optional;
 public interface DiaryCategoryRepository extends JpaRepository<DiaryCategories, Long> {
     List<DiaryCategories> findCategoriesByUsersId(Long userId);
     DiaryCategories findDiaryCategoriesById(Long diaryCategoriesId);
-    Optional<DiaryCategories> findByNameAndId(@ExistDiaryCategory @Param("name")String name, @ExistUser @Param("userId")Long userId);
+    Optional<DiaryCategories> findByUsersAndName(Users user, String name);
 }
