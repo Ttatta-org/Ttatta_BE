@@ -21,8 +21,5 @@ public class DiaryCategoryRequestDTO {
         private Optional<String> categoryName = Optional.empty();
         @ExistDiaryCategoryColor
         private Optional<String> categoryColor = Optional.empty();
-//        @ExistUser
-//        private Long userId;
     }
-
 }
