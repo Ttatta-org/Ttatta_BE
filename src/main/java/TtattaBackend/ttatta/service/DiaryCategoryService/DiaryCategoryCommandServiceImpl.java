@@ -30,7 +30,8 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
     @Override
     @Transactional
     public DiaryCategories createCategory(DiaryCategoryRequestDTO.CreateCategoryDTO request) {
-        Users user = userRepository.findById(request.getUserId()).orElseThrow ();
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId).orElseThrow ();
         DiaryCategories newDiaryCategory = DiaryCategoryConverter.toDiaryCategory(request);
         newDiaryCategory.setUsers(user);
         return categoryRepository.save(newDiaryCategory);

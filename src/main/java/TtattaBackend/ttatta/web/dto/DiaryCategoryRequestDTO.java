@@ -14,8 +14,8 @@ public class DiaryCategoryRequestDTO {
     public static class CreateCategoryDTO {
         String categoryName;
         CategoryColor categoryColor;
-        @ExistUser
-        Long userId;
+//        @ExistUser
+//        Long userId;
     }
 
     @Getter
@@ -27,15 +27,4 @@ public class DiaryCategoryRequestDTO {
         private Long userId;
     }
 
-//    @Getter
-//    public static class DeleteCategoryDTO {
-//        @ExistUser
-//        Long userId;
-//    }
-//
-//    @Getter
-//    public static class DeleteAllCategoryDTO {
-//        @ExistUser
-//        Long userId;
-//    }
 }
