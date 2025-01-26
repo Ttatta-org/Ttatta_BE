@@ -21,60 +21,60 @@ jobs:
     # develop 브랜치로의 pull request가 merge 되었을 때 github actions 작동
     # 또는 develop 브랜치에 push가 발생하면 github actions 작동 (pr merge시 actions가 2번 발생하는 문제를 해결하기 위해 merge가 아닌 push때만 실행되도록 함)
 
-  # 지정한 저장소(현재 REPO)에서 코드를 워크플로우 환경으로 가져오도록 하는 github action
-  steps:
-  - uses: actions/checkout@v3
-  - name: Set up JDK 17
-    uses: actions/setup-java@v3
-    with:
-      java-version: '17'
-      distribution: "temurin"
+    # 지정한 저장소(현재 REPO)에서 코드를 워크플로우 환경으로 가져오도록 하는 github action
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: "temurin"
 
-    # gradle caching - 빌드 시간 향상
-  - name: Gradle Caching
-    uses: actions/cache@v3
-    with:
-      path: |
-        ~/.gradle/caches
-        ~/.gradle/wrapper
-      key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-      restore-keys: |
-        ${{ runner.os }}-gradle-
+      # gradle caching - 빌드 시간 향상
+    - name: Gradle Caching
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
 
-  # Github secrets로부터 데이터를 받아서, 워크 플로우에 파일을 생성
-  - name: make application.yml
-    run: |
-      cd ./src/main/resources     # resources 폴더로 이동
-      touch ./application.yml     # application.yml 생성
-      echo "${{ secrets.YML }}" > ./application.yml     # github actions에서 설정한 값을 application.yml 파일에 쓰기
-    shell: bash
+    # Github secrets로부터 데이터를 받아서, 워크 플로우에 파일을 생성
+    - name: make application.yml
+      run: |
+        cd ./src/main/resources     # resources 폴더로 이동
+        touch ./application.yml     # application.yml 생성
+        echo "${{ secrets.YML }}" > ./application.yml     # github actions에서 설정한 값을 application.yml 파일에 쓰기
+      shell: bash
 
-  # gradle을 통해 소스를 빌드.
-  - name: Build with Gradle
-    run: |
-      chmod +x ./gradlew
-      ./gradlew clean build -x test
-      
-  # dockerfile을 통해 이미지를 빌드하고, 이를 docker hub로 push 합니다.
-  - name: Docker build and push Docker image
-    run: |
-      docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
-      docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/ttatta .
-      docker push ${{ secrets.DOCKER_USERNAME }}/ttatta
+    # gradle을 통해 소스를 빌드.
+    - name: Build with Gradle
+      run: |
+        chmod +x ./gradlew
+        ./gradlew clean build -x test
 
-  # appleboy/ssh-action@master 액션을 사용하여 지정한 서버에 ssh로 접속하고, script를 실행합니다.
-  # script의 내용은 도커의 기존 프로세스들을 제거하고, docker hub로부터 방금 위에서 push한 내용을 pull 받아 실행하는 것입니다.
-  - name: Deploy to server
-    uses: appleboy/ssh-action@master
-    id: deploy
-    with:
-      host: ${{ secrets.EC2_HOST }}
-      username: ubuntu
-      key: ${{ secrets.EC2_KEY }}
-      envs: GITHUB_SHA
-    script: |
-      sudo docker stop $(docker ps -a -q) 
-      sudo docker rm -f $(docker ps -qa)
-      sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ttatta
-      sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/ttatta
-      docker image prune -f
+    # dockerfile을 통해 이미지를 빌드하고, 이를 docker hub로 push 합니다.
+    - name: Docker build and push Docker image
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+        docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/ttatta .
+        docker push ${{ secrets.DOCKER_USERNAME }}/ttatta
+
+    # appleboy/ssh-action@master 액션을 사용하여 지정한 서버에 ssh로 접속하고, script를 실행합니다.
+    # script의 내용은 도커의 기존 프로세스들을 제거하고, docker hub로부터 방금 위에서 push한 내용을 pull 받아 실행하는 것입니다.
+    - name: Deploy to server
+      uses: appleboy/ssh-action@master
+      id: deploy
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_KEY }}
+        envs: GITHUB_SHA
+        script: |
+          sudo docker stop $(docker ps -a -q) 
+          sudo docker rm -f $(docker ps -qa)
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ttatta
+          sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/ttatta
+          docker image prune -f
