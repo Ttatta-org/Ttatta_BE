@@ -6,6 +6,6 @@ import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
 import java.util.List;
 
 public interface DiaryCategoryQueryService {
-    Integer getTotalDiaryCount(@ExistUser Long userId);
-    List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> getCategoryDetails(@ExistUser Long userId);
+    Integer getTotalDiaryCount();
+    List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> getCategoryDetails();
 }

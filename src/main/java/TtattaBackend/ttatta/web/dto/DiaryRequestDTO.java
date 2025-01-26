@@ -10,9 +10,6 @@ import java.util.Optional;
 public class DiaryRequestDTO {
     @Getter
     public static class PostDTO {
-        @ExistUser
-        private Long userId;
-
         @ExistDiaryCategory
         private Long diaryCategoryId;
         private String content;
@@ -25,35 +22,24 @@ public class DiaryRequestDTO {
     }
 
     @Getter
-    public static class DeleteDTO {
-        @ExistUser
-        private Long userId;
-    }
-
-    @Getter
     public static class EditDTO {
-        @ExistUser
-        private Long userId;
         private Optional<String> content = Optional.empty();
         private Optional<Long> diaryCategoryId = Optional.empty();
     }
 
     @Getter
     public static class KeepDTO {
-        private Long userId;
         private Optional<LocalDateTime> date = Optional.empty();
     }
 
     @Getter
     public static class MapDTO {
-        private Long userId;
         private double latitude;
         private double longitude;
     }
 
     @Getter
     public static class SearchDTO {
-        private Long userId;
         private String searchContent;
     }
 }

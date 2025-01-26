@@ -2,6 +2,7 @@ package TtattaBackend.ttatta.service.DiaryService;
 
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.aws.s3.AmazonS3Manager;
+import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryConverter;
 import TtattaBackend.ttatta.domain.*;
 import TtattaBackend.ttatta.repository.*;
@@ -34,7 +35,9 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
     @Override
     public Diaries save(DiaryRequestDTO.PostDTO request, MultipartFile diaryPhoto) {
-        Users user = userRepository.findById(request.getUserId()).get();
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        Users user = userRepository.findById(userId).get();
         DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId()).get();
 
         // 일기
