@@ -17,6 +17,10 @@ public class UserRequestDTO {
     @NoArgsConstructor
     public static class SignUpRequestDTO {
         @NotBlank(message = "이름은 빈값일 수 없습니다.")
+        private String name;
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+        @NotBlank(message = "닉네임은 빈값일 수 없습니다.")
         @Size(max = 8, message = "닉네임은 1 ~ 8자이어야 합니다.")
         private String nickname;
         @NotBlank(message = "아이디는 빈값일 수 없습니다.")

@@ -9,6 +9,8 @@ import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 public class UserConverter {
     public static Users toUsers(UserRequestDTO.SignUpRequestDTO request) {
         return Users.builder()
+                .name(request.getName())
+                .email(request.getEmail())
                 .nickname(request.getNickname())
                 .username(request.getUsername())
                 .loginType(LoginType.REGULAR)
