@@ -6,12 +6,15 @@ import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 
+import java.util.ArrayList;
+
 public class UserConverter {
     public static Users toUsers(UserRequestDTO.SignUpRequestDTO request) {
         return Users.builder()
                 .nickname(request.getNickname())
                 .username(request.getUsername())
                 .loginType(LoginType.REGULAR)
+                .diaryCategoriesList(new ArrayList<>())
                 .build();
     }
 
