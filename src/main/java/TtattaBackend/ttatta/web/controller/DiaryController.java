@@ -25,7 +25,7 @@ public class DiaryController {
     @Operation(summary = "일기 작성",
             description = """
                     카테고리 ID, 일기 내용, 일기 사진, 사진 찍은 날짜, 위도, 경도, 위치이름을 작성해주세요.
-                    저장된 일기의 id와 사진 찍은 날짜가 반환됩니다.
+                    저장된 일기의 ID와 사진 찍은 날짜가 반환됩니다.
                     """
     )
 
