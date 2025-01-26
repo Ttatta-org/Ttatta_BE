@@ -42,14 +42,19 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
     public DiaryCategories modifyCategory(Long categoryId, DiaryCategoryRequestDTO.ModifyCategoryDTO request) {
         DiaryCategories diaryCategory = categoryRepository.findById(categoryId)
                 .orElseThrow();
+        Long userId = SecurityUtil.getCurrentUserId();
 
-        request.getCategoryName().ifPresent(diaryCategory::modifyCategoryName);
-        request.getCategoryColor().ifPresent(categoryColor -> {
-            verifyCategoryColor(categoryColor);
-            diaryCategory.modifyCategoryColor(CategoryColor.valueOf(categoryColor.toUpperCase()));
-        });
+        if(diaryCategory.getUsers().getId().equals(userId)) {
+            request.getCategoryName().ifPresent(diaryCategory::modifyCategoryName);
+            request.getCategoryColor().ifPresent(categoryColor -> {
+                verifyCategoryColor(categoryColor);
+                diaryCategory.modifyCategoryColor(CategoryColor.valueOf(categoryColor.toUpperCase()));
+            });
 
-        return diaryCategoryRepository.save(diaryCategory);
+            return diaryCategoryRepository.save(diaryCategory);
+        } else {
+            throw new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_MODIFY_USER_NOT_FOUND);
+        }
     }
 
     @Override
