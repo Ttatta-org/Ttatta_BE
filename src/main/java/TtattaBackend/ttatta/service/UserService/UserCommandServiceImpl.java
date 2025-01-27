@@ -2,14 +2,16 @@ package TtattaBackend.ttatta.service.UserService;
 
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
+import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
 import TtattaBackend.ttatta.converter.UserConverter;
+import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.domain.Users;
-import TtattaBackend.ttatta.domain.enums.Gender;
-import TtattaBackend.ttatta.domain.enums.IsAvailable;
-import TtattaBackend.ttatta.domain.enums.LoginType;
-import TtattaBackend.ttatta.domain.enums.UserStatus;
+import TtattaBackend.ttatta.domain.enums.*;
 import TtattaBackend.ttatta.jwt.JwtUtils;
+import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
+import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
+import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 import jakarta.transaction.Transactional;
@@ -41,6 +43,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Value("${jwt.REFRESH_EXP_TIME}")
     private int refreshExpTime;
     private final UserRepository userRepository;
+    private final DiaryCategoryRepository diaryCategoryRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtils jwtUtils;
@@ -70,7 +73,20 @@ public class UserCommandServiceImpl implements UserCommandService {
     public Users signUp(UserRequestDTO.SignUpRequestDTO request) {
         Users newUser = UserConverter.toUsers(request);
         newUser.encodePassword(passwordEncoder.encode(request.getPassword()));
+        // 일상 카테고리 생성
+        createDefaultCategory(newUser);
         return userRepository.save(newUser);
+    }
+
+    private void createDefaultCategory(Users newUser) {
+        DiaryCategories defaultDiaryCategories = DiaryCategoryConverter.toDiaryCategory(
+                DiaryCategoryRequestDTO.CreateCategoryDTO.builder()
+                    .categoryName("일상")
+                    .categoryColor(CategoryColor.RED)
+                    .build()
+        );
+        defaultDiaryCategories.setUsers(newUser);
+        diaryCategoryRepository.save(defaultDiaryCategories);
     }
 
     @Override
