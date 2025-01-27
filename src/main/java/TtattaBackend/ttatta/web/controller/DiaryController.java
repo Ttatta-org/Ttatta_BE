@@ -61,8 +61,8 @@ public class DiaryController {
 
     @Operation(summary = "일기 수정",
             description = """
-                    일기 id, 수정할 일기의 내용을 작성해주세요.
-                    현재는 내용만 수정 가능합니다.
+                    일기 id, 수정할 일기의 내용(필수), 수정할 카테고리 id(선택)를 작성해주세요.\n
+                    카테고리 수정 없을 시 null로 보내주세요.
                     """
     )
     @PatchMapping("/edit/{diaryId}")
