@@ -33,9 +33,4 @@ public class DiaryRequestDTO {
         private double latitude;
         private double longitude;
     }
-
-    @Getter
-    public static class SearchDTO {
-        private String searchContent;
-    }
 }
