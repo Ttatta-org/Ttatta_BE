@@ -28,7 +28,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             "SELECT MAX(d2.date) " +
             "FROM Diaries d2 " +
             "WHERE d2.users = :user " +
-            "AND FLOOR(d2.latitude * 10000.0) = FLOOR(d.latitude * 10000.0) " +
-            "AND FLOOR(d2.longitude * 10000.0) = FLOOR(d.longitude * 10000.0))")
+            "AND FLOOR(d2.latitude * 100000.0) = FLOOR(d.latitude * 100000.0) " +
+            "AND FLOOR(d2.longitude * 100000.0) = FLOOR(d.longitude * 100000.0))")
     List<Diaries> findAllByUsers(Users user);
 }
