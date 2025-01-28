@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface DiaryCategoryQueryService {
     Integer getTotalDiaryCount();
-    List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> getCategoryDetails();
+    List<DiaryCategoryResponseDTO.CategoryDetailDTO> getCategoryDetails();
 }

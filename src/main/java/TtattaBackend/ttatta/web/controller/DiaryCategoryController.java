@@ -83,7 +83,7 @@ public class DiaryCategoryController {
 
     @GetMapping("/diary-counts")
     public ApiResponse<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO> getDiaryCount() {
-        List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> details = diaryCategoryQueryService.getCategoryDetails();
+        List<DiaryCategoryResponseDTO.CategoryDetailDTO> details = diaryCategoryQueryService.getCategoryDetails();
         Integer totalCount = diaryCategoryQueryService.getTotalDiaryCount();
 
         DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO result = DiaryCategoryConverter.toGetAllCategoryCountResultDTO(details, totalCount);

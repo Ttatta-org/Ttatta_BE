@@ -27,10 +27,10 @@ public class DiaryCategoryQueryServiceImpl implements DiaryCategoryQueryService 
     }
 
     @Override
-    public List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> getCategoryDetails() {
+    public List<DiaryCategoryResponseDTO.CategoryDetailDTO> getCategoryDetails() {
         Long currentUserId = SecurityUtil.getCurrentUserId();
         return diaryCategoryRepository.findCategoriesByUsersId(currentUserId).stream()
-                .map(category -> DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail.builder()
+                .map(category -> DiaryCategoryResponseDTO.CategoryDetailDTO.builder()
                         .categoryId(category.getId())
                         .categoryName(category.getName())
                         .categoryColor(category.getColor())

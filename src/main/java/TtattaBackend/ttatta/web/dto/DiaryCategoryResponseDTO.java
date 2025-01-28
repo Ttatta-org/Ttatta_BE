@@ -54,17 +54,18 @@ public class DiaryCategoryResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class GetAllCategoryCountResultDTO {
-        List<CategoryDetail> categoryDetails;
+        List<CategoryDetailDTO> categoryDetails;
         Integer totalDiaryCount;
-        @Builder
-        @Getter
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class CategoryDetail {
-            Long categoryId;
-            String categoryName;
-            Integer diaryCount;
-            CategoryColor categoryColor;
-        }
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CategoryDetailDTO {
+        Long categoryId;
+        String categoryName;
+        Integer diaryCount;
+        CategoryColor categoryColor;
     }
 }

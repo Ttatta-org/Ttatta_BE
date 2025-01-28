@@ -80,7 +80,7 @@ public class DiaryCategoryConverter {
 
 
     public static DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO toGetAllCategoryCountResultDTO(
-            List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> categoryDetails,
+            List<DiaryCategoryResponseDTO.CategoryDetailDTO> categoryDetails,
             Integer totalDiaryCount) {
         return DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.builder()
                 .categoryDetails(categoryDetails)
