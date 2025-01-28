@@ -107,15 +107,15 @@ public class DiaryController {
 
     @Operation(summary = "일기 검색",
         description = """
-                검색 내용(필수), 페이징 번호를 작성해주세요.
-                검색한 내용이 들어가 있는 일기가 반환됩니다.
+                검색 내용(필수), 페이징 번호(필수)를 작성해주세요.\n
+                검색한 내용이 들어가 있는 일기가 최신순으로 5개씩 반환됩니다.
                 """
     )
     @GetMapping("/search/{requestNum}")
     public ApiResponse<DiaryResponseDTO.SearchDiaryListDTO> getSearchDiary(@PathVariable int requestNum,
-                                                                           @RequestParam String content) {
+                                                                           @RequestParam String searchContent) {
 
-        Page<Diaries> searchDiaryList = diaryQueryService.getSearchDiaryList(content, requestNum);
+        Page<Diaries> searchDiaryList = diaryQueryService.getSearchDiaryList(searchContent, requestNum);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toSearchDiaryListDTO(searchDiaryList)
