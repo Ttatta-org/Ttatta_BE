@@ -51,11 +51,6 @@ public class DiaryCategoryController {
        return ApiResponse.onSuccess(DiaryCategoryConverter.toModifyCategoryResultDTO(diaryCategory));
     }
 
-    @PatchMapping("/exception")
-    public ApiResponse<DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO> exceptionAPI (@RequestParam Long categoryId) {
-        return ApiResponse.onSuccess(DiaryCategoryConverter.toDiaryCategoryExceptionDTO(categoryId));
-    }
-
 
 
     @Operation(summary = "모든 기록 삭제 api", description =
@@ -88,7 +83,7 @@ public class DiaryCategoryController {
 
     @GetMapping("/diary-counts")
     public ApiResponse<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO> getDiaryCount() {
-        List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> details = diaryCategoryQueryService.getCategoryDetails();
+        List<DiaryCategoryResponseDTO.CategoryDetailDTO> details = diaryCategoryQueryService.getCategoryDetails();
         Integer totalCount = diaryCategoryQueryService.getTotalDiaryCount();
 
         DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO result = DiaryCategoryConverter.toGetAllCategoryCountResultDTO(details, totalCount);

@@ -23,27 +23,19 @@ public class DiaryCategoryQueryServiceImpl implements DiaryCategoryQueryService 
     @Override
     public Integer getTotalDiaryCount() {
         Long currentUserId = SecurityUtil.getCurrentUserId();
-        if (currentUserId != null) {
-            return diaryRepository.countDiariesByUsersId(currentUserId);
-        } else {
-            throw new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_GET_USER_NOT_FOUND);
-        }
+        return diaryRepository.countDiariesByUsersId(currentUserId);
     }
 
     @Override
-    public List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> getCategoryDetails() {
+    public List<DiaryCategoryResponseDTO.CategoryDetailDTO> getCategoryDetails() {
         Long currentUserId = SecurityUtil.getCurrentUserId();
-        if (currentUserId != null) {
-            return diaryCategoryRepository.findCategoriesByUsersId(currentUserId).stream()
-                    .map(category -> DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail.builder()
-                            .categoryId(category.getId())
-                            .categoryName(category.getName())
-                            .categoryColor(category.getColor())
-                            .diaryCount(diaryRepository.countDiariesByDiaryCategoriesId(category.getId()))
-                            .build())
-                    .collect(Collectors.toList());
-        } else {
-            throw new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_GET_USER_NOT_FOUND);
-        }
+        return diaryCategoryRepository.findCategoriesByUsersId(currentUserId).stream()
+                .map(category -> DiaryCategoryResponseDTO.CategoryDetailDTO.builder()
+                        .categoryId(category.getId())
+                        .categoryName(category.getName())
+                        .categoryColor(category.getColor())
+                        .diaryCount(diaryRepository.countDiariesByDiaryCategoriesId(category.getId()))
+                        .build())
+                .collect(Collectors.toList());
     }
 }
