@@ -48,16 +48,24 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         Diaries savedDiaries = diaryRepository.save(diaries);
 
         // 일기 사진
-        String uuid = UUID.randomUUID().toString();
-        Uuid savedUuid = uuidRepository.save(Uuid.builder()
-                .uuid(uuid).build());
-        String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
-        DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(pictureUrl);
+        DiaryPhotos diaryPhotos = savePhoto(diaryPhoto);
 
         diaryPhotos.setDiaries(savedDiaries);
         diaryPhotosRepository.save(diaryPhotos);
 
         return savedDiaries;
+   }
+
+   // s3 객체 사진 저장
+   @Override
+   public DiaryPhotos savePhoto(MultipartFile diaryPhoto) {
+       String uuid = UUID.randomUUID().toString();
+       Uuid savedUuid = uuidRepository.save(Uuid.builder()
+               .uuid(uuid).build());
+       String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
+       DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(pictureUrl);
+
+       return diaryPhotos;
    }
 
    @Override
@@ -68,27 +76,50 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
         DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
 
-        String savedUuid = s3Manager.getUuidByUrl(diaryPhoto.getImageUrl());
-
-        Uuid uuid = uuidRepository.findByUuid(savedUuid);
-        uuidRepository.delete(uuid);
-
-        s3Manager.deleteFile(s3Manager.generateDiaryKeyName(uuid));
+        deletePhoto(diaryPhoto);
 
         diaryRepository.delete(diaries);
 
    }
 
+   // s3에서 객체 삭제
    @Override
-   public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId) {
+   public void deletePhoto(DiaryPhotos diaryPhoto) {
+       String savedUuid = s3Manager.getUuidByUrl(diaryPhoto.getImageUrl());
+
+       Uuid uuid = uuidRepository.findByUuid(savedUuid);
+       uuidRepository.delete(uuid);
+
+       s3Manager.deleteFile(s3Manager.generateDiaryKeyName(uuid));
+
+       // db에서 삭제
+       diaryPhotosRepository.delete(diaryPhoto);
+   }
+
+
+   @Override
+   public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId, MultipartFile editPhoto) {
         Diaries diaries = diaryRepository.findById((diaryId))
                 .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
+        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
 
+        System.out.println("diaryCategoryId: " + request.getDiaryCategoryId());
+        System.out.println("content: " + request.getContent());
+
+        // 카테고리 수정
         request.getContent().ifPresent(diaries::updateContent);
         request.getDiaryCategoryId().ifPresent(diaryCategoryId -> {
             DiaryCategories diaryCategories = diaryCategoryRepository.findDiaryCategoriesById(diaryCategoryId);
             diaries.setDiaryCategories(diaryCategories);
         });
+
+       System.out.println(editPhoto);
+        // 사진 수정
+        if(editPhoto != null) {
+            deletePhoto(diaryPhoto);
+            DiaryPhotos diaryPhotos = savePhoto(editPhoto);
+            diaryPhotos.setDiaries(diaries);
+        }
 
         return diaryRepository.save(diaries);
    }

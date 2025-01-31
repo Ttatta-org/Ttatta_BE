@@ -61,15 +61,19 @@ public class DiaryController {
 
     @Operation(summary = "일기 수정",
             description = """
-                    일기 id, 수정할 일기의 내용(필수), 수정할 카테고리 id(선택)를 작성해주세요.\n
-                    카테고리 수정 없을 시 null로 보내주세요.
+                    일기 id -> Path Variable \n
+                    수정할 일기의 내용, 수정할 카테고리 id, 수정할 사진 파일 -> body 를 작성해주세요.\n
+                    ⭐️ 수정 하는 항목만 보내주세요. ⭐️\n
+                    ⭐️ body에 들어오는 -> 내용/카테고리 id/파일 중 최소 하나는 필수로 들어와야 합니다. ⭐️
                     """
     )
-    @PatchMapping("/edit/{diaryId}")
+    @PatchMapping(value = "/edit/{diaryId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ApiResponse<DiaryResponseDTO.EditResultDTO> editDiary(@PathVariable Long diaryId,
-                                         @RequestBody @Valid DiaryRequestDTO.EditDTO request) {
+                                                                 @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+                                                                 @RequestPart @Valid DiaryRequestDTO.EditDTO request,
+                                                                 @RequestPart(required = false) MultipartFile editPhoto) {
 
-        Diaries diaries = diaryCommandService.edit(request, diaryId);
+        Diaries diaries = diaryCommandService.edit(request, diaryId, editPhoto);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toEditResultDTO(diaries)
