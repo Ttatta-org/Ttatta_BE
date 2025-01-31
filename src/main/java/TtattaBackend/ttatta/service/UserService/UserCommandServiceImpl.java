@@ -148,6 +148,12 @@ public class UserCommandServiceImpl implements UserCommandService {
         return IsAvailable.UNAVAILABLE;
     }
 
+    @Override
+    public void logout() {
+        // 로그아웃시킬 회원의 redis의 refresh token삭제
+        Long userId = SecurityUtil.getCurrentUserId();
+        redisTemplate.delete(userId.toString());
+    }
 
     // 미구현
     @Override
