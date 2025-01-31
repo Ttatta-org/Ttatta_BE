@@ -103,9 +103,6 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
                 .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
         DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
 
-        System.out.println("diaryCategoryId: " + request.getDiaryCategoryId());
-        System.out.println("content: " + request.getContent());
-
         // 카테고리 수정
         request.getContent().ifPresent(diaries::updateContent);
         request.getDiaryCategoryId().ifPresent(diaryCategoryId -> {
@@ -113,7 +110,6 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
             diaries.setDiaryCategories(diaryCategories);
         });
 
-       System.out.println(editPhoto);
         // 사진 수정
         if(editPhoto != null) {
             deletePhoto(diaryPhoto);
