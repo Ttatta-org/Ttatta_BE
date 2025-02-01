@@ -149,7 +149,7 @@ public class UserController {
     }
 
     @Operation(summary = "회원 탈퇴", description =
-            "# 회원 탈퇴 API 입니다. 회원의 ID를 입력해주세요."
+            "# 회원 탈퇴 API 입니다. 회원의 ID를 입력해주세요오오오오!!!."
     )
     @DeleteMapping("/{userId}")
     public ApiResponse<Object> deleteUser(
