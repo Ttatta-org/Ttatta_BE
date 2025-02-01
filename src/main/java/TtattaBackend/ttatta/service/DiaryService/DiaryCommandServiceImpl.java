@@ -45,7 +45,7 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         diaries.setDiaryCategories(diaryCategories);
 
         // 클러스터 Id 지정
-        setClusterId(user, diaries);
+        setClusterId(user, request, diaries);
         Diaries savedDiaries = diaryRepository.save(diaries);
 
         // 일기 사진
@@ -95,25 +95,21 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
    }
 
    @Override
-   public void setClusterId(Users user, Diaries diaries) {
-       Optional<Long> existClusterId = diaryRepository.findFirstClusterIdByUsersAndLatitudeAndLongitude(user, diaries.getLongitude(), diaries.getLongitude());
+   public void setClusterId(Users user, DiaryRequestDTO.PostDTO request, Diaries diaries) {
+       Optional<Long> existClusterId = diaryRepository.findFirstClusterIdByUsersAndLatitudeAndLongitude(user, request.getLatitude(), request.getLongitude());
 
-       System.out.println("if 문 밖, existClusterId = " + existClusterId);
        if(existClusterId.isPresent()) {
            // 장소 같은 경우
-           System.out.println("장소 같은 경우, existClusterId = " + existClusterId);
            diaries.setClusterId(existClusterId.get());
-       } else {
+       } else { // 장소 다름
            // 가장 최근 클러스터 id
-           Optional<Long> newClusterId = diaryRepository.findFirstClusterIdByUsers(user);
+           Optional<Diaries> clusterDiary = diaryRepository.findTop1ClusterIdByUsersOrderByClusterIdDesc(user);
 
-           if(newClusterId.isPresent()) {
-               // 장소 다른 경우
-               System.out.println("장소 다른 경우, newClusterId = " + newClusterId);
-               diaries.setClusterId(newClusterId.get() + 1);
+           if(clusterDiary.isPresent()) {
+               Long newClusterId = clusterDiary.get().getClusterId();
+               diaries.setClusterId(newClusterId + 1);
            } else {
                // 첫 일기
-               System.out.println("첫 일기");
                diaries.setClusterId(0L);
            }
        }

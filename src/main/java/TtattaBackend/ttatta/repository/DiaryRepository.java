@@ -40,10 +40,8 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             "AND FLOOR(d.longitude * 100000.0) = FLOOR(:longitude * 100000.0)")
     Optional<Long> findFirstClusterIdByUsersAndLatitudeAndLongitude(@Param("user") Users user, @Param("latitude") double latitude, @Param("longitude") double longitude);
 
-    @Query("SELECT d.clusterId " +
-            "FROM Diaries d " +
-            "WHERE d.users = :user " +
-            "ORDER BY d.clusterId DESC")
-    Optional<Long> findFirstClusterIdByUsers(@Param("user") Users user);
+    Optional<Diaries> findTop1ClusterIdByUsersOrderByClusterIdDesc(@Param("user") Users user);
+
+
 
 }

@@ -9,5 +9,5 @@ public interface DiaryCommandService {
     Diaries save(DiaryRequestDTO.PostDTO postDTO, MultipartFile diaryPhotos);
     void delete(Long diaryId);
     Diaries edit(DiaryRequestDTO.EditDTO editDTO, Long diaryId);
-    void setClusterId(Users user, Diaries diaries);
+    void setClusterId(Users user, DiaryRequestDTO.PostDTO postDTO, Diaries diaries);
 }
