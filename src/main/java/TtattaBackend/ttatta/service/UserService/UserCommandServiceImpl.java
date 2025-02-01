@@ -164,8 +164,8 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public Users getUserInfo(Long userId) {
-        return userRepository.findById(userId)
+    public Users getUserInfo() {
+        return userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
     }
 

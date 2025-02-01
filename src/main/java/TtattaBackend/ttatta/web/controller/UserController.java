@@ -118,13 +118,11 @@ public class UserController {
     }
 
     @Operation(summary = "회원 정보 조회", description =
-            "# 회원 정보 조회 API 입니다. 회원의 ID를 입력해주세요."
+            "# 회원 정보 조회 API 입니다."
     )
     @GetMapping("/{userId}")
-    public ApiResponse<UserResponseDTO.UserInfoResultDTO> getUserInfo(
-            @PathVariable Long userId
-    ) {
-        Users user = userCommandService.getUserInfo(userId);
+    public ApiResponse<UserResponseDTO.UserInfoResultDTO> getUserInfo() {
+        Users user = userCommandService.getUserInfo();
         return ApiResponse.onSuccess(
                 UserConverter.toUserInfoResultDTO(
                         user
