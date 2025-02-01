@@ -170,8 +170,8 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public Users updateUserInfo(Long userId, UserRequestDTO.UpdateRequestDTO request) {
-        Users user = userRepository.findById(userId)
+    public Users updateUserInfo(UserRequestDTO.UpdateRequestDTO request) {
+        Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
         // 입력 들어온 값만 업데이트

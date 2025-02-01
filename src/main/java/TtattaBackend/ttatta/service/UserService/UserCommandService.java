@@ -14,6 +14,6 @@ public interface UserCommandService {
     Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request);    // 미구현
     Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
     Users getUserInfo();
-    Users updateUserInfo(Long userId, UserRequestDTO.UpdateRequestDTO request);
+    Users updateUserInfo(UserRequestDTO.UpdateRequestDTO request);
     void deleteUser(Long userId);
 }
