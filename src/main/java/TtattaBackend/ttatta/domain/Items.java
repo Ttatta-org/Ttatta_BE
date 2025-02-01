@@ -3,12 +3,14 @@ package TtattaBackend.ttatta.domain;
 
 import TtattaBackend.ttatta.domain.common.BaseEntity;
 import TtattaBackend.ttatta.domain.enums.Owner;
+import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,7 +30,7 @@ public class Items extends BaseEntity {
     private String name;
 
     @Column(nullable = false)
-    private Integer cost;
+    private Long cost;
 
     @Column(columnDefinition = "TEXT")
     private String itemImg;
@@ -37,6 +39,6 @@ public class Items extends BaseEntity {
     private Owner owner;
 
     @OneToMany(mappedBy = "items",cascade = CascadeType.ALL)
-    private List<Items> itemsList;
+    private List<OwnedItems> ownedItemsList = new ArrayList<>();
 
 }
