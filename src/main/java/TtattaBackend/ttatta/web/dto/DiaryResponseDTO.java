@@ -36,6 +36,7 @@ public class DiaryResponseDTO {
         String categoryColor;
         double latitude;
         double longitude;
+        Long clusterId;
     }
 
     @Getter

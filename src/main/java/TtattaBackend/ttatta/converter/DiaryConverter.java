@@ -49,6 +49,7 @@ public class DiaryConverter {
                 .categoryColor(diaries.getDiaryCategories().getColor().toString())
                 .latitude(diaries.getLatitude())
                 .longitude(diaries.getLongitude())
+                .clusterId(diaries.getClusterId())
                 .build();
     }
 
