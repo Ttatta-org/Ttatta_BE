@@ -73,8 +73,22 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         envs: GITHUB_SHA
         script: |
-          sudo docker stop $(docker ps -a -q) 
-          sudo docker rm -f $(docker ps -qa)
+          # 실행 중인 컨테이너 정리
+          RUNNING_CONTAINER=$(docker ps -q --filter "ancestor=${{ secrets.DOCKER_USERNAME }}/ttatta")
+          if [ ! -z "$RUNNING_CONTAINER" ]; then
+            echo "Stopping running container..."
+            docker stop $RUNNING_CONTAINER
+            docker rm $RUNNING_CONTAINER
+          fi
+          
+          # 8080 포트를 점유 중인 프로세스 강제 종료
+          PID=$(sudo lsof -t -i:8080)
+          if [ ! -z "$PID" ]; then
+            echo "Killing process on port 8080..."
+            sudo kill -9 $PID
+          fi
+          
+          # 최신 이미지 pull 후 실행
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ttatta
           sudo docker run -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
                           -e JWT_HEADER=${{ secrets.JWT_HEADER }} \
