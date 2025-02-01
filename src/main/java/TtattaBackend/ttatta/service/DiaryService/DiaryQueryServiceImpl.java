@@ -39,4 +39,15 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
 
         return diariesPage;
     }
+
+    @Override
+    public Page<Diaries> getSearchDiaryList(String content, int requestNum) {
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        Users user = userRepository.findById(userId).get();
+
+        Page<Diaries> diariesPage = diaryRepository.findAllByUsersAndContent(user, content, PageRequest.of(requestNum, 5));
+
+        return diariesPage;
+    }
 }

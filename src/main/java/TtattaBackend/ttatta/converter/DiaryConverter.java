@@ -76,7 +76,26 @@ public class DiaryConverter {
 
     }
 
-    public static DiaryResponseDTO.SearchResultDTO toSearchResultDTO(Diaries diaries) {
-        return null;
+    public static DiaryResponseDTO.SearchDiaryDTO toSearchDiaryDTO(Diaries diaries) {
+        String imageUrl = diaries.getDiaryPhotosList().stream()
+                .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);
+
+        return DiaryResponseDTO.SearchDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .content(diaries.getContent())
+                .date(diaries.getDate())
+                .image(imageUrl)
+                .locationName(diaries.getLocationName())
+                .build();
+    }
+
+    public static DiaryResponseDTO.SearchDiaryListDTO toSearchDiaryListDTO(Page<Diaries> diaryList) {
+        List<DiaryResponseDTO.SearchDiaryDTO> searchDiaryList = diaryList.stream()
+                .map(DiaryConverter::toSearchDiaryDTO).collect(Collectors.toList());
+
+
+        return DiaryResponseDTO.SearchDiaryListDTO.builder()
+                .searchDiaryList(searchDiaryList)
+                .build();
     }
 }
