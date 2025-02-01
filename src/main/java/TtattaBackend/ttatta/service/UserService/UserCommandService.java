@@ -9,7 +9,7 @@ public interface UserCommandService {
     Users createTestUser();
     Users signUp(UserRequestDTO.SignUpRequestDTO request);
     IsAvailable verifyUsernameOverlap(String username);
-    void logout();
+    void logout(String accessToken);
     UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request);
     UserResponseDTO.RefreshResultDTO refresh(String refreshToken);
     Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request);    // 미구현

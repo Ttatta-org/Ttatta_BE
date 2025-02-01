@@ -89,8 +89,10 @@ public class UserController {
             "# 로그아웃 API 입니다. 로그아웃하고자 하는 유저의 access token을 header에 입력해주세요."
     )
     @DeleteMapping("/logout")
-    public ApiResponse<?> logout() {
-        userCommandService.logout();
+    public ApiResponse<?> logout(
+            @RequestHeader("Authorization") String accessToken
+    ) {
+        userCommandService.logout(accessToken);
         return ApiResponse.onSuccess("");
     }
 
