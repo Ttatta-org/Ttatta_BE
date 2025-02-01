@@ -120,7 +120,7 @@ public class UserController {
     @Operation(summary = "회원 정보 조회", description =
             "# 회원 정보 조회 API 입니다."
     )
-    @GetMapping("/{userId}")
+    @GetMapping("/info")
     public ApiResponse<UserResponseDTO.UserInfoResultDTO> getUserInfo() {
         Users user = userCommandService.getUserInfo();
         return ApiResponse.onSuccess(
