@@ -32,8 +32,8 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     @Query("SELECT d " +
             "FROM Diaries d " +
             "WHERE d.users = :user " +
-            "AND d.createdAt = ( " +
-            "    SELECT MAX(d2.createdAt) " +
+            "AND d.date = ( " +
+            "    SELECT MAX(d2.date) " +
             "    FROM Diaries d2 " +
             "    WHERE d2.users = :user " +
             "    AND d2.clusterId = d.clusterId " +
