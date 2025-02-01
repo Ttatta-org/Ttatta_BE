@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DiaryRepository extends JpaRepository<Diaries, Long> {
@@ -31,4 +32,18 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             "AND FLOOR(d2.latitude * 100000.0) = FLOOR(d.latitude * 100000.0) " +
             "AND FLOOR(d2.longitude * 100000.0) = FLOOR(d.longitude * 100000.0))")
     List<Diaries> findAllByUsers(Users user);
+
+    @Query("SELECT d.clusterId " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "AND FLOOR(d.latitude * 100000.0) = FLOOR(:latitude * 100000.0) " +
+            "AND FLOOR(d.longitude * 100000.0) = FLOOR(:longitude * 100000.0)")
+    Optional<Long> findFirstClusterIdByUsersAndLatitudeAndLongitude(@Param("user") Users user, @Param("latitude") double latitude, @Param("longitude") double longitude);
+
+    @Query("SELECT d.clusterId " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "ORDER BY d.clusterId DESC")
+    Optional<Long> findFirstClusterIdByUsers(@Param("user") Users user);
+
 }
