@@ -99,14 +99,19 @@ public class DiaryController {
 
     @Operation(summary = "일기 지도",
         description = """
-                위도, 경도, 페이징 번호를 작성해주세요.
-                일기 지도 화면에서 발자국 컴포넌트 클릭 시 그 위치의 일기가 반환됩니다.
+                clusterId와 페이징 번호를 작성해주세요.
+                일기 지도 화면에서 발자국 컴포넌트 클릭 시 그 위치의 일기가 1개씩 반환됩니다.
                 """
     )
     @GetMapping("/map/{requestNum}")
-    public ApiResponse<DiaryResponseDTO.MapResultDTO> getMapDiary (@PathVariable int requestNum,
-                                                                   @RequestBody @Valid DiaryRequestDTO.MapDTO request) {
-        return null;
+    public ApiResponse<DiaryResponseDTO.MapResultDTO> getMapDiary (@RequestParam Long clusterId,
+                                                                   @PathVariable int requestNum) {
+
+        Page<Diaries> diaryList = diaryQueryService.getMapDiaryList(clusterId, requestNum);
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toMapDiaryDTO(diaryList)
+        );
     }
 
     @Operation(summary = "일기 검색",

@@ -9,4 +9,5 @@ import java.time.LocalDateTime;
 public interface DiaryQueryService {
     Page<Diaries> getDiaryList(LocalDateTime date, int requestNum);
     Page<Diaries> getSearchDiaryList(String content, int requestNum);
+    Page<Diaries> getMapDiaryList(Long clusterId, int requestNum);
 }

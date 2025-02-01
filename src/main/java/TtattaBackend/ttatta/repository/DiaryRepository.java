@@ -26,4 +26,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
 
     @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.content LIKE %:content% ORDER BY d.date DESC")
     Page<Diaries> findAllByUsersAndContent(@Param("user")Users user, @Param("content") String content, PageRequest pageRequest);
+
+    @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.clusterId = :clusterId ORDER BY d.date DESC" )
+    Page<Diaries> findAllByUsersAndClusterId(@Param("user") Users user, @Param("clusterId") Long clusterId, PageRequest pageRequest);
 }

@@ -65,13 +65,18 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.MapResultDTO toMapResultDTO(Diaries diaries) {
+    public static DiaryResponseDTO.MapResultDTO toMapDiaryDTO(Page<Diaries> diaryList) {
+        Diaries diaries = diaryList.getContent().stream().findFirst().get();
+
+        String imageUrl = diaries.getDiaryPhotosList().stream()
+                .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);
+
         return DiaryResponseDTO.MapResultDTO.builder()
                 .diaryId(diaries.getId())
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
-                .image(diaries.getDiaryPhotosList().toString())
+                .image(imageUrl)
                 .build();
 
     }

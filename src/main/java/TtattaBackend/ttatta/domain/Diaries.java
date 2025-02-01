@@ -48,6 +48,8 @@ public class Diaries extends BaseEntity {
     @OneToMany(mappedBy = "diaries", cascade = CascadeType.ALL)
     private List<DiaryPhotos> diaryPhotosList = new ArrayList<>();
 
+    private Long clusterId;
+
     public void setUsers(Users users) {
         // 기존에 이미 등록되어 있던 관계를 제거
         if (this.users != null) {
