@@ -57,7 +57,6 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .password("testPassword")
                 .loginType(LoginType.REGULAR)
                 .email(LocalDateTime.now() + "@test.com")
-                .phoneNumber("010-0000-0000")
                 .profileImage("testProfileImage")
                 .gender(Gender.MALE)
                 .point(0L)
@@ -177,7 +176,6 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 입력 들어온 값만 업데이트
         request.getNickname().ifPresent(user::updateNickname);
         request.getEmail().ifPresent(user::updateEmail);
-        request.getPhoneNumber().ifPresent(user::updatePhoneNumber);
         request.getProfileImage().ifPresent(user::updateProfileImage);
         request.getPoint().ifPresent(user::updatePoint);
 

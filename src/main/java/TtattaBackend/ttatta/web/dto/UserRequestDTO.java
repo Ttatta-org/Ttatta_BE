@@ -68,7 +68,6 @@ public class UserRequestDTO {
         // 입력 값을 선택적으로 받기 위해 Optional 사용
         private Optional<String> nickname = Optional.empty();
         private Optional<String> email = Optional.empty();
-        private Optional<String> phoneNumber = Optional.empty();
         private Optional<String> profileImage = Optional.empty();
         private Optional<Long> point = Optional.empty();
     }
