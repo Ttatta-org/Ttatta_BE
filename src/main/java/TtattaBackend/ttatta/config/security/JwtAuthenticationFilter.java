@@ -28,8 +28,8 @@ import java.util.Map;
 @Slf4j //???
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    //@Value("${jwt.JWT_HEADER}")
-    private String jwtHeader = "Authorization";
+    @Value("${jwt.JWT_HEADER}")
+    private String jwtHeader;
     private static final String[] whitelist = {
             "/users/signup",
             "/users/signup/**",
