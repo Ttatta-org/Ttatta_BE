@@ -17,6 +17,10 @@ public class UserRequestDTO {
     @NoArgsConstructor
     public static class SignUpRequestDTO {
         @NotBlank(message = "이름은 빈값일 수 없습니다.")
+        private String name;
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+        @NotBlank(message = "닉네임은 빈값일 수 없습니다.")
         @Size(max = 8, message = "닉네임은 1 ~ 8자이어야 합니다.")
         private String nickname;
         @NotBlank(message = "아이디는 빈값일 수 없습니다.")
@@ -36,15 +40,6 @@ public class UserRequestDTO {
         @NotBlank(message = "비밀번호는 빈값일 수 없습니다.")
         private String password;
     }
-  
-    // 미구현
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class CheckUsernameSameRequestDTO {
-        private String username;
-    }  
   
     // 미구현
     @Getter
@@ -73,7 +68,6 @@ public class UserRequestDTO {
         // 입력 값을 선택적으로 받기 위해 Optional 사용
         private Optional<String> nickname = Optional.empty();
         private Optional<String> email = Optional.empty();
-        private Optional<String> phoneNumber = Optional.empty();
         private Optional<String> profileImage = Optional.empty();
         private Optional<Long> point = Optional.empty();
     }

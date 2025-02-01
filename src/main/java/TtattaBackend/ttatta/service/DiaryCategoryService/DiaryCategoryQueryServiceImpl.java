@@ -1,5 +1,8 @@
 package TtattaBackend.ttatta.service.DiaryCategoryService;
 
+import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
+import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
+import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.DiaryRepository;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
@@ -18,14 +21,16 @@ public class DiaryCategoryQueryServiceImpl implements DiaryCategoryQueryService 
 
 
     @Override
-    public Integer getTotalDiaryCount(Long userId) {
-        return diaryRepository.countDiariesByUsersId(userId);
+    public Integer getTotalDiaryCount() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        return diaryRepository.countDiariesByUsersId(currentUserId);
     }
 
     @Override
-    public List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> getCategoryDetails(Long userId) {
-        return diaryCategoryRepository.findCategoriesByUsersId(userId).stream()
-                .map(category -> DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail.builder()
+    public List<DiaryCategoryResponseDTO.CategoryDetailDTO> getCategoryDetails() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        return diaryCategoryRepository.findCategoriesByUsersId(currentUserId).stream()
+                .map(category -> DiaryCategoryResponseDTO.CategoryDetailDTO.builder()
                         .categoryId(category.getId())
                         .categoryName(category.getName())
                         .categoryColor(category.getColor())
@@ -33,5 +38,4 @@ public class DiaryCategoryQueryServiceImpl implements DiaryCategoryQueryService 
                         .build())
                 .collect(Collectors.toList());
     }
-
 }

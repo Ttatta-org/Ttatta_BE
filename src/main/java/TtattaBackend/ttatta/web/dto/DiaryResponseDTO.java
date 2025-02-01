@@ -52,19 +52,20 @@ public class DiaryResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class KeepResultDTO {
-        List<KeepDiary> diaryList;
+    public static class KeepDiaryListDTO {
+        List<KeepDiaryDTO> diaryList;
+    }
 
-        @Getter
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class KeepDiary {
-            Long diaryId;
-            LocalDateTime date;
-            String content;
-            String image;
-        }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class KeepDiaryDTO {
+        Long diaryId;
+        LocalDateTime date;
+        String content;
+        String image;
+        String locationName;
     }
 
     @Getter
@@ -83,18 +84,19 @@ public class DiaryResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SearchResultDTO {
-        List<SearchDiary> diaryList;
+    public static class SearchDiaryListDTO {
+        List<SearchDiaryDTO> searchDiaryList;
+    }
 
-        @Getter
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class SearchDiary {
-            Long diaryId;
-            LocalDateTime date;
-            String content;
-            String image;
-        }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SearchDiaryDTO {
+        Long diaryId;
+        LocalDateTime date;
+        String content;
+        String image;
+        String locationName;
     }
 }

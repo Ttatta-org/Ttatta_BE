@@ -52,23 +52,36 @@ public class UserController {
     public ApiResponse<UserResponseDTO.UserSignInResultDTO> signIn(
             @RequestBody @Valid UserRequestDTO.SignInRequestDTO request
     ) {
-        Users user = userCommandService.signIn(request);
         return ApiResponse.onSuccess(
-                UserConverter.toUserSignInResultDTO(
-                        user
+                userCommandService.signIn(request)
+        );
+    }
+
+    @Operation(summary = "회원가입 중 아이디 중복 확인 API", description =
+            "# 회원가입 중 아이디 중복 확인 API 입니다. 중복을 확인할 아이디를 body에 입력해주세요.\n"
+            + "# 아이디가 사용가능하면 AVAILABLE, 사용불가능하다면 UNAVAILABLE을 반환합니다."
+    )
+    @GetMapping("/signup/verify/overlap")
+    public ApiResponse<UserResponseDTO.VerifyUsernameOverlapResultDTO> checkUsernameSame(
+            @RequestParam String username
+    ) {
+        return ApiResponse.onSuccess(
+                UserConverter.toVerifyUsernameOverlapResultDTO(
+                        userCommandService.verifyUsernameOverlap(username)
                 )
         );
     }
 
-    @Operation(summary = "아이디 중복 확인 API", description =
-            "# 아이디 중복 확인 API 입니다. 확인할 아이디를 body에 입력해주세요."
+    // 미구현
+    @Operation(summary = "토큰 갱신", description =
+            "# access token 갱신 API 입니다. access token과 refresh token을 header에 입력해주세요."
     )
-    @GetMapping("/signup/same")
-    public ApiResponse<UserResponseDTO.CheckUsernameSameResultDTO> checkUsernameSame(
-            @RequestBody UserRequestDTO.CheckUsernameSameRequestDTO request
+    @PostMapping("/refresh")
+    public ApiResponse<UserResponseDTO.RefreshResultDTO> refreshToken(
+            @RequestHeader("RefreshToken") String refreshToken
     ) {
         return ApiResponse.onSuccess(
-                null
+                userCommandService.refresh(refreshToken)
         );
     }
 
@@ -99,35 +112,17 @@ public class UserController {
         Users user = userCommandService.signInKakao(request);
         return ApiResponse.onSuccess(
                 UserConverter.toUserSignInResultDTO(
-                        user
-                )
-        );
-    }
-
-    // 미구현
-    @Operation(summary = "토큰 갱신", description =
-            "# 토큰 갱신 API 입니다. 리프레시 토큰을 header에 입력해주세요."
-    )
-    @PostMapping("/refresh")
-    public ApiResponse<UserResponseDTO.RefreshResultDTO> refreshToken(
-            @RequestHeader("refreshToken") String refreshToken
-    ) {
-        Users user = userCommandService.refresh(refreshToken);
-        return ApiResponse.onSuccess(
-                UserConverter.toRefreshResultDTO(
-                        user
+                        user, null, null
                 )
         );
     }
 
     @Operation(summary = "회원 정보 조회", description =
-            "# 회원 정보 조회 API 입니다. 회원의 ID를 입력해주세요."
+            "# 회원 정보 조회 API 입니다."
     )
-    @GetMapping("/{userId}")
-    public ApiResponse<UserResponseDTO.UserInfoResultDTO> getUserInfo(
-            @PathVariable Long userId
-    ) {
-        Users user = userCommandService.getUserInfo(userId);
+    @GetMapping("/info")
+    public ApiResponse<UserResponseDTO.UserInfoResultDTO> getUserInfo() {
+        Users user = userCommandService.getUserInfo();
         return ApiResponse.onSuccess(
                 UserConverter.toUserInfoResultDTO(
                         user
@@ -136,14 +131,13 @@ public class UserController {
     }
 
     @Operation(summary = "회원 정보 수정", description =
-            "# 회원 정보 수정 API 입니다. 회원의 ID와 수정할 정보를 입력해주세요.\n수정을 원하는 데이터만 보내도 수정 가능합니다."
+            "# 회원 정보 수정 API 입니다. 수정할 정보를 입력해주세요.\n수정을 원하는 데이터만 보내도 수정 가능합니다."
     )
-    @PatchMapping("/{userId}")
+    @PatchMapping("/info")
     public ApiResponse<UserResponseDTO.UserInfoResultDTO> updateUserInfo(
-            @PathVariable Long userId,
             @RequestBody UserRequestDTO.UpdateRequestDTO request
     ) {
-        Users user = userCommandService.updateUserInfo(userId, request);
+        Users user = userCommandService.updateUserInfo(request);
         return ApiResponse.onSuccess(
                 UserConverter.toUserInfoResultDTO(
                         user
@@ -152,13 +146,11 @@ public class UserController {
     }
 
     @Operation(summary = "회원 탈퇴", description =
-            "# 회원 탈퇴 API 입니다. 회원의 ID를 입력해주세요."
+            "# 회원 탈퇴 API 입니다."
     )
-    @DeleteMapping("/{userId}")
-    public ApiResponse<Object> deleteUser(
-            @PathVariable Long userId
-    ) {
-        userCommandService.deleteUser(userId);
+    @DeleteMapping("")
+    public ApiResponse<Object> deleteUser() {
+        userCommandService.deleteUser();
         return ApiResponse.onSuccess("");
     }
 

@@ -28,6 +28,9 @@ public class Users extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false, length = 8)
     private String nickname;
 
@@ -41,11 +44,8 @@ public class Users extends BaseEntity {
     @Column
     private LoginType loginType;
 
-    @Column(length = 50)
+    @Column(nullable = false, length = 50)
     private String email;
-
-    @Column(length = 13)
-    private String phoneNumber;
 
     @Column(columnDefinition = "TEXT")
     private String profileImage;
@@ -66,11 +66,6 @@ public class Users extends BaseEntity {
     // 로그인 관련
 //    private LocalDateTime lastLogin;
 
-    @Column(name = "refresh_token")
-    private String refreshToken;
-
-    private LocalDateTime tokenExpiry;
-
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Diaries> diariesList = new ArrayList<>();
 
@@ -87,9 +82,6 @@ public class Users extends BaseEntity {
     }
     public void updateEmail(String email) {
         this.email = email;
-    }
-    public void updatePhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
     public void updateProfileImage(String profileImage) {
         this.profileImage = profileImage;

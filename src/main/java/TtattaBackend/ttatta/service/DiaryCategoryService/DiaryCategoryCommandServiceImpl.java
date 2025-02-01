@@ -3,7 +3,9 @@ package TtattaBackend.ttatta.service.DiaryCategoryService;
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.apiPayload.exception.handler.TempHandler;
+import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
+import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.CategoryColor;
@@ -16,6 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
+
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +34,8 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
     @Override
     @Transactional
     public DiaryCategories createCategory(DiaryCategoryRequestDTO.CreateCategoryDTO request) {
-        Users user = userRepository.findById(request.getUserId()).orElseThrow ();
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId).orElseThrow ();
         DiaryCategories newDiaryCategory = DiaryCategoryConverter.toDiaryCategory(request);
         newDiaryCategory.setUsers(user);
         return categoryRepository.save(newDiaryCategory);
@@ -40,39 +46,53 @@ public class DiaryCategoryCommandServiceImpl implements DiaryCategoryCommandServ
     public DiaryCategories modifyCategory(Long categoryId, DiaryCategoryRequestDTO.ModifyCategoryDTO request) {
         DiaryCategories diaryCategory = categoryRepository.findById(categoryId)
                 .orElseThrow();
+        Long userId = SecurityUtil.getCurrentUserId();
 
-        request.getCategoryName().ifPresent(diaryCategory::modifyCategoryName);
-        request.getCategoryColor().ifPresent(categoryColor -> {
-            verifyCategoryColor(categoryColor);
-            diaryCategory.modifyCategoryColor(CategoryColor.valueOf(categoryColor.toUpperCase()));
-        });
+        if(diaryCategory.getUsers().getId().equals(userId)) {
+            request.getCategoryName().ifPresent(diaryCategory::modifyCategoryName);
+            request.getCategoryColor().ifPresent(categoryColor -> {
+                verifyCategoryColor(categoryColor);
+                diaryCategory.modifyCategoryColor(CategoryColor.valueOf(categoryColor.toUpperCase()));
+            });
 
-        return diaryCategoryRepository.save(diaryCategory);
+            return diaryCategoryRepository.save(diaryCategory);
+        } else {
+            throw new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_MODIFY_USER_NOT_FOUND);
+        }
     }
 
     @Override
-    public void deleteAllCategory(Long categoryId, DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
+    public void deleteAllCategory(Long categoryId) {
+        Long userId = SecurityUtil.getCurrentUserId();
         DiaryCategories diaryCategory = diaryCategoryRepository.findById(categoryId)
                 .orElseThrow();
-        diaryCategoryRepository.delete(diaryCategory);
+        if (diaryCategory.getUsers().getId().equals(userId)) {
+            diaryCategoryRepository.delete(diaryCategory);
+        } else {
+            throw new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_DELETE_USER_NOT_FOUND); // 바꿀 필요 있음
+        }
     }
 
     @Override
     @Transactional
-    public void deleteCategory(Long categoryId, DiaryCategoryRequestDTO.DeleteCategoryDTO request) {
-        Users user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-
+    public void deleteCategory(Long categoryId) {
+        Long userId = SecurityUtil.getCurrentUserId();
         DiaryCategories diaryCategoryToDelete = diaryCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND));
-
-        DiaryCategories defaultCategory = diaryCategoryRepository.findByNameAndId("일상", user.getId())
-                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_NOT_FOUND));
-
-        diaryRepository.updateCategoryForDiaries(diaryCategoryToDelete.getId(), defaultCategory.getId());
-
-
-        diaryCategoryRepository.delete(diaryCategoryToDelete);
+        Users getUser = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+        if(diaryCategoryToDelete.getUsers().getId().equals(userId)) {
+            DiaryCategories defaultCategory = diaryCategoryRepository.findByUsersAndName(getUser, "일상")
+                    .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_DEFAULT_NOT_FOUND));
+            // diaries의 연관관계 수정
+            List<Diaries> getDiaryList = diaryRepository.findAllByDiaryCategories(diaryCategoryToDelete);
+            for (Diaries diary : getDiaryList) { // @Transactional이 있기 때문에 diary를 save해줄 필요가 없다.
+                diary.setDiaryCategories(defaultCategory);
+            }
+            // 삭제하고자 하는 diaryCategory삭제
+            diaryCategoryRepository.delete(diaryCategoryToDelete);
+        } else {
+            throw new ExceptionHandler(ErrorStatus.DIARY_CATEGORY_DELETE_USER_NOT_FOUND);
+        }
     }
 
     private void verifyCategoryColor(String categoryColor) {

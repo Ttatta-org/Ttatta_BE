@@ -4,6 +4,7 @@ import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import TtattaBackend.ttatta.validation.annotation.ExistDiaryCategory;
 import TtattaBackend.ttatta.validation.annotation.ExistDiaryCategoryColor;
 import TtattaBackend.ttatta.validation.annotation.ExistUser;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.Optional;
@@ -11,11 +12,10 @@ import java.util.Optional;
 public class DiaryCategoryRequestDTO {
 
     @Getter
+    @Builder
     public static class CreateCategoryDTO {
         String categoryName;
         CategoryColor categoryColor;
-        @ExistUser
-        Long userId;
     }
 
     @Getter
@@ -23,23 +23,5 @@ public class DiaryCategoryRequestDTO {
         private Optional<String> categoryName = Optional.empty();
         @ExistDiaryCategoryColor
         private Optional<String> categoryColor = Optional.empty();
-        @ExistUser
-        private Long userId;
-    }
-
-    @Getter
-    public static class DeleteCategoryDTO {
-        @ExistUser
-        Long userId;
-    }
-
-    @Getter
-    public static class DeleteAllCategoryDTO {
-        @ExistUser
-        Long userId;
-    }
-
-    @Getter
-    public static class GetAllCategoryCountDTO {
     }
 }

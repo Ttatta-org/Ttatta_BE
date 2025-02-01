@@ -77,15 +77,10 @@ public class DiaryCategoryConverter {
                 .build();
     }
 
-    public static DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO toDiaryCategoryExceptionDTO(Long categoryId) {
-        return DiaryCategoryResponseDTO.DiaryCategoryExceptionDTO.builder()
-                .categoryId(categoryId)
-                .build();
-    }
 
 
     public static DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO toGetAllCategoryCountResultDTO(
-            List<DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.CategoryDetail> categoryDetails,
+            List<DiaryCategoryResponseDTO.CategoryDetailDTO> categoryDetails,
             Integer totalDiaryCount) {
         return DiaryCategoryResponseDTO.GetAllCategoryCountResultDTO.builder()
                 .categoryDetails(categoryDetails)

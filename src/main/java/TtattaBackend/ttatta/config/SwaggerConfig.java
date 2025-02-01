@@ -19,16 +19,25 @@ public class SwaggerConfig {
                 .description("따따 백엔드 API 명세서")
                 .version("1.0.0");
 
-        String jwtSchemeName = "JWT TOKEN";
+        String jwtSchemeName = "JWT access token";
+        String refreshKey = "JWT refresh token";
         // API 요청헤더에 인증정보 포함
-        SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwtSchemeName);
+        SecurityRequirement securityRequirement = new SecurityRequirement()
+                .addList(jwtSchemeName)
+                .addList(refreshKey);
         // SecuritySchemes 등록
         Components components = new Components()
                 .addSecuritySchemes(jwtSchemeName, new SecurityScheme()
                         .name(jwtSchemeName)
                         .type(SecurityScheme.Type.HTTP) // HTTP 방식
                         .scheme("bearer")
-                        .bearerFormat("JWT"));
+                        .bearerFormat("JWT")
+                )
+                .addSecuritySchemes(refreshKey, new SecurityScheme()
+                        .name("RefreshToken")
+                        .type(SecurityScheme.Type.APIKEY)
+                        .in(SecurityScheme.In.HEADER)
+                );
 
         return new OpenAPI()
                 .addServersItem(new Server().url("/"))
