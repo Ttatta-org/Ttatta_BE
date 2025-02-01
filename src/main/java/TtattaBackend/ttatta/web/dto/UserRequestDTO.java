@@ -71,15 +71,6 @@ public class UserRequestDTO {
         private Optional<String> profileImage = Optional.empty();
         private Optional<Long> point = Optional.empty();
     }
-      
-    // 미구현
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class LogoutRequestDTO {
-        private Long userId;
-    }  
     
     // 미구현  
     @Getter
