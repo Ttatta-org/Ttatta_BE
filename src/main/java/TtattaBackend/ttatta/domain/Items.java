@@ -1,0 +1,42 @@
+package TtattaBackend.ttatta.domain;
+
+
+import TtattaBackend.ttatta.domain.common.BaseEntity;
+import TtattaBackend.ttatta.domain.enums.Owner;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Getter
+@DynamicUpdate
+@DynamicInsert
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class Items extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private Integer cost;
+
+    @Column(columnDefinition = "TEXT")
+    private String itemImg;
+
+    @Enumerated(EnumType.STRING)
+    private Owner owner;
+
+    @OneToMany(mappedBy = "items",cascade = CascadeType.ALL)
+    private List<Items> itemsList;
+
+}

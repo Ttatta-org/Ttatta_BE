@@ -80,6 +80,9 @@ public class Users extends BaseEntity {
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<DiaryCategories> diaryCategoriesList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<Items> itemsList = new ArrayList<>();
+
     public void encodePassword(String password) {
         this.password = password;
     }
