@@ -57,7 +57,6 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .password("testPassword")
                 .loginType(LoginType.REGULAR)
                 .email(LocalDateTime.now() + "@test.com")
-                .phoneNumber("010-0000-0000")
                 .profileImage("testProfileImage")
                 .gender(Gender.MALE)
                 .point(0L)
@@ -164,20 +163,19 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public Users getUserInfo(Long userId) {
-        return userRepository.findById(userId)
+    public Users getUserInfo() {
+        return userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
     }
 
     @Override
-    public Users updateUserInfo(Long userId, UserRequestDTO.UpdateRequestDTO request) {
-        Users user = userRepository.findById(userId)
+    public Users updateUserInfo(UserRequestDTO.UpdateRequestDTO request) {
+        Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
         // 입력 들어온 값만 업데이트
         request.getNickname().ifPresent(user::updateNickname);
         request.getEmail().ifPresent(user::updateEmail);
-        request.getPhoneNumber().ifPresent(user::updatePhoneNumber);
         request.getProfileImage().ifPresent(user::updateProfileImage);
         request.getPoint().ifPresent(user::updatePoint);
 
@@ -185,11 +183,9 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public void deleteUser(Long userId) {
-        Users user = userRepository.findById(userId)
+    public void deleteUser() {
+        Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
-
-        // 이후 유저에 연관된 모든 데이터 삭제해야함 cascade 설정 필요
 
         userRepository.delete(user);
     }

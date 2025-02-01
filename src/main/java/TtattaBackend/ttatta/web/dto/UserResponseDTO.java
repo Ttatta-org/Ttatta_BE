@@ -68,7 +68,6 @@ public class UserResponseDTO {
         Long point;
         UserStatus status;
         Gender gender;
-        String phoneNum;
     }
   
     // 미구현
