@@ -44,14 +44,14 @@ public class DiaryConverter {
     }
 
     public static DiaryResponseDTO.KeepDiaryDTO toKeepDiaryDTO(Diaries diaries) {
-        List<String> imageUrl = diaries.getDiaryPhotosList().stream()
-                .map(DiaryPhotos::getImageUrl).collect(Collectors.toList());
+        String imageUrl = diaries.getDiaryPhotosList().stream()
+                .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);
 
         return DiaryResponseDTO.KeepDiaryDTO.builder()
                 .diaryId(diaries.getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
-                .image(imageUrl.toString())
+                .image(imageUrl)
                 .locationName(diaries.getLocationName())
                 .build();
     }
