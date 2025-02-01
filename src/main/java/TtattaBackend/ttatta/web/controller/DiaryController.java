@@ -5,13 +5,10 @@ import TtattaBackend.ttatta.converter.DiaryConverter;
 import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.service.DiaryService.DiaryCommandService;
 import TtattaBackend.ttatta.service.DiaryService.DiaryQueryService;
-import TtattaBackend.ttatta.service.DiaryService.DiaryQueryService;
-import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-
 import java.util.List;
 
 @RestController
@@ -89,12 +85,9 @@ public class DiaryController {
                     지도 화면에서 발자국 표현을 위한 일기 전체 조회입니다.
                     """
     )
-    @Parameters({
-            @Parameter(name = "userId", description = "사용자 아이디, path variable 입니다")
-    })
-    @GetMapping("/footprint/{userId}")
-    public ApiResponse<DiaryResponseDTO.FootprintDiaryListDTO> getFootprintDiaryList(@PathVariable @ExistUser Long userId) {
-        List<Diaries> diariesList = diaryQueryService.getDiaryList(userId);
+    @GetMapping("/footprint")
+    public ApiResponse<DiaryResponseDTO.FootprintDiaryListDTO> getFootprintDiaryList() {
+        List<Diaries> diariesList = diaryQueryService.getFootprintDiaryList();
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toFootprintDiaryListDTO(diariesList)

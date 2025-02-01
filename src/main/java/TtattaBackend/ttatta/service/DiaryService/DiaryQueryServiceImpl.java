@@ -25,6 +25,18 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     private final UserRepository userRepository;
 
     @Override
+    public List<Diaries> getFootprintDiaryList(){
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        Users user =  userRepository.findById(userId).get();
+
+        List<Diaries> diariesList = diaryRepository.findAllByUsers(user);
+
+        return diariesList;
+
+    }
+
+    @Override
     public Page<Diaries> getDiaryList(LocalDateTime date, int requestNum) {
         Long userId = SecurityUtil.getCurrentUserId();
 
