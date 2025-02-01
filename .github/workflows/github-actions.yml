@@ -73,12 +73,6 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         envs: GITHUB_SHA
         script: |
-          ## 환경 변수 설정
-          export EC2_HOST=${{ secrets.EC2_HOST }}
-          export EC2_KEY=${{ secrets.EC2_KEY }}
-          export JWT_HEADER=${{ secrets.JWT_HEADER }}
-          export JWT_SECRET=${{ secrets.JWT_SECRET }}
-          
           # 실행 중인 컨테이너 정리
           RUNNING_CONTAINER=$(docker ps -q --filter "ancestor=${{ secrets.DOCKER_USERNAME }}/ttatta")
           if [ ! -z "$RUNNING_CONTAINER" ]; then
