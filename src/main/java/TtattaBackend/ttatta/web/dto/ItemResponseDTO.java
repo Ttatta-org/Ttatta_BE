@@ -30,4 +30,13 @@ public class ItemResponseDTO {
         private String itemImage;
         private CharacterType characterType;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ItemEquipResultDTO {
+        private Long itemId;
+        private Boolean isEquipped;
+    }
 }

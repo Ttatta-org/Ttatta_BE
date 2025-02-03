@@ -32,4 +32,11 @@ public class ItemController {
         return ApiResponse.onSuccess(itemCommandService.buyItem(itemId));
     }
 
+    @Operation(summary = "아이템 착용 api",
+            description = "아이템을 착용하는 api 입니다.\n path variable로 착용하려는 아이템 id를 받습니다.")
+    @PatchMapping("/equip/{itemId}")
+    public ApiResponse<ItemResponseDTO.ItemEquipResultDTO> equip (@PathVariable Long itemId) {
+        return ApiResponse.onSuccess(itemCommandService.equipItem(itemId));
+    }
+
 }

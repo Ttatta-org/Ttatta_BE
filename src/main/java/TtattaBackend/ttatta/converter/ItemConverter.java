@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.converter;
 import TtattaBackend.ttatta.domain.Items;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.CharacterType;
+import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import TtattaBackend.ttatta.web.dto.ItemRequestDTO;
 import TtattaBackend.ttatta.web.dto.ItemResponseDTO;
 
@@ -35,6 +36,13 @@ public class ItemConverter {
                 .itemId(item.getId())
                 .point(user.getPoint())
                 .cost(item.getCost())
+                .build();
+    }
+
+    public static ItemResponseDTO.ItemEquipResultDTO toItemEquipDTO(OwnedItems ownedItems) {
+        return ItemResponseDTO.ItemEquipResultDTO.builder()
+                .itemId(ownedItems.getId())
+                .isEquipped(true)
                 .build();
     }
 }

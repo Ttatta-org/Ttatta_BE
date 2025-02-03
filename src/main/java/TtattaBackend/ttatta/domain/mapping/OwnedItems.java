@@ -18,7 +18,7 @@ public class OwnedItems extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private boolean isEquipped = false;
+    private Boolean isEquipped = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -40,5 +40,8 @@ public class OwnedItems extends BaseEntity {
         if (users != null) {
             users.getOwnItemsList().add(this);
         }
+    }
+    public void setEquipped(boolean equipped) {
+        this.isEquipped = equipped;
     }
 }

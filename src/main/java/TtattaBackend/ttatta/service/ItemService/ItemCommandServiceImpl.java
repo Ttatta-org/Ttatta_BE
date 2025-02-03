@@ -48,9 +48,27 @@ public class ItemCommandServiceImpl implements ItemCommandService {
 
         user.updatePoint(user.getPoint() - item.getCost());
 
-        OwnedItems ownedItem = new OwnedItems(itemId,true, user, item);
+        OwnedItems ownedItem = new OwnedItems(itemId,false, user, item);
         ownedItemRepository.save(ownedItem);
 
         return ItemConverter.toItemBuyResultDTO(user, item);
+    }
+
+    @Override
+    @Transactional
+    public ItemResponseDTO.ItemEquipResultDTO equipItem(Long itemId) {
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        // 사용자 관련 에러 처리 어떻게 해야할지 모르겠어요...
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+
+        OwnedItems ownedItem = ownedItemRepository.findById(itemId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ITEM_NOT_FOUND));
+
+        ownedItem.setEquipped(true);
+        ownedItemRepository.save(ownedItem);
+
+        return ItemConverter.toItemEquipDTO(ownedItem);
     }
 }
