@@ -2,14 +2,12 @@ package TtattaBackend.ttatta.domain;
 
 
 import TtattaBackend.ttatta.domain.common.BaseEntity;
-import TtattaBackend.ttatta.domain.enums.Owner;
+import TtattaBackend.ttatta.domain.enums.CharacterType;
 import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +34,7 @@ public class Items extends BaseEntity {
     private String itemImg;
 
     @Enumerated(EnumType.STRING)
-    private Owner owner;
+    private CharacterType characterType;
 
     @OneToMany(mappedBy = "items",cascade = CascadeType.ALL)
     private List<OwnedItems> ownedItemsList = new ArrayList<>();

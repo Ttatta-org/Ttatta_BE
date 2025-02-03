@@ -27,6 +27,13 @@ public class ItemCommandServiceImpl implements ItemCommandService {
 
     @Override
     @Transactional
+    public Items makeItem(ItemRequestDTO.MakeItemDTO request) {
+        Items newItem = ItemConverter.toItem(request);
+        return itemRepository.save(newItem);
+    }
+
+    @Override
+    @Transactional
     public ItemResponseDTO.ItemBuyResultDTO buyItem(Long itemId) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId)

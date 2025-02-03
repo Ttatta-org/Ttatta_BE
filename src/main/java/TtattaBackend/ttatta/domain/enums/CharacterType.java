@@ -1,5 +1,5 @@
 package TtattaBackend.ttatta.domain.enums;
 
-public enum Owner {
+public enum CharacterType {
     TTUTTU,TTOTTO
 }
