@@ -99,7 +99,7 @@ public class DiaryController {
 
     @Operation(summary = "일기 지도",
         description = """
-                clusterId와 페이징 번호를 작성해주세요.
+                clusterId와 페이징 번호(0번 부터 시작)를 작성해주세요.
                 일기 지도 화면에서 발자국 컴포넌트 클릭 시 그 위치의 일기가 1개씩 반환됩니다.
                 """
     )

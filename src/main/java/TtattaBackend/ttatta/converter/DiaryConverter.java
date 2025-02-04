@@ -77,6 +77,8 @@ public class DiaryConverter {
                 .date(diaries.getDate())
                 .content(diaries.getContent())
                 .image(imageUrl)
+                .firstDiary(diaryList.isFirst())
+                .lastDiary(diaryList.isLast())
                 .build();
 
     }
