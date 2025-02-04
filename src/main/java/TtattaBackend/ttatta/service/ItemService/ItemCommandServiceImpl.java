@@ -46,10 +46,16 @@ public class ItemCommandServiceImpl implements ItemCommandService {
             throw new ExceptionHandler(ErrorStatus.USER_NOT_FOUND);
         }
 
+        // 사용자가 해당 아이템을 이미 구매했는지 확인
+        if (ownedItemRepository.findByUsersAndItems(user, item).isPresent()) {
+            throw new ExceptionHandler(ErrorStatus.ITEM_ALREADY_BOUGHT);
+        }
+
         user.updatePoint(user.getPoint() - item.getCost());
 
-        OwnedItems ownedItem = new OwnedItems(itemId,false, user, item);
+        OwnedItems ownedItem = new OwnedItems(null,false, user, item);
         ownedItemRepository.save(ownedItem);
+
 
         return ItemConverter.toItemBuyResultDTO(user, item);
     }

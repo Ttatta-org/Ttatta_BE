@@ -42,8 +42,8 @@ public enum ErrorStatus implements BaseErrorCode {
     REFRESHTOKEN_NOT_EQUAL(HttpStatus.NOT_FOUND, "TOKEN_4004", "refresh token이 일치하지 않습니다."),
 
     //아이템 관련 응답 5000
-    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND,"ITEM_5001","아이템이 없습니다.");
-
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND,"ITEM_5001","아이템이 없습니다."),
+    ITEM_ALREADY_BOUGHT(HttpStatus.BAD_REQUEST,"ITEM_5002","이미 구매한 아이템 입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
