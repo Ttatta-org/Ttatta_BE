@@ -43,7 +43,7 @@ public class ItemCommandServiceImpl implements ItemCommandService {
                 .orElseThrow();
 
         if(user.getPoint() < item.getCost()){
-            throw new ExceptionHandler(ErrorStatus.USER_NOT_FOUND);
+            throw new ExceptionHandler(ErrorStatus.ITEM_NO_MONEY);
         }
 
         // 사용자가 해당 아이템을 이미 구매했는지 확인
@@ -64,7 +64,6 @@ public class ItemCommandServiceImpl implements ItemCommandService {
     @Transactional
     public ItemResponseDTO.ItemEquipResultDTO equipItem(Long itemId) {
 
-        // 사용자 관련 에러 처리 어떻게 해야할지 모르겠어요...
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
