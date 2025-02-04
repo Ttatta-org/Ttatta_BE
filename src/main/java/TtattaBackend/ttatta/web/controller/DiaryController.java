@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/diaries")
@@ -25,7 +26,6 @@ import java.time.LocalDateTime;
 public class DiaryController {
 
     private final DiaryCommandService diaryCommandService;
-
     private final DiaryQueryService diaryQueryService;
 
     @Operation(summary = "일기 작성",
@@ -79,6 +79,21 @@ public class DiaryController {
                 DiaryConverter.toEditResultDTO(diaries)
         );
     }
+
+    @Operation(summary = "일기 지도(발자국) 전체 조회",
+            description = """
+                    지도 화면에서 발자국 표현을 위한 일기 전체 조회입니다.
+                    """
+    )
+    @GetMapping("/footprint")
+    public ApiResponse<DiaryResponseDTO.FootprintDiaryListDTO> getFootprintDiaryList() {
+        List<Diaries> diariesList = diaryQueryService.getFootprintDiaryList();
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toFootprintDiaryListDTO(diariesList)
+        );
+    }
+
 
     @Operation(summary = "일기 보관함 화면에서 전체 일기 반환, 캘린더 클릭 시 날짜에 해당하는 일기 반환",
         description = """

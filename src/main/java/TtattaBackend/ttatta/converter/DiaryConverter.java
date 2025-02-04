@@ -43,6 +43,26 @@ public class DiaryConverter {
                 .build();
     }
 
+    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries) {
+        return DiaryResponseDTO.FootprintDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .categoryColor(diaries.getDiaryCategories().getColor().toString())
+                .latitude(diaries.getLatitude())
+                .longitude(diaries.getLongitude())
+                .clusterId(diaries.getClusterId())
+                .build();
+    }
+
+    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList) {
+       List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
+               .map(DiaryConverter::toFootprintDiaryDTO).collect(Collectors.toList());
+
+       return DiaryResponseDTO.FootprintDiaryListDTO.builder()
+               .footprintList(footprintDiaryDTOList)
+               .build();
+    }
+
     public static DiaryResponseDTO.KeepDiaryDTO toKeepDiaryDTO(Diaries diaries) {
         String imageUrl = diaries.getDiaryPhotosList().stream()
                 .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);

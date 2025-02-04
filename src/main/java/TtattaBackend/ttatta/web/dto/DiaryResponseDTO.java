@@ -23,6 +23,26 @@ public class DiaryResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class FootprintDiaryListDTO {
+        List<FootprintDiaryDTO> footprintList;
+    }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FootprintDiaryDTO {
+        Long diaryId;
+        Long diaryCategoryId;
+        String categoryColor;
+        double latitude;
+        double longitude;
+        Long clusterId;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class EditResultDTO {
         Long diaryId;
         LocalDateTime updatedAt;

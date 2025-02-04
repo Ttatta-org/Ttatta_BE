@@ -78,7 +78,10 @@ public class Diaries extends BaseEntity {
         }
     }
 
+    public void setClusterId(Long clusterId) { this.clusterId = clusterId;}
+
     public void updateContent(String content) {
         this.content = content;
     }
+
 }

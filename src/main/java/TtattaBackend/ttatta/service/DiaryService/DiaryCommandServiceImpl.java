@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_NOT_FOUND;
@@ -45,6 +46,9 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
         diaries.setUsers(user);
         diaries.setDiaryCategories(diaryCategories);
+
+        // 클러스터 Id 지정
+        setClusterId(user, request, diaries);
         Diaries savedDiaries = diaryRepository.save(diaries);
 
         // 일기 사진
@@ -120,4 +124,24 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         return diaryRepository.save(diaries);
    }
 
+   @Override
+   public void setClusterId(Users user, DiaryRequestDTO.PostDTO request, Diaries diaries) {
+       Optional<Long> existClusterId = diaryRepository.findFirstClusterIdByUsersAndLatitudeAndLongitude(user, request.getLatitude(), request.getLongitude());
+
+       if(existClusterId.isPresent()) {
+           // 장소 같은 경우
+           diaries.setClusterId(existClusterId.get());
+       } else { // 장소 다름
+           // 가장 최근 클러스터 id
+           Optional<Diaries> clusterDiary = diaryRepository.findTop1ClusterIdByUsersOrderByClusterIdDesc(user);
+
+           if(clusterDiary.isPresent()) {
+               Long newClusterId = clusterDiary.get().getClusterId();
+               diaries.setClusterId(newClusterId + 1);
+           } else {
+               // 첫 일기
+               diaries.setClusterId(0L);
+           }
+       }
+   }
 }
