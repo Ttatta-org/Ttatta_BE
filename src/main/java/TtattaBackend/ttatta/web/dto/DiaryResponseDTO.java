@@ -78,6 +78,8 @@ public class DiaryResponseDTO {
         LocalDateTime date;
         String content;
         String image;
+        boolean firstDiary;
+        boolean lastDiary;
     }
 
     @Getter
