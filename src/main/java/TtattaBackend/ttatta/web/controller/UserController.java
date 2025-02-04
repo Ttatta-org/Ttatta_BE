@@ -85,6 +85,17 @@ public class UserController {
         );
     }
 
+    @Operation(summary = "로그아웃 API", description =
+            "# 로그아웃 API 입니다. 로그아웃하고자 하는 유저의 access token을 header에 입력해주세요."
+    )
+    @DeleteMapping("/logout")
+    public ApiResponse<?> logout(
+            @RequestHeader("Authorization") String accessToken
+    ) {
+        userCommandService.logout(accessToken);
+        return ApiResponse.onSuccess("");
+    }
+
     // 미구현
     @Operation(summary = "카카오 회원가입", description =
             "# 카카오 회원가입 API 입니다."
@@ -152,19 +163,6 @@ public class UserController {
     public ApiResponse<Object> deleteUser() {
         userCommandService.deleteUser();
         return ApiResponse.onSuccess("");
-    }
-
-    // 미구현
-    @Operation(summary = "로그아웃 API", description =
-            "# 로그아웃 API 입니다. 로그아웃하고자 하는 userId를 body에 입력해주세요."
-    )
-    @DeleteMapping("/logout")
-    public ApiResponse<?> logout(
-            @RequestBody UserRequestDTO.LogoutRequestDTO request
-    ) {
-        return ApiResponse.onSuccess(
-                null
-        );
     }
 
     // 미구현

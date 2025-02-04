@@ -91,6 +91,8 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Override
     @Transactional // ???
     public UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request) {
+        String key;
+
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 //        SecurityContextHolder.getContext().setAuthentication(authentication); // 로그인을 한 후 인증 정보를 사용할 일은 없을 것 같다.
@@ -104,9 +106,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         String accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
 
         // 인증 완료 후 jwt토큰(refreshToken) 생성
+        key = "users:" + user.getId().toString();
         String refreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
-        redisTemplate.opsForValue().set(user.getId().toString(), refreshToken, refreshExpTime, TimeUnit.MINUTES);
-        System.out.println("redis에 저장된 refreshToken: " + (String) redisTemplate.opsForValue().get(user.getId().toString()));
+        redisTemplate.opsForValue().set(key, refreshToken, refreshExpTime, TimeUnit.MINUTES);
+        System.out.println("redis에 저장된 refreshToken: " + (String) redisTemplate.opsForValue().get(key));
 
         return UserConverter.toUserSignInResultDTO(user, accessToken, refreshToken);
     }
@@ -114,14 +117,15 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Override
     public UserResponseDTO.RefreshResultDTO refresh(String refreshToken) {
         Long userId = SecurityUtil.getCurrentUserId();
+        String key = "users:" + userId.toString();
         String accessToken;
         String newRefreshToken;
 
         // 전달된 refresh token과 redis의 refresh token비교
-        String getUserIdFromRedis = redisTemplate.opsForValue().get(userId.toString());
+        String getRefreshTokenFromRedis = redisTemplate.opsForValue().get(key);
         System.out.println("userId: " + userId);
-        System.out.println("redis에서 가져온 refreshToken: " + getUserIdFromRedis);
-        if (refreshToken.equals(getUserIdFromRedis)) {
+        System.out.println("redis에서 가져온 refreshToken: " + getRefreshTokenFromRedis);
+        if (refreshToken.equals(getRefreshTokenFromRedis)) {
             // 인증 완료 후 jwt토큰(accessToken) 생성
             Map<String, Object> valueMap = Map.of(
                     "userId", userId
@@ -129,7 +133,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
             // 인증 완료 후 jwt토큰(refreshToken) 생성
             newRefreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
-            redisTemplate.opsForValue().set(userId.toString(), newRefreshToken, refreshExpTime, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(key, newRefreshToken, refreshExpTime, TimeUnit.MINUTES);
         } else {
             throw new ExceptionHandler(REFRESHTOKEN_NOT_EQUAL);
         }
@@ -147,6 +151,19 @@ public class UserCommandServiceImpl implements UserCommandService {
         return IsAvailable.UNAVAILABLE;
     }
 
+    @Override
+    public void logout(String accessToken) {
+        // 로그아웃시킬 회원의 refresh token redis에서 삭제
+        Long userId = SecurityUtil.getCurrentUserId();
+        String key = "users:" + userId.toString();
+        redisTemplate.delete(key);
+
+        // 로그아웃시킬 회원의 access token redis의 블랙리스트로 저장
+        key = "blackList:" + userId.toString();
+        long tokenRemainTimeSecond = jwtUtils.tokenRemainTimeSecond(accessToken);
+        redisTemplate.opsForValue().set(key, accessToken, tokenRemainTimeSecond, TimeUnit.SECONDS);
+
+    }
 
     // 미구현
     @Override
