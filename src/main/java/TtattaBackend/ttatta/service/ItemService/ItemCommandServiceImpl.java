@@ -57,13 +57,18 @@ public class ItemCommandServiceImpl implements ItemCommandService {
     @Override
     @Transactional
     public ItemResponseDTO.ItemEquipResultDTO equipItem(Long itemId) {
-        Long userId = SecurityUtil.getCurrentUserId();
 
         // 사용자 관련 에러 처리 어떻게 해야할지 모르겠어요...
+        Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
 
-        OwnedItems ownedItem = ownedItemRepository.findById(itemId)
+
+        // 아이템 엔티티 조회
+        Items item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ITEM_NOT_FOUND));
+
+        OwnedItems ownedItem = ownedItemRepository.findByItems(item)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ITEM_NOT_FOUND));
 
         ownedItem.setEquipped(true);
