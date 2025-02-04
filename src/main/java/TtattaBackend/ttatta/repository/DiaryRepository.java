@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DiaryRepository extends JpaRepository<Diaries, Long> {
@@ -26,4 +27,29 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
 
     @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.content LIKE %:content% ORDER BY d.date DESC")
     Page<Diaries> findAllByUsersAndContent(@Param("user")Users user, @Param("content") String content, PageRequest pageRequest);
+
+
+    @Query("SELECT d " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "AND d.date = ( " +
+            "    SELECT MAX(d2.date) " +
+            "    FROM Diaries d2 " +
+            "    WHERE d2.users = :user " +
+            "    AND d2.clusterId = d.clusterId " +
+            ")")
+    List<Diaries> findAllByUsers(@Param("user") Users user);
+
+
+    @Query("SELECT d.clusterId " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "AND FLOOR(d.latitude * 100000.0) = FLOOR(:latitude * 100000.0) " +
+            "AND FLOOR(d.longitude * 100000.0) = FLOOR(:longitude * 100000.0)")
+    Optional<Long> findFirstClusterIdByUsersAndLatitudeAndLongitude(@Param("user") Users user, @Param("latitude") double latitude, @Param("longitude") double longitude);
+
+    Optional<Diaries> findTop1ClusterIdByUsersOrderByClusterIdDesc(@Param("user") Users user);
+
+
+
 }
