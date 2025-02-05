@@ -42,14 +42,15 @@ public class ItemCommandServiceImpl implements ItemCommandService {
         Items item = itemRepository.findById(itemId)
                 .orElseThrow();
 
-        if(user.getPoint() < item.getCost()){
-            throw new ExceptionHandler(ErrorStatus.ITEM_NO_MONEY);
-        }
-
         // 사용자가 해당 아이템을 이미 구매했는지 확인
         if (ownedItemRepository.findByUsersAndItems(user, item).isPresent()) {
             throw new ExceptionHandler(ErrorStatus.ITEM_ALREADY_BOUGHT);
         }
+
+        if(user.getPoint() < item.getCost()){
+            throw new ExceptionHandler(ErrorStatus.ITEM_NO_MONEY);
+        }
+
 
         user.updatePoint(user.getPoint() - item.getCost());
 
