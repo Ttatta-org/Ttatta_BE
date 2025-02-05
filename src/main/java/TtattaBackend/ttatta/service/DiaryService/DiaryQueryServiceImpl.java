@@ -3,7 +3,9 @@ package TtattaBackend.ttatta.service.DiaryService;
 
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.domain.Diaries;
+import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.DiaryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -24,13 +26,22 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
 
     private final UserRepository userRepository;
 
+    private final DiaryCategoryRepository diaryCategoryRepository;
+
     @Override
-    public List<Diaries> getFootprintDiaryList(){
+    public List<Diaries> getFootprintDiaryList(Long diaryCategoryId){
         Long userId = SecurityUtil.getCurrentUserId();
 
         Users user =  userRepository.findById(userId).get();
 
-        List<Diaries> diariesList = diaryRepository.findAllByUsers(user);
+        List<Diaries> diariesList;
+
+        if(diaryCategoryId == null) {
+            diariesList = diaryRepository.findAllByUsers(user);
+        } else {
+            DiaryCategories diaryCategories = diaryCategoryRepository.findById(diaryCategoryId).get();
+            diariesList = diaryRepository.findDiariesByUsersAndCategories(user, diaryCategories);
+        }
 
         return diariesList;
 

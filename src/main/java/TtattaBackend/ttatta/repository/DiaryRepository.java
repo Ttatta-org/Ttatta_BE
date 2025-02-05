@@ -40,6 +40,17 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             ")")
     List<Diaries> findAllByUsers(@Param("user") Users user);
 
+    @Query("SELECT d " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "AND d.diaryCategories = :diaryCategories " +
+            "AND d.date = ( " +
+            "    SELECT MAX(d2.date) " +
+            "    FROM Diaries d2 " +
+            "    WHERE d2.users = :user " +
+            "    AND d2.clusterId = d.clusterId " +
+            ")")
+    List<Diaries> findDiariesByUsersAndCategories(@Param("user") Users user, @Param("diaryCategories") DiaryCategories diaryCategories);
 
     @Query("SELECT d.clusterId " +
             "FROM Diaries d " +

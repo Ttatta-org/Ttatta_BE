@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DiaryQueryService {
-    List<Diaries> getFootprintDiaryList();
+    List<Diaries> getFootprintDiaryList(Long diaryCategoryId);
     Page<Diaries> getDiaryList(LocalDateTime date, int requestNum);
     Page<Diaries> getSearchDiaryList(String content, int requestNum);
     Page<Diaries> getMapDiaryList(Long clusterId, int requestNum);

@@ -82,12 +82,13 @@ public class DiaryController {
 
     @Operation(summary = "일기 지도(발자국) 전체 조회",
             description = """
-                    지도 화면에서 발자국 표현을 위한 일기 전체 조회입니다.
+                    지도 화면에서 발자국 표현을 위한 일기 전체 조회입니다.\n
+                    카테고리 id를 같이 요청(선택)하면 그 카테고리에 포함된 일기의 발자국 표시가 가능합니다.
                     """
     )
     @GetMapping("/footprint")
-    public ApiResponse<DiaryResponseDTO.FootprintDiaryListDTO> getFootprintDiaryList() {
-        List<Diaries> diariesList = diaryQueryService.getFootprintDiaryList();
+    public ApiResponse<DiaryResponseDTO.FootprintDiaryListDTO> getFootprintDiaryList(@RequestParam(required = false) Long diaryCategoryId) {
+        List<Diaries> diariesList = diaryQueryService.getFootprintDiaryList(diaryCategoryId);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toFootprintDiaryListDTO(diariesList)
