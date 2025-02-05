@@ -76,12 +76,19 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     }
 
     @Override
-    public Page<Diaries> getMapDiaryList(Long clusterId, int requestNum) {
+    public Page<Diaries> getMapDiaryList(Long clusterId, Long diaryCategoryId, int requestNum) {
         Long userId = SecurityUtil.getCurrentUserId();
 
         Users user = userRepository.findById(userId).get();
 
-        Page<Diaries> diariesPage = diaryRepository.findAllByUsersAndClusterId(user, clusterId, PageRequest.of(requestNum, 1));
+        Page<Diaries> diariesPage;
+
+        if(diaryCategoryId == null) {
+            diariesPage = diaryRepository.findAllByUsersAndClusterId(user, clusterId, PageRequest.of(requestNum, 1));
+        } else {
+            DiaryCategories diaryCategories = diaryCategoryRepository.findById(diaryCategoryId).get();
+            diariesPage = diaryRepository.findAllByUsersAndClusterIdAndCategories(user, clusterId, diaryCategories, PageRequest.of(requestNum, 1));
+        }
 
         return diariesPage;
     }

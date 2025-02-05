@@ -115,15 +115,18 @@ public class DiaryController {
 
     @Operation(summary = "일기 지도",
         description = """
-                clusterId와 페이징 번호(0번 부터 시작)를 작성해주세요.
-                일기 지도 화면에서 발자국 컴포넌트 클릭 시 그 위치의 일기가 1개씩 반환됩니다.
+                clusterId와 페이징 번호(0번 부터 시작)를 작성해주세요.\n
+                일기 지도 화면에서 발자국 컴포넌트 클릭 시 그 위치의 일기가 1개씩 반환됩니다.\n
+                카테고리 Id가 같이 요청(선택) 될 시 해당 카테고리의 일기만 1개씩 반환됩니다.
+                반환 값에 firstDiary와 lastDiary로 boolean 값을 추가했습니다 ! 해당 범위 내에 있는 일기만 페이징 요청 부탁드립니다 :)
                 """
     )
     @GetMapping("/map/{requestNum}")
     public ApiResponse<DiaryResponseDTO.MapResultDTO> getMapDiary (@RequestParam Long clusterId,
+                                                                   @RequestParam(required = false) Long diaryCategoryId,
                                                                    @PathVariable int requestNum) {
 
-        Page<Diaries> diaryList = diaryQueryService.getMapDiaryList(clusterId, requestNum);
+        Page<Diaries> diaryList = diaryQueryService.getMapDiaryList(clusterId,diaryCategoryId, requestNum);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toMapDiaryDTO(diaryList)
