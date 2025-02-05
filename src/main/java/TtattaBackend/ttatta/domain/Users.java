@@ -4,6 +4,7 @@ import TtattaBackend.ttatta.domain.common.BaseEntity;
 import TtattaBackend.ttatta.domain.enums.Gender;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
+import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -11,7 +12,6 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +72,9 @@ public class Users extends BaseEntity {
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<DiaryCategories> diaryCategoriesList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<OwnedItems> ownItemsList = new ArrayList<>();
+
     public void encodePassword(String password) {
         this.password = password;
     }
@@ -86,7 +89,5 @@ public class Users extends BaseEntity {
     public void updateProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
-    public void updatePoint(Long point) {
-        this.point = point;
-    }
+    public void updatePoint(Long point) {this.point = point;}
 }
