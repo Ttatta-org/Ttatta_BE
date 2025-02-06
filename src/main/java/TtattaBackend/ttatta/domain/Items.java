@@ -2,6 +2,7 @@ package TtattaBackend.ttatta.domain;
 
 
 import TtattaBackend.ttatta.domain.common.BaseEntity;
+import TtattaBackend.ttatta.domain.enums.BodyPart;
 import TtattaBackend.ttatta.domain.enums.CharacterType;
 import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import jakarta.persistence.*;
@@ -35,6 +36,9 @@ public class Items extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private CharacterType characterType;
+
+    @Enumerated(EnumType.STRING)
+    private BodyPart bodyPart;
 
     @OneToMany(mappedBy = "items",cascade = CascadeType.ALL)
     private List<OwnedItems> ownedItemsList = new ArrayList<>();
