@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.service.UserService;
 
+import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
@@ -205,5 +206,13 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
         userRepository.delete(user);
+    }
+
+    @Override
+    public Long getUserPoint() {
+        Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        return user.getPoint();
     }
 }
