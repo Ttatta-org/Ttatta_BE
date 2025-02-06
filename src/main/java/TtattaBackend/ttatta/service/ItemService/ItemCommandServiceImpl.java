@@ -95,7 +95,7 @@ public class ItemCommandServiceImpl implements ItemCommandService {
         Optional<OwnedItems> ownedItems = ownedItemRepository.findByUsersAndItems(user, item);
 
         if (ownedItems.isEmpty()) { // 아이템 구매 안한 상태
-            throw new ExceptionHandler(ErrorStatus.ITEM_NOT_FOUND);
+            throw new ExceptionHandler(ErrorStatus.ITEM_NOT_BUY);
         }
 
         OwnedItems ownedItem = ownedItems.get();

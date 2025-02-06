@@ -45,7 +45,8 @@ public enum ErrorStatus implements BaseErrorCode {
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND,"ITEM_5001","아이템이 없습니다."),
     ITEM_ALREADY_BOUGHT(HttpStatus.BAD_REQUEST,"ITEM_5002","이미 구매한 아이템 입니다."),
     ITEM_NO_MONEY(HttpStatus.BAD_REQUEST,"ITEM_5003","아이템을 구매할 돈이 부족합니다."),
-    ITEM_NOT_EQUIPPED(HttpStatus.BAD_REQUEST,"ITEM_5004","아이템을 착용하고 있지 않습니다.");
+    ITEM_NOT_EQUIPPED(HttpStatus.BAD_REQUEST,"ITEM_5004","아이템을 착용하고 있지 않습니다."),
+    ITEM_NOT_BUY(HttpStatus.BAD_REQUEST,"ITEM_5005","구매한 아이템이 아닙니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
