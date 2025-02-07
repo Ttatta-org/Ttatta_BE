@@ -49,7 +49,7 @@ public class ItemController {
 
     @Operation(summary = "미소유 아이템 (shop) api",
             description = "shop 화면에서 사용자가 구매하지 않은 아이템을 반환하는 API 입니다.")
-    @PatchMapping("/shop")
+    @GetMapping("/shop")
     public ApiResponse<ItemResponseDTO.ItemShopListDTO> shop () {
         List<Items> itemsList = itemQueryService.getShopItem();
         Long point = userCommandService.getUserPoint();
