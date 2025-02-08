@@ -44,4 +44,8 @@ public class Challenges extends BaseEntity {
             users.getChallengesList().add(this);
         }
     }
+
+    public void updateIsCompleted() {
+        this.isCompleted = true;
+    }
 }

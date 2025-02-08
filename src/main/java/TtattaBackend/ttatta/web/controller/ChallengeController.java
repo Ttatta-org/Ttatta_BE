@@ -36,17 +36,17 @@ public class ChallengeController {
         );
     }
 
-//    @Operation(summary = "아이템 구매 api",
-//            description = "아이템을 구매하는 api입니다.\npath path variable 로 구매하려는 아이템 id를 받습니다.")
-//    @PatchMapping("/{itemId}")
-//    public ApiResponse<ItemResponseDTO.ItemBuyResultDTO> buy (@PathVariable Long itemId) {
-//        return ApiResponse.onSuccess(itemCommandService.buyItem(itemId));
-//    }
-//
-//    @Operation(summary = "아이템 착용 api",
-//            description = "아이템을 착용하는 api 입니다.\n path variable로 착용하려는 아이템 id를 받습니다.")
-//    @PatchMapping("/equip/{itemId}")
-//    public ApiResponse<ItemResponseDTO.ItemEquipResultDTO> equip (@PathVariable Long itemId) {
-//        return ApiResponse.onSuccess(itemCommandService.equipItem(itemId));
-//    }
+    @Operation(summary = "챌린지 성공 api",
+            description = "챌린지의 상태를 성공으로 바꾸는 api입니다.\n"
+                    + "header에 access token을 넣어주세요.")
+    @PatchMapping("/{challengeId}")
+    public ApiResponse<ChallengeResponeseDTO.SuccessChallengeResultDTO> successChallenge(
+            @PathVariable Long challengeId
+    ) {
+        return ApiResponse.onSuccess(
+                ChallengeConverter.toSuccessChallengeResultDTO(
+                        challengeCommandService.successChallenge(challengeId)
+                )
+        );
+    }
 }

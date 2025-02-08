@@ -20,4 +20,14 @@ public class ChallengeResponeseDTO {
         Boolean isCompleted;
         LocalDateTime createdAt;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SuccessChallengeResultDTO {
+        Long challengId;
+        Boolean isCompleted;
+        LocalDateTime updatedAt;
+    }
 }
