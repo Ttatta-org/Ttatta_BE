@@ -71,4 +71,8 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
 
     @Query("SELECT DISTINCT d.date FROM Diaries d WHERE d.users = :user ORDER BY d.date DESC")
     List<LocalDateTime> findDistinctDatesByUser(@Param("user") Users user);
+  
+    // 유저별 일기 개수 조회
+    @Query("SELECT COUNT(d) FROM Diaries d WHERE d.users = :user")
+    long countByUsers(@Param("user") Users user);
 }
