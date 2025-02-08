@@ -46,6 +46,7 @@ public class ChallengeCommandServiceImpl implements ChallengeCommandService {
         Users getUser = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
         Challenges getChallenge = challengeRepository.findByIdAndUsers(challengeId, getUser);
         getChallenge.updateIsCompleted();
+        getUser.updatePoint(getUser.getPoint() + 50);
         return getChallenge;
     }
 
