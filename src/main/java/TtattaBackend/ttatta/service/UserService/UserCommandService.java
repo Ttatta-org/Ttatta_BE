@@ -17,4 +17,5 @@ public interface UserCommandService {
     UserResponseDTO.UserInfoResultDTO getUserInfo();
     Users editUserInfo(UserRequestDTO.EditRequestDTO request);
     void deleteUser();
+    Long getUserPoint();
 }
