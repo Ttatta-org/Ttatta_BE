@@ -1,6 +1,8 @@
 package TtattaBackend.ttatta.service.DiaryService;
 
 
+import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
+import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.domain.DiaryCategories;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -91,5 +94,12 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         }
 
         return diariesPage;
+    }
+
+    @Override
+    public List<LocalDateTime> getDiaryDateList() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        return diaryRepository.findDistinctDatesByUser(user);
     }
 }

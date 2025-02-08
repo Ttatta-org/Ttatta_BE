@@ -49,6 +49,13 @@ public class ItemConverter {
                 .build();
     }
 
+    public static ItemResponseDTO.ItemDisrobeResultDTO toItemDisrobeDTO(OwnedItems ownedItems) {
+        return ItemResponseDTO.ItemDisrobeResultDTO.builder()
+                .itemId(ownedItems.getId())
+                .isEquipped(ownedItems.getIsEquipped())
+                .build();
+    }
+
     public static ItemResponseDTO.ItemShopDTO toItemShopDTO(Items items) {
         return ItemResponseDTO.ItemShopDTO.builder()
                 .itemId(items.getId())

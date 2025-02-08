@@ -47,6 +47,15 @@ public class ItemResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class ItemDisrobeResultDTO {
+        private Long itemId;
+        private Boolean isEquipped;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ItemShopListDTO {
         private Long point;
         private List<ItemShopDTO> itemShopList;

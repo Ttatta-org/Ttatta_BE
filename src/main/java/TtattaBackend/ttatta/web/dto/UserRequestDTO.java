@@ -64,7 +64,7 @@ public class UserRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UpdateRequestDTO {
+    public static class EditRequestDTO {
         // 입력 값을 선택적으로 받기 위해 Optional 사용
         private Optional<String> nickname = Optional.empty();
         private Optional<String> email = Optional.empty();

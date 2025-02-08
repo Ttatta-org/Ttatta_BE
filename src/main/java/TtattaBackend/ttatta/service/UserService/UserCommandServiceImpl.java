@@ -10,9 +10,9 @@ import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.*;
 import TtattaBackend.ttatta.jwt.JwtUtils;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
+import TtattaBackend.ttatta.repository.DiaryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
-import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 import jakarta.transaction.Transactional;
@@ -23,7 +23,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +43,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Value("${jwt.REFRESH_EXP_TIME}")
     private int refreshExpTime;
     private final UserRepository userRepository;
+    private final DiaryRepository diaryRepository;
     private final DiaryCategoryRepository diaryCategoryRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -181,13 +181,17 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public Users getUserInfo() {
-        return userRepository.findById(SecurityUtil.getCurrentUserId())
+    public UserResponseDTO.UserInfoResultDTO getUserInfo() {
+        Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        long diaryCount = diaryRepository.countByUsers(user);
+
+        return UserConverter.toUserInfoResultDTO(user, diaryCount);
     }
 
     @Override
-    public Users updateUserInfo(UserRequestDTO.UpdateRequestDTO request) {
+    public Users editUserInfo(UserRequestDTO.EditRequestDTO request) {
         Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
