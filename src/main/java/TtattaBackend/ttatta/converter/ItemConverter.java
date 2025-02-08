@@ -45,4 +45,11 @@ public class ItemConverter {
                 .isEquipped(true)
                 .build();
     }
+
+    public static ItemResponseDTO.ItemDisrobeResultDTO toItemDisrobeDTO(OwnedItems ownedItems) {
+        return ItemResponseDTO.ItemDisrobeResultDTO.builder()
+                .itemId(ownedItems.getId())
+                .isEquipped(ownedItems.getIsEquipped())
+                .build();
+    }
 }

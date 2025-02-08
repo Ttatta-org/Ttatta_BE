@@ -5,7 +5,6 @@ import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.ItemConverter;
 import TtattaBackend.ttatta.domain.Items;
-
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import TtattaBackend.ttatta.repository.ItemRepository;
@@ -16,6 +15,7 @@ import TtattaBackend.ttatta.web.dto.ItemResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -81,5 +81,31 @@ public class ItemCommandServiceImpl implements ItemCommandService {
         ownedItemRepository.save(ownedItem);
 
         return ItemConverter.toItemEquipDTO(ownedItem);
+    }
+
+    @Override
+    public OwnedItems disrobeItem(Long itemId) {
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        Items item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ITEM_NOT_FOUND));
+
+        Optional<OwnedItems> ownedItems = ownedItemRepository.findByUsersAndItems(user, item);
+
+        if (ownedItems.isEmpty()) { // 아이템 구매 안한 상태
+            throw new ExceptionHandler(ErrorStatus.ITEM_NOT_BUY);
+        }
+
+        OwnedItems ownedItem = ownedItems.get();
+
+        if (ownedItem.getIsEquipped()) { // 착용 된 상태
+            ownedItem.setEquipped(false); // 착용 해제
+            ownedItemRepository.save(ownedItem);
+            return ownedItem;
+        } else { // 착용 안한 상태
+            throw new ExceptionHandler(ErrorStatus.ITEM_NOT_EQUIPPED);
+        }
     }
 }

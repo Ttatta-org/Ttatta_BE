@@ -39,4 +39,13 @@ public class ItemResponseDTO {
         private Long itemId;
         private Boolean isEquipped;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ItemDisrobeResultDTO {
+        private Long itemId;
+        private Boolean isEquipped;
+    }
 }

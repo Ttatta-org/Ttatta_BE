@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.ItemConverter;
 import TtattaBackend.ttatta.domain.Items;
+import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import TtattaBackend.ttatta.service.ItemService.ItemCommandService;
 import TtattaBackend.ttatta.web.dto.ItemRequestDTO;
 import TtattaBackend.ttatta.web.dto.ItemResponseDTO;
@@ -39,4 +40,15 @@ public class ItemController {
         return ApiResponse.onSuccess(itemCommandService.equipItem(itemId));
     }
 
+    @Operation(summary = "아이템 해제 api",
+            description = "아이템을 해제하는 api 입니다.\n path variable로 해제하려는 아이템 id를 받습니다.")
+    @PatchMapping("/disrobe/{itemId}")
+    public ApiResponse<ItemResponseDTO.ItemDisrobeResultDTO> disrobe (@PathVariable Long itemId) {
+
+        OwnedItems ownedItems = itemCommandService.disrobeItem(itemId);
+
+        return ApiResponse.onSuccess(
+                ItemConverter.toItemDisrobeDTO(ownedItems)
+        );
+    }
 }
