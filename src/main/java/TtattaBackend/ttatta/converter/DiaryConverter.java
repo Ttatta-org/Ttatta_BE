@@ -6,6 +6,8 @@ import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -123,6 +125,21 @@ public class DiaryConverter {
 
         return DiaryResponseDTO.SearchDiaryListDTO.builder()
                 .searchDiaryList(searchDiaryList)
+                .build();
+    }
+
+    public static DiaryResponseDTO.DiaryDateDTO toDiaryDateDTO(LocalDateTime diaryDate) {
+        return DiaryResponseDTO.DiaryDateDTO.builder()
+                .date(diaryDate.toLocalDate())
+                .build();
+    }
+
+    public static DiaryResponseDTO.DairyDateListResultDTO toDairyDateListResultDTO(List<LocalDateTime> diaryDateList) {
+        List<DiaryResponseDTO.DiaryDateDTO> dairyDateListResultDTOList = diaryDateList.stream()
+                .map(DiaryConverter::toDiaryDateDTO).collect(Collectors.toList());
+
+        return DiaryResponseDTO.DairyDateListResultDTO.builder()
+                .diaryDateList(dairyDateListResultDTOList)
                 .build();
     }
 }
