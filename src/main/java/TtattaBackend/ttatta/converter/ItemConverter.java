@@ -76,4 +76,29 @@ public class ItemConverter {
                 .itemShopList(toItemShopListDTO)
                 .build();
     }
+
+    public static ItemResponseDTO.ItemMyItemDTO toItemMyItemDTO(Items items, Boolean isEquipped) {
+        return ItemResponseDTO.ItemMyItemDTO.builder()
+                .itemId(items.getId())
+                .name(items.getName())
+                .itemImage(items.getItemImg())
+                .isEquipped(isEquipped)
+                .characterType(items.getCharacterType())
+                .bodyPart(items.getBodyPart())
+                .build();
+    }
+
+    public static ItemResponseDTO.ItemMyItemListDTO toItemMyItemListDTO(List<Object[]> itemsList, Long point) {
+        List<ItemResponseDTO.ItemMyItemDTO> toItemMyItemListDTO = itemsList.stream()
+                .map(itemArray -> {
+                    Items item = (Items) itemArray[0];
+                    Boolean isEquipped = (Boolean) itemArray[1];
+                    return ItemConverter.toItemMyItemDTO(item, isEquipped);
+                }).collect(Collectors.toList());
+
+        return ItemResponseDTO.ItemMyItemListDTO.builder()
+                .point(point)
+                .itemShopList(toItemMyItemListDTO)
+                .build();
+    }
 }

@@ -15,4 +15,9 @@ public interface ItemRepository extends JpaRepository<Items, Long> {
             "WHERE NOT EXISTS (SELECT o FROM OwnedItems o WHERE o.users = :user AND o.items.id = i.id)")
     List<Items> getShopItem(@Param("user") Users user);
 
+    @Query("SELECT i, o.isEquipped FROM Items i " +
+            "INNER JOIN OwnedItems o " +
+            "ON i.id = o.items.id " +
+            "WHERE o.users = :user")
+    List<Object[]> findByUsers(@Param("user") Users user);
 }

@@ -73,4 +73,27 @@ public class ItemResponseDTO {
         private CharacterType characterType;
         private BodyPart bodyPart;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ItemMyItemListDTO {
+        private Long point;
+        private List<ItemMyItemDTO> itemShopList;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ItemMyItemDTO {
+        private Long itemId;
+        private String name;
+        private String itemImage;
+        private CharacterType characterType;
+        private BodyPart bodyPart;
+        private Boolean isEquipped;
+    }
+
 }
