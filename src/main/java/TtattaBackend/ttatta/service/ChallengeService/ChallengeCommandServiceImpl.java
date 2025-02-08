@@ -26,7 +26,7 @@ public class ChallengeCommandServiceImpl implements ChallengeCommandService {
         Users getUser = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
 
         // 하루에 생성한 챌린지가 이미 3개인지 확인
-        int challengeCount = challengeRepository.countByCreatedAtOn(LocalDateTime.now());
+        int challengeCount = challengeRepository.countByCreatedAtOn(getUser, LocalDateTime.now());
         if(challengeCount == 3) {
             throw new ExceptionHandler(ErrorStatus.CHALLENGE_FULL);
         }
