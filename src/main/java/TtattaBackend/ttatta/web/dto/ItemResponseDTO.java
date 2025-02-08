@@ -80,7 +80,7 @@ public class ItemResponseDTO {
     @AllArgsConstructor
     public static class ItemMyItemListDTO {
         private Long point;
-        private List<ItemMyItemDTO> itemShopList;
+        private List<ItemMyItemDTO> myItemList;
     }
 
     @Builder

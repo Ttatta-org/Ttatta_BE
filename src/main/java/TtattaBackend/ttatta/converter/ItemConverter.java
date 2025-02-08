@@ -98,7 +98,7 @@ public class ItemConverter {
 
         return ItemResponseDTO.ItemMyItemListDTO.builder()
                 .point(point)
-                .itemShopList(toItemMyItemListDTO)
+                .myItemList(toItemMyItemListDTO)
                 .build();
     }
 }
