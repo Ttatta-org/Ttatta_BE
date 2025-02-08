@@ -54,8 +54,21 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.UserInfoResultDTO toUserInfoResultDTO(Users users) {
+    public static UserResponseDTO.UserInfoResultDTO toUserInfoResultDTO(Users users, long diaryCount) {
         return UserResponseDTO.UserInfoResultDTO.builder()
+                .userId(users.getId())
+                .nickname(users.getNickname())
+                .loginType(users.getLoginType())
+                .email(users.getEmail())
+                .profileImg(users.getProfileImage())
+                .point(users.getPoint())
+                .status(users.getStatus())
+                .diaryCount(diaryCount)
+                .build();
+    }
+
+    public static UserResponseDTO.UserInfoEditResultDTO toUserInfoEditResultDTO(Users users) {
+        return UserResponseDTO.UserInfoEditResultDTO.builder()
                 .userId(users.getId())
                 .nickname(users.getNickname())
                 .loginType(users.getLoginType())
