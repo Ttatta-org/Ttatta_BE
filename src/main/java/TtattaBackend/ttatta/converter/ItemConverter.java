@@ -7,6 +7,9 @@ import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import TtattaBackend.ttatta.web.dto.ItemRequestDTO;
 import TtattaBackend.ttatta.web.dto.ItemResponseDTO;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class ItemConverter {
 
     public static ItemResponseDTO.MakeItemResultDTO toMakeItemResultDTO(Items item) {
@@ -43,6 +46,34 @@ public class ItemConverter {
         return ItemResponseDTO.ItemEquipResultDTO.builder()
                 .itemId(ownedItems.getId())
                 .isEquipped(true)
+                .build();
+    }
+
+    public static ItemResponseDTO.ItemDisrobeResultDTO toItemDisrobeDTO(OwnedItems ownedItems) {
+        return ItemResponseDTO.ItemDisrobeResultDTO.builder()
+                .itemId(ownedItems.getId())
+                .isEquipped(ownedItems.getIsEquipped())
+                .build();
+    }
+
+    public static ItemResponseDTO.ItemShopDTO toItemShopDTO(Items items) {
+        return ItemResponseDTO.ItemShopDTO.builder()
+                .itemId(items.getId())
+                .name(items.getName())
+                .cost(items.getCost())
+                .itemImage(items.getItemImg())
+                .characterType(items.getCharacterType())
+                .bodyPart(items.getBodyPart())
+                .build();
+    }
+
+    public static ItemResponseDTO.ItemShopListDTO toItemShopListDTO(List<Items> itemsList, Long point) {
+        List<ItemResponseDTO.ItemShopDTO> toItemShopListDTO = itemsList.stream()
+                .map(ItemConverter::toItemShopDTO).collect(Collectors.toList());
+
+        return ItemResponseDTO.ItemShopListDTO.builder()
+                .point(point)
+                .itemShopList(toItemShopListDTO)
                 .build();
     }
 }

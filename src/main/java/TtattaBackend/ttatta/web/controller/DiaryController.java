@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -147,6 +148,21 @@ public class DiaryController {
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toSearchDiaryListDTO(searchDiaryList)
+        );
+    }
+
+    @Operation(summary = "전체 일기 날짜 조회",
+            description = """
+                    캘린더에 표시하기 위해 전체 일기의 날짜를 중복없이 조회하는 API입니다.\n
+                    header에 access token을 포함시켜 주세요.
+                    """
+    )
+    @GetMapping("/date")
+    public ApiResponse<DiaryResponseDTO.DairyDateListResultDTO> getDiariesDate() {
+        List<LocalDateTime> diaryDateList = diaryQueryService.getDiaryDateList();
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toDairyDateListResultDTO(diaryDateList)
         );
     }
 

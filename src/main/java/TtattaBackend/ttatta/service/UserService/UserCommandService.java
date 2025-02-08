@@ -14,7 +14,8 @@ public interface UserCommandService {
     UserResponseDTO.RefreshResultDTO refresh(String refreshToken);
     Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request);    // 미구현
     Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
-    Users getUserInfo();
-    Users updateUserInfo(UserRequestDTO.UpdateRequestDTO request);
+    UserResponseDTO.UserInfoResultDTO getUserInfo();
+    Users editUserInfo(UserRequestDTO.EditRequestDTO request);
     void deleteUser();
+    Long getUserPoint();
 }
