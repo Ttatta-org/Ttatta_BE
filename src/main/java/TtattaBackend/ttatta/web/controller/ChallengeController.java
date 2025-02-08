@@ -12,6 +12,7 @@ import TtattaBackend.ttatta.web.dto.ChallengeResponeseDTO;
 import TtattaBackend.ttatta.web.dto.ItemRequestDTO;
 import TtattaBackend.ttatta.web.dto.ItemResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +28,7 @@ public class ChallengeController {
     + "header에 access token을 넣어주세요.")
     @PostMapping()
     public ApiResponse<ChallengeResponeseDTO.CreateChallengeResultDTO> createChallenge(
-            @RequestBody ChallengeRequestDTO.CreateChallengeRequestDTO request
+            @RequestBody @Valid ChallengeRequestDTO.CreateChallengeRequestDTO request
     ) {
         Challenges challenge = challengeCommandService.createChallenge(request);
         return ApiResponse.onSuccess(

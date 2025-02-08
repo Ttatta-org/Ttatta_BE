@@ -44,7 +44,10 @@ public enum ErrorStatus implements BaseErrorCode {
     //아이템 관련 응답 5000
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND,"ITEM_5001","아이템이 없습니다."),
     ITEM_ALREADY_BOUGHT(HttpStatus.BAD_REQUEST,"ITEM_5002","이미 구매한 아이템 입니다."),
-    ITEM_NO_MONEY(HttpStatus.BAD_REQUEST,"ITEM_5003","아이템을 구매할 돈이 부족합니다.");
+    ITEM_NO_MONEY(HttpStatus.BAD_REQUEST,"ITEM_5003","아이템을 구매할 돈이 부족합니다."),
+
+    //아이템 관련 응답 6000
+    CHALLENGE_FULL(HttpStatus.BAD_REQUEST,"CHANLLENGE_6001","챌린지 3개가 이미 생성되어 있어 새로운 챌린지를 생성할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
