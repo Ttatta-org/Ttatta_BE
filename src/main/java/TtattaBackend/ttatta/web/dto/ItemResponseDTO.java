@@ -90,4 +90,27 @@ public class ItemResponseDTO {
         private Long itemId;
         private String itemUniqueId;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ItemMyItemListDTO {
+        private Long point;
+        private List<ItemMyItemDTO> myItemList;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ItemMyItemDTO {
+        private Long itemId;
+        private String itemUniqueId;
+        private String name;
+        private CharacterType characterType;
+        private BodyPart bodyPart;
+        private Boolean isEquipped;
+    }
+
 }

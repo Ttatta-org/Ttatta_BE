@@ -71,6 +71,19 @@ public class ItemController {
         );
     }
 
+    @Operation(summary = "소유 아이템(myitem) api",
+            description = "myitem" +
+                    " 화면에서 사용자가 구매한 아이템을 반환하는 API 입니다.")
+    @GetMapping("/owned")
+    public ApiResponse<ItemResponseDTO.ItemMyItemListDTO> owned() {
+        List<Object[]> itemsList = itemQueryService.getMyItem();
+        Long point = userCommandService.getUserPoint();
+
+        return ApiResponse.onSuccess(
+                ItemConverter.toItemMyItemListDTO(itemsList, point)
+        );
+    }
+
     @Operation(summary = "착용한 아이템 조회 api",
             description = "기록하기 버튼, 챌린지 화면, shop 등 화면에서 캐릭터가 입은 옷의 id를 반환하는 API 입니다.")
     @GetMapping("/equipped")
