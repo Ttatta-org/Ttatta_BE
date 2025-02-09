@@ -25,14 +25,14 @@ public class Items extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
+    private String itemUniqueId;
+
     @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     private Long cost;
-
-    @Column(columnDefinition = "TEXT")
-    private String itemImg;
 
     @Enumerated(EnumType.STRING)
     private CharacterType characterType;

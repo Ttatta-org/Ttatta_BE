@@ -70,4 +70,17 @@ public class ItemController {
                 ItemConverter.toItemShopListDTO(itemsList, point)
         );
     }
+
+    @Operation(summary = "소유 아이템(myitem) api",
+            description = "myitem" +
+                    " 화면에서 사용자가 구매한 아이템을 반환하는 API 입니다.")
+    @GetMapping("/owned")
+    public ApiResponse<ItemResponseDTO.ItemMyItemListDTO> owned() {
+        List<Object[]> itemsList = itemQueryService.getMyItem();
+        Long point = userCommandService.getUserPoint();
+
+        return ApiResponse.onSuccess(
+                ItemConverter.toItemMyItemListDTO(itemsList, point)
+        );
+    }
 }
