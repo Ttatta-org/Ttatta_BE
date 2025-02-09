@@ -78,24 +78,20 @@ public class ItemConverter {
                 .build();
     }
 
-    public static ItemResponseDTO.ItemMyItemDTO toItemMyItemDTO(Items items, Boolean isEquipped) {
+    public static ItemResponseDTO.ItemMyItemDTO toItemMyItemDTO(OwnedItems ownedItems) {
         return ItemResponseDTO.ItemMyItemDTO.builder()
-                .itemId(items.getId())
-                .itemUniqueId(items.getItemUniqueId())
-                .name(items.getName())
-                .isEquipped(isEquipped)
-                .characterType(items.getCharacterType())
-                .bodyPart(items.getBodyPart())
+                .itemId(ownedItems.getItems().getId())
+                .itemUniqueId(ownedItems.getItems().getItemUniqueId())
+                .name(ownedItems.getItems().getName())
+                .isEquipped(ownedItems.getIsEquipped())
+                .characterType(ownedItems.getItems().getCharacterType())
+                .bodyPart(ownedItems.getItems().getBodyPart())
                 .build();
     }
 
-    public static ItemResponseDTO.ItemMyItemListDTO toItemMyItemListDTO(List<Object[]> itemsList, Long point) {
+    public static ItemResponseDTO.ItemMyItemListDTO toItemMyItemListDTO(List<OwnedItems> itemsList, Long point) {
         List<ItemResponseDTO.ItemMyItemDTO> toItemMyItemListDTO = itemsList.stream()
-                .map(itemArray -> {
-                    Items item = (Items) itemArray[0];
-                    Boolean isEquipped = (Boolean) itemArray[1];
-                    return ItemConverter.toItemMyItemDTO(item, isEquipped);
-                }).collect(Collectors.toList());
+                .map(ItemConverter::toItemMyItemDTO).collect(Collectors.toList());
 
         return ItemResponseDTO.ItemMyItemListDTO.builder()
                 .point(point)
