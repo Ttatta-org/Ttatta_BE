@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.ITEM_ALREADY_EQUIPPED;
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.ITEM_NOT_BUY;
 
 @Service
 @RequiredArgsConstructor
@@ -76,8 +77,8 @@ public class ItemCommandServiceImpl implements ItemCommandService {
         Items item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ITEM_NOT_FOUND));
 
-        OwnedItems ownedItem = ownedItemRepository.findByItems(item)
-                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ITEM_NOT_FOUND));
+        OwnedItems ownedItem = ownedItemRepository.findByUsersAndItems(user, item)
+                .orElseThrow(() -> new ExceptionHandler(ITEM_NOT_BUY));
 
         if(!ownedItem.getIsEquipped()) {
             // 다른 아이템 착용 중
@@ -103,13 +104,8 @@ public class ItemCommandServiceImpl implements ItemCommandService {
         Items item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ITEM_NOT_FOUND));
 
-        Optional<OwnedItems> ownedItems = ownedItemRepository.findByUsersAndItems(user, item);
-
-        if (ownedItems.isEmpty()) { // 아이템 구매 안한 상태
-            throw new ExceptionHandler(ErrorStatus.ITEM_NOT_BUY);
-        }
-
-        OwnedItems ownedItem = ownedItems.get();
+        OwnedItems ownedItem = ownedItemRepository.findByUsersAndItems(user, item)
+                .orElseThrow(() -> new ExceptionHandler(ITEM_NOT_BUY));
 
         if (ownedItem.getIsEquipped()) { // 착용 된 상태
             ownedItem.setEquipped(false); // 착용 해제
