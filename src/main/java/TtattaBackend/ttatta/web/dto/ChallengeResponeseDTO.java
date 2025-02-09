@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ChallengeResponeseDTO {
     @Getter
@@ -14,10 +15,28 @@ public class ChallengeResponeseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateChallengeResultDTO {
-        Long challengId;
+        Long challengeId;
         String title;
         String content;
         Boolean isCompleted;
         LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChallengeResultDTO {
+        Long challengeId;
+        String title;
+        Boolean isCompleted;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChallengeListResultDTO {
+        List<ChallengeResultDTO> challengeList;
     }
 }
