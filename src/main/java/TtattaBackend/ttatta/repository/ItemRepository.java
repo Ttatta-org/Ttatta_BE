@@ -2,12 +2,15 @@ package TtattaBackend.ttatta.repository;
 
 import TtattaBackend.ttatta.domain.Items;
 import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.domain.enums.BodyPart;
+import TtattaBackend.ttatta.domain.enums.CharacterType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Items, Long> {
@@ -20,4 +23,11 @@ public interface ItemRepository extends JpaRepository<Items, Long> {
             "ON i.id = o.items.id " +
             "WHERE o.users = :user")
     List<Object[]> findByUsers(@Param("user") Users user);
+
+    @Query("SELECT i FROM Items i " +
+            "INNER JOIN OwnedItems o ON o.items.id = i.id " +
+            "WHERE i.characterType = :characterType AND i.bodyPart = :bodyPart " +
+            "AND o.isEquipped = true ")
+    Optional<Items> findByBodyPartAndCharacterType(@Param("characterType") CharacterType characterType, @Param("bodyPart") BodyPart bodyPart);
+
 }

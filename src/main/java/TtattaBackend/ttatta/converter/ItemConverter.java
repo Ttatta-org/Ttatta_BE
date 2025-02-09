@@ -15,9 +15,9 @@ public class ItemConverter {
     public static ItemResponseDTO.MakeItemResultDTO toMakeItemResultDTO(Items item) {
         return ItemResponseDTO.MakeItemResultDTO.builder()
                 .itemId(item.getId())
+                .itemUniqueId(item.getItemUniqueId())
                 .name(item.getName())
                 .cost(item.getCost())
-                .itemImage(item.getItemImg())
                 .characterType(item.getCharacterType())
                 .build();
     }
@@ -26,10 +26,11 @@ public class ItemConverter {
         CharacterType characterType = request.getCharacterType();
 
         return Items.builder()
+                .itemUniqueId(request.getItemUniqueId())
                 .name(request.getName())
                 .cost(request.getCost())
-                .itemImg(request.getItemImage())
                 .characterType(characterType)
+                .bodyPart(request.getBodyPart())
                 .build();
     }
 
@@ -59,9 +60,9 @@ public class ItemConverter {
     public static ItemResponseDTO.ItemShopDTO toItemShopDTO(Items items) {
         return ItemResponseDTO.ItemShopDTO.builder()
                 .itemId(items.getId())
+                .itemUniqueId(items.getItemUniqueId())
                 .name(items.getName())
                 .cost(items.getCost())
-                .itemImage(items.getItemImg())
                 .characterType(items.getCharacterType())
                 .bodyPart(items.getBodyPart())
                 .build();
