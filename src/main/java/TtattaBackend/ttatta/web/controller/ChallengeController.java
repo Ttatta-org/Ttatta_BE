@@ -38,6 +38,30 @@ public class ChallengeController {
         );
     }
 
+    @Operation(summary = "챌린지 성공 api",
+            description = "챌린지의 상태를 성공으로 바꾸는 api입니다.\n"
+                    + "header에 access token을 넣어주세요.")
+    @PatchMapping("/{challengeId}")
+    public ApiResponse<ChallengeResponeseDTO.SuccessChallengeResultDTO> successChallenge(
+            @PathVariable Long challengeId
+    ) {
+        return ApiResponse.onSuccess(
+                ChallengeConverter.toSuccessChallengeResultDTO(
+                        challengeCommandService.successChallenge(challengeId)
+                )
+        );
+    }
+
+    @Operation(summary = "금일 챌린지 조회 api",
+            description = "금일 챌린지를 조회하는 api입니다.\n"
+                    + "header에 access token을 넣어주세요.")
+    @GetMapping()
+    public ApiResponse<ChallengeResponeseDTO.ChallengeListResultDTO> getChallenges() {
+        return ApiResponse.onSuccess(
+                ChallengeConverter.toChallengeListResultDTO(challengeQueryService.getChallenges())
+        );
+    }
+
     @Operation(summary = "가장 최근에 실패한 챌린지 5개 조회 api",
             description = "가장 최근에 실패한 5개의 챌린지를 조회하는 api입니다.\n"
                     + "header에 access token을 넣어주세요.")
@@ -47,5 +71,4 @@ public class ChallengeController {
                 ChallengeConverter.toFailChallengeListResultDTO(challengeQueryService.getFailChallenges())
         );
     }
-
 }

@@ -15,9 +15,9 @@ public class ItemConverter {
     public static ItemResponseDTO.MakeItemResultDTO toMakeItemResultDTO(Items item) {
         return ItemResponseDTO.MakeItemResultDTO.builder()
                 .itemId(item.getId())
+                .itemUniqueId(item.getItemUniqueId())
                 .name(item.getName())
                 .cost(item.getCost())
-                .itemImage(item.getItemImg())
                 .characterType(item.getCharacterType())
                 .build();
     }
@@ -26,10 +26,11 @@ public class ItemConverter {
         CharacterType characterType = request.getCharacterType();
 
         return Items.builder()
+                .itemUniqueId(request.getItemUniqueId())
                 .name(request.getName())
                 .cost(request.getCost())
-                .itemImg(request.getItemImage())
                 .characterType(characterType)
+                .bodyPart(request.getBodyPart())
                 .build();
     }
 
@@ -59,9 +60,9 @@ public class ItemConverter {
     public static ItemResponseDTO.ItemShopDTO toItemShopDTO(Items items) {
         return ItemResponseDTO.ItemShopDTO.builder()
                 .itemId(items.getId())
+                .itemUniqueId(items.getItemUniqueId())
                 .name(items.getName())
                 .cost(items.getCost())
-                .itemImage(items.getItemImg())
                 .characterType(items.getCharacterType())
                 .bodyPart(items.getBodyPart())
                 .build();
@@ -74,6 +75,43 @@ public class ItemConverter {
         return ItemResponseDTO.ItemShopListDTO.builder()
                 .point(point)
                 .itemShopList(toItemShopListDTO)
+                .build();
+    }
+
+    public static ItemResponseDTO.ItemMyItemDTO toItemMyItemDTO(OwnedItems ownedItems) {
+        return ItemResponseDTO.ItemMyItemDTO.builder()
+                .itemId(ownedItems.getItems().getId())
+                .itemUniqueId(ownedItems.getItems().getItemUniqueId())
+                .name(ownedItems.getItems().getName())
+                .isEquipped(ownedItems.getIsEquipped())
+                .characterType(ownedItems.getItems().getCharacterType())
+                .bodyPart(ownedItems.getItems().getBodyPart())
+                .build();
+    }
+
+    public static ItemResponseDTO.ItemMyItemListDTO toItemMyItemListDTO(List<OwnedItems> itemsList, Long point) {
+        List<ItemResponseDTO.ItemMyItemDTO> toItemMyItemListDTO = itemsList.stream()
+                .map(ItemConverter::toItemMyItemDTO).collect(Collectors.toList());
+
+        return ItemResponseDTO.ItemMyItemListDTO.builder()
+                .point(point)
+                .myItemList(toItemMyItemListDTO)
+                .build();
+    }
+
+    public static ItemResponseDTO.IdDTO toIdDTO(OwnedItems ownedItems) {
+        return ItemResponseDTO.IdDTO.builder()
+                .itemId(ownedItems.getItems().getId())
+                .itemUniqueId(ownedItems.getItems().getItemUniqueId())
+                .build();
+    }
+
+    public static ItemResponseDTO.IdListDTO toIdListDTO(List<OwnedItems> itemsList) {
+        List<ItemResponseDTO.IdDTO> toIdListDTO = itemsList.stream()
+                .map(ItemConverter::toIdDTO).collect(Collectors.toList());
+
+        return ItemResponseDTO.IdListDTO.builder()
+                .idList(toIdListDTO)
                 .build();
     }
 }

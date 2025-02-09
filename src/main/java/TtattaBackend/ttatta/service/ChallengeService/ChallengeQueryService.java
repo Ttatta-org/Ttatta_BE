@@ -5,5 +5,6 @@ import TtattaBackend.ttatta.domain.Challenges;
 import java.util.List;
 
 public interface ChallengeQueryService {
+    List<Challenges> getChallenges();
     List<Challenges> getFailChallenges();
 }
