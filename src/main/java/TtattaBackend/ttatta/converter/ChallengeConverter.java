@@ -23,7 +23,7 @@ public class ChallengeConverter {
 
     public static ChallengeResponeseDTO.CreateChallengeResultDTO toCreateChallengeResultDTO(Challenges challenge) {
         return ChallengeResponeseDTO.CreateChallengeResultDTO.builder()
-                .challengId(challenge.getId())
+                .challengeId(challenge.getId())
                 .title(challenge.getTitle())
                 .content(challenge.getContent())
                 .isCompleted(challenge.getIsCompleted())
@@ -33,7 +33,7 @@ public class ChallengeConverter {
 
     public static ChallengeResponeseDTO.ChallengeResultDTO toChallengeResultDTO(Challenges challenge) {
         return ChallengeResponeseDTO.ChallengeResultDTO.builder()
-                .challengId(challenge.getId())
+                .challengeId(challenge.getId())
                 .title(challenge.getTitle())
                 .isCompleted(challenge.getIsCompleted())
                 .build();

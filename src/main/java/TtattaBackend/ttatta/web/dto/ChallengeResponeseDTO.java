@@ -15,7 +15,7 @@ public class ChallengeResponeseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateChallengeResultDTO {
-        Long challengId;
+        Long challengeId;
         String title;
         String content;
         Boolean isCompleted;
@@ -27,7 +27,7 @@ public class ChallengeResponeseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ChallengeResultDTO {
-        Long challengId;
+        Long challengeId;
         String title;
         Boolean isCompleted;
     }
