@@ -78,6 +78,23 @@ public class ItemResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class IdListDTO {
+        List<IdDTO> idList;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IdDTO {
+        private Long itemId;
+        private String itemUniqueId;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ItemMyItemListDTO {
         private Long point;
         private List<ItemMyItemDTO> myItemList;

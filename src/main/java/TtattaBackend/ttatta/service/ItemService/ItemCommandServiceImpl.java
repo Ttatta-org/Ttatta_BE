@@ -87,10 +87,14 @@ public class ItemCommandServiceImpl implements ItemCommandService {
                 disrobeItem(other.get().getId()); // 기존 아이템 착용 해제
                 ownedItem.setEquipped(true); // 새로운 아이템 착용
                 ownedItemRepository.save(ownedItem);
+                return ItemConverter.toItemEquipDTO(ownedItem);
             }
         } else { // 이미 착용 중
             throw new ExceptionHandler(ITEM_ALREADY_EQUIPPED);
         }
+
+        ownedItem.setEquipped(true);
+        ownedItemRepository.save(ownedItem);
 
         return ItemConverter.toItemEquipDTO(ownedItem);
     }

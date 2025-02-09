@@ -4,7 +4,9 @@ import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.domain.Items;
 import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import TtattaBackend.ttatta.repository.ItemRepository;
+import TtattaBackend.ttatta.repository.OwnedItemRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,8 @@ public class ItemQueryServiceImpl implements ItemQueryService{
 
     private final ItemRepository itemRepository;
 
+    private final OwnedItemRepository ownedItemRepository;
+
     @Override
     public List<Items> getShopItem() {
         Long userId = SecurityUtil.getCurrentUserId();
@@ -33,11 +37,20 @@ public class ItemQueryServiceImpl implements ItemQueryService{
     }
 
     @Override
-    public List<Object[]> getMyItem() {
+    public List<OwnedItems> getEquippedItem() {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
-        return itemRepository.findByUsers(user);
+        return ownedItemRepository.findByUsersAndIsEquipped(user, true);
+    }
+
+    @Override
+    public List<OwnedItems> getMyItem() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        return ownedItemRepository.findByUsers(user);
     }
 }
