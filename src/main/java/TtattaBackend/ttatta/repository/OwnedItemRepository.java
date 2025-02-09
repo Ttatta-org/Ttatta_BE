@@ -13,5 +13,6 @@ public interface OwnedItemRepository extends JpaRepository<OwnedItems, Long>{
     Optional<OwnedItems> findByItems(Items items);
     Optional<OwnedItems> findByUsersAndItems(Users users, Items items);
 
-    List<OwnedItems> findByUsers(@Param("user") Users user);
+    List<OwnedItems> findByUsers(Users user);
+    List<OwnedItems> findByUsersAndIsEquipped(Users user, Boolean isEquipped);
 }

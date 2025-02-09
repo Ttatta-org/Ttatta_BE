@@ -42,7 +42,7 @@ public class ItemQueryServiceImpl implements ItemQueryService{
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
-        return ownedItemRepository.findByUsers(user);
+        return ownedItemRepository.findByUsersAndIsEquipped(user, true);
     }
 
     @Override
