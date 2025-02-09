@@ -8,6 +8,7 @@ import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.repository.ChallengeRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,6 @@ public class ChallengeQueryServiceImpl implements ChallengeQueryService {
     public List<Challenges> getFailChallenges() {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-        return challengeRepository.findTop5ByUsersAndIsCompletedFalseOrderByCreatedAtDesc(getUser);
+        return challengeRepository.findTop5ByUserAndIsCompletedFalseExcludeTodayOrderByCreatedAtDesc(getUser);
     }
 }

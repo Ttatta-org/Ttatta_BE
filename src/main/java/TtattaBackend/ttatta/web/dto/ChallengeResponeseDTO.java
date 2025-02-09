@@ -37,6 +37,6 @@ public class ChallengeResponeseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class FailChallengeListResultDTO {
-        List<ChallengeResponeseDTO.FailChallengeResultDTO> failChallengeList;
+        List<FailChallengeResultDTO> failChallengeList;
     }
 }
