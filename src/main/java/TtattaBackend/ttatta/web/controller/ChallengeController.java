@@ -61,4 +61,14 @@ public class ChallengeController {
                 ChallengeConverter.toChallengeListResultDTO(challengeQueryService.getChallenges())
         );
     }
+
+    @Operation(summary = "가장 최근에 실패한 챌린지 5개 조회 api",
+            description = "가장 최근에 실패한 5개의 챌린지를 조회하는 api입니다.\n"
+                    + "header에 access token을 넣어주세요.")
+    @GetMapping("/fail")
+    public ApiResponse<ChallengeResponeseDTO.FailChallengeListResultDTO> getFailChallenges() {
+        return ApiResponse.onSuccess(
+                ChallengeConverter.toFailChallengeListResultDTO(challengeQueryService.getFailChallenges())
+        );
+    }
 }

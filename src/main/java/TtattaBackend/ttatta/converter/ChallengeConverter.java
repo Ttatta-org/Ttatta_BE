@@ -11,6 +11,11 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class ChallengeConverter {
 
     public static Challenges toChallenge(ChallengeRequestDTO.CreateChallengeRequestDTO request) {
@@ -53,6 +58,24 @@ public class ChallengeConverter {
 
         return ChallengeResponeseDTO.ChallengeListResultDTO.builder()
                 .challengeList(challengeList)
+                .build();
+    }
+  
+    public static ChallengeResponeseDTO.FailChallengeResultDTO toFailChallengeResultDTO(Challenges challenge, int term) {
+        return ChallengeResponeseDTO.FailChallengeResultDTO.builder()
+                .challengeId(challenge.getId())
+                .title(challenge.getTitle())
+                .content(challenge.getContent())
+                .term(term)
+                .build();
+    }
+
+    public static ChallengeResponeseDTO.FailChallengeListResultDTO toFailChallengeListResultDTO(List<Challenges> challengeList) {
+        List<ChallengeResponeseDTO.FailChallengeResultDTO> challengeListDTO = challengeList.stream()
+                .map(challenge -> ChallengeConverter.toFailChallengeResultDTO(challenge, (int) ChronoUnit.DAYS.between(challenge.getCreatedAt(), LocalDateTime.now()))).collect(Collectors.toList());
+
+        return ChallengeResponeseDTO.FailChallengeListResultDTO.builder()
+                .failChallengeList(challengeListDTO)
                 .build();
     }
 }

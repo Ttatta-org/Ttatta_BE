@@ -1,6 +1,5 @@
 package TtattaBackend.ttatta.web.dto;
 
-import TtattaBackend.ttatta.domain.enums.LoginType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +20,7 @@ public class ChallengeResponeseDTO {
         Boolean isCompleted;
         LocalDateTime createdAt;
     }
-
+  
     @Getter
     @Builder
     @NoArgsConstructor
@@ -41,12 +40,31 @@ public class ChallengeResponeseDTO {
         String title;
         Boolean isCompleted;
     }
-
+  
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ChallengeListResultDTO {
         List<ChallengeResultDTO> challengeList;
+    }
+  
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FailChallengeResultDTO {
+        Long challengeId;
+        String title;
+        String content;
+        int term;
+    }
+  
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FailChallengeListResultDTO {
+        List<FailChallengeResultDTO> failChallengeList;
     }
 }

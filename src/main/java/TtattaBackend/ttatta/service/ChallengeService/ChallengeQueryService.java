@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ChallengeQueryService {
     List<Challenges> getChallenges();
+    List<Challenges> getFailChallenges();
 }
