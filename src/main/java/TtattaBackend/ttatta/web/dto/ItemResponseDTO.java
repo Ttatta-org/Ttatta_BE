@@ -89,8 +89,8 @@ public class ItemResponseDTO {
     @AllArgsConstructor
     public static class ItemMyItemDTO {
         private Long itemId;
+        private String itemUniqueId;
         private String name;
-        private String itemImage;
         private CharacterType characterType;
         private BodyPart bodyPart;
         private Boolean isEquipped;

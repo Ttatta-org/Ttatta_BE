@@ -81,8 +81,8 @@ public class ItemConverter {
     public static ItemResponseDTO.ItemMyItemDTO toItemMyItemDTO(Items items, Boolean isEquipped) {
         return ItemResponseDTO.ItemMyItemDTO.builder()
                 .itemId(items.getId())
+                .itemUniqueId(items.getItemUniqueId())
                 .name(items.getName())
-                .itemImage(items.getItemImg())
                 .isEquipped(isEquipped)
                 .characterType(items.getCharacterType())
                 .bodyPart(items.getBodyPart())
