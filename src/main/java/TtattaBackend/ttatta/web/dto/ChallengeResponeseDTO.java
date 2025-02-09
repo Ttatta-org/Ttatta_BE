@@ -26,6 +26,16 @@ public class ChallengeResponeseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class SuccessChallengeResultDTO {
+        Long challengeId;
+        Boolean isCompleted;
+        LocalDateTime updatedAt;
+    }
+  
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ChallengeResultDTO {
         Long challengeId;
         String title;

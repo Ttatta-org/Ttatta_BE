@@ -11,6 +11,7 @@ import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.web.dto.ChallengeRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +22,7 @@ public class ChallengeCommandServiceImpl implements ChallengeCommandService {
     private final ChallengeRepository challengeRepository;
     private final UserRepository userRepository;
 
+    @Override
     public Challenges createChallenge(ChallengeRequestDTO.CreateChallengeRequestDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
@@ -36,4 +38,16 @@ public class ChallengeCommandServiceImpl implements ChallengeCommandService {
         challenge.setUsers(getUser);
         return challengeRepository.save(challenge);
     }
+
+    @Override
+    @Transactional
+    public Challenges successChallenge(Long challengeId) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users getUser = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        Challenges getChallenge = challengeRepository.findByIdAndUsers(challengeId, getUser);
+        getChallenge.updateIsCompleted();
+        getUser.updatePoint(getUser.getPoint() + 50);
+        return getChallenge;
+    }
+
 }

@@ -5,4 +5,5 @@ import TtattaBackend.ttatta.web.dto.ChallengeRequestDTO;
 
 public interface ChallengeCommandService {
     Challenges createChallenge(ChallengeRequestDTO.CreateChallengeRequestDTO request);
+    Challenges successChallenge(Long challengeId);
 }

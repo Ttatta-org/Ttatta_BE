@@ -31,6 +31,14 @@ public class ChallengeConverter {
                 .build();
     }
 
+    public static ChallengeResponeseDTO.SuccessChallengeResultDTO toSuccessChallengeResultDTO(Challenges challenge) {
+        return ChallengeResponeseDTO.SuccessChallengeResultDTO.builder()
+                .challengeId(challenge.getId())
+                .isCompleted(challenge.getIsCompleted())
+                .updatedAt(challenge.getUpdatedAt())
+                .build();
+    }
+  
     public static ChallengeResponeseDTO.ChallengeResultDTO toChallengeResultDTO(Challenges challenge) {
         return ChallengeResponeseDTO.ChallengeResultDTO.builder()
                 .challengeId(challenge.getId())
