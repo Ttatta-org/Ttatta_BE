@@ -30,6 +30,7 @@ public class ItemConverter {
                 .name(request.getName())
                 .cost(request.getCost())
                 .characterType(characterType)
+                .bodyPart(request.getBodyPart())
                 .build();
     }
 

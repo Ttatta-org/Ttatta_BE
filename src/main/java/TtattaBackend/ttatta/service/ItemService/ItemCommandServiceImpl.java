@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.ITEM_ALREADY_EQUIPPED;
+
 @Service
 @RequiredArgsConstructor
 public class ItemCommandServiceImpl implements ItemCommandService {
@@ -77,8 +79,17 @@ public class ItemCommandServiceImpl implements ItemCommandService {
         OwnedItems ownedItem = ownedItemRepository.findByItems(item)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ITEM_NOT_FOUND));
 
-        ownedItem.setEquipped(true);
-        ownedItemRepository.save(ownedItem);
+        if(!ownedItem.getIsEquipped()) {
+            // 다른 아이템 착용 중
+            Optional<Items> other = itemRepository.findByBodyPartAndCharacterType(item.getCharacterType(), item.getBodyPart());
+            if(other.isPresent()) {
+                disrobeItem(other.get().getId()); // 기존 아이템 착용 해제
+                ownedItem.setEquipped(true); // 새로운 아이템 착용
+                ownedItemRepository.save(ownedItem);
+            }
+        } else { // 이미 착용 중
+            throw new ExceptionHandler(ITEM_ALREADY_EQUIPPED);
+        }
 
         return ItemConverter.toItemEquipDTO(ownedItem);
     }
