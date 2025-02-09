@@ -32,4 +32,13 @@ public class ItemQueryServiceImpl implements ItemQueryService{
          return itemRepository.getShopItem(user);
     }
 
+    @Override
+    public List<Items> getEquippedItem() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        return itemRepository.findByIsEquipped(user);
+    }
+
 }

@@ -73,4 +73,21 @@ public class ItemResponseDTO {
         private CharacterType characterType;
         private BodyPart bodyPart;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IdListDTO {
+        List<IdDTO> idList;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IdDTO {
+        private Long itemId;
+        private String itemUniqueId;
+    }
 }

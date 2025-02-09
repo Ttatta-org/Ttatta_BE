@@ -77,4 +77,20 @@ public class ItemConverter {
                 .itemShopList(toItemShopListDTO)
                 .build();
     }
+
+    public static ItemResponseDTO.IdDTO toIdDTO(Items items) {
+        return ItemResponseDTO.IdDTO.builder()
+                .itemId(items.getId())
+                .itemUniqueId(items.getItemUniqueId())
+                .build();
+    }
+
+    public static ItemResponseDTO.IdListDTO toIdListDTO(List<Items> itemsList) {
+        List<ItemResponseDTO.IdDTO> toIdListDTO = itemsList.stream()
+                .map(ItemConverter::toIdDTO).collect(Collectors.toList());
+
+        return ItemResponseDTO.IdListDTO.builder()
+                .idList(toIdListDTO)
+                .build();
+    }
 }

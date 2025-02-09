@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface ItemQueryService {
     List<Items> getShopItem();
+    List<Items> getEquippedItem();
 
 }
