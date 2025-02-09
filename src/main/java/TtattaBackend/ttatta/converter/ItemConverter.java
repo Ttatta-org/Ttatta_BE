@@ -99,14 +99,14 @@ public class ItemConverter {
                 .build();
     }
 
-    public static ItemResponseDTO.IdDTO toIdDTO(Items items) {
+    public static ItemResponseDTO.IdDTO toIdDTO(OwnedItems ownedItems) {
         return ItemResponseDTO.IdDTO.builder()
-                .itemId(items.getId())
-                .itemUniqueId(items.getItemUniqueId())
+                .itemId(ownedItems.getItems().getId())
+                .itemUniqueId(ownedItems.getItems().getItemUniqueId())
                 .build();
     }
 
-    public static ItemResponseDTO.IdListDTO toIdListDTO(List<Items> itemsList) {
+    public static ItemResponseDTO.IdListDTO toIdListDTO(List<OwnedItems> itemsList) {
         List<ItemResponseDTO.IdDTO> toIdListDTO = itemsList.stream()
                 .map(ItemConverter::toIdDTO).collect(Collectors.toList());
 

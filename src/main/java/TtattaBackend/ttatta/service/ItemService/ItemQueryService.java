@@ -8,6 +8,6 @@ import java.util.List;
 public interface ItemQueryService {
     List<Items> getShopItem();
     List<OwnedItems> getMyItem();
-    List<Items> getEquippedItem();
+    List<OwnedItems> getEquippedItem();
 
 }

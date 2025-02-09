@@ -24,9 +24,4 @@ public interface ItemRepository extends JpaRepository<Items, Long> {
             "AND o.isEquipped = true ")
     Optional<Items> findByBodyPartAndCharacterType(@Param("characterType") CharacterType characterType, @Param("bodyPart") BodyPart bodyPart);
 
-    @Query("SELECT i FROM Items i " +
-            "INNER JOIN OwnedItems o " +
-            "ON i.id = o.items.id " +
-            "WHERE o.users = :user AND o.isEquipped = true ")
-    List<Items> findByIsEquipped(@Param("user") Users user);
 }

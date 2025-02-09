@@ -37,12 +37,12 @@ public class ItemQueryServiceImpl implements ItemQueryService{
     }
 
     @Override
-    public List<Items> getEquippedItem() {
+    public List<OwnedItems> getEquippedItem() {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
-        return itemRepository.findByIsEquipped(user);
+        return ownedItemRepository.findByUsers(user);
     }
 
     @Override
