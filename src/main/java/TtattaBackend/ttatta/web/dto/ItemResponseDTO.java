@@ -28,9 +28,9 @@ public class ItemResponseDTO {
     @AllArgsConstructor
     public static class MakeItemResultDTO {
         private Long itemId;
+        private String itemUniqueId;
         private String name;
         private Long cost;
-        private String itemImage;
         private CharacterType characterType;
     }
 
@@ -67,9 +67,9 @@ public class ItemResponseDTO {
     @AllArgsConstructor
     public static class ItemShopDTO {
         private Long itemId;
+        private String itemUniqueId;
         private String name;
         private Long cost;
-        private String itemImage;
         private CharacterType characterType;
         private BodyPart bodyPart;
     }
