@@ -26,7 +26,7 @@ public class ChallengeResponeseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SuccessChallengeResultDTO {
-        Long challengId;
+        Long challengeId;
         Boolean isCompleted;
         LocalDateTime updatedAt;
     }

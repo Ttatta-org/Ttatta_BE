@@ -26,7 +26,7 @@ public class ChallengeConverter {
 
     public static ChallengeResponeseDTO.SuccessChallengeResultDTO toSuccessChallengeResultDTO(Challenges challenge) {
         return ChallengeResponeseDTO.SuccessChallengeResultDTO.builder()
-                .challengId(challenge.getId())
+                .challengeId(challenge.getId())
                 .isCompleted(challenge.getIsCompleted())
                 .updatedAt(challenge.getUpdatedAt())
                 .build();
