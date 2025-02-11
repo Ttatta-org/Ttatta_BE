@@ -71,6 +71,7 @@ public class DiaryConverter {
 
         return DiaryResponseDTO.KeepDiaryDTO.builder()
                 .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
                 .image(imageUrl)
@@ -111,6 +112,7 @@ public class DiaryConverter {
 
         return DiaryResponseDTO.SearchDiaryDTO.builder()
                 .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .content(diaries.getContent())
                 .date(diaries.getDate())
                 .image(imageUrl)

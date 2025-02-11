@@ -63,6 +63,7 @@ public class DiaryResponseDTO {
     @AllArgsConstructor
     public static class KeepDiaryDTO {
         Long diaryId;
+        Long diaryCategoryId;
         LocalDateTime date;
         String content;
         String image;
@@ -97,6 +98,7 @@ public class DiaryResponseDTO {
     @AllArgsConstructor
     public static class SearchDiaryDTO {
         Long diaryId;
+        Long diaryCategoryId;
         LocalDateTime date;
         String content;
         String image;
