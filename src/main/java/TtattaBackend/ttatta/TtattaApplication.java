@@ -1,6 +1,6 @@
 package TtattaBackend.ttatta;
 
-import TtattaBackend.ttatta.Oidc.OauthProperties;
+import TtattaBackend.ttatta.oidc.OauthProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@EnableFeignClients(basePackages = "TtattaBackend.ttatta.Oidc")
+@EnableFeignClients(basePackages = "TtattaBackend.ttatta.oidc")
 @EnableCaching
 @EnableConfigurationProperties(OauthProperties.class)
 public class TtattaApplication {

@@ -1,4 +1,4 @@
-package TtattaBackend.ttatta.Oidc;
+package TtattaBackend.ttatta.oidc;
 
 import TtattaBackend.ttatta.config.KakaoInfoConfig;
 import org.springframework.cloud.openfeign.FeignClient;

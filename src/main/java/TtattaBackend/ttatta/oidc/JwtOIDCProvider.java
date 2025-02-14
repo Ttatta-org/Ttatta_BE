@@ -1,4 +1,4 @@
-package TtattaBackend.ttatta.Oidc;
+package TtattaBackend.ttatta.oidc;
 
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;

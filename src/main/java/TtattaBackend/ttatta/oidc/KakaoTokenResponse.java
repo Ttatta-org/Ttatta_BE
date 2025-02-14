@@ -1,4 +1,4 @@
-package TtattaBackend.ttatta.Oidc;
+package TtattaBackend.ttatta.oidc;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

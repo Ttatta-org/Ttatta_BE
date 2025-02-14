@@ -1,4 +1,4 @@
-package TtattaBackend.ttatta.Oidc;
+package TtattaBackend.ttatta.oidc;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -7,8 +7,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Embeddable

@@ -1,9 +1,7 @@
-package TtattaBackend.ttatta.Oidc;
+package TtattaBackend.ttatta.oidc;
 
-import TtattaBackend.ttatta.domain.Users;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.context.annotation.Profile;
 
 @Getter
 @Builder

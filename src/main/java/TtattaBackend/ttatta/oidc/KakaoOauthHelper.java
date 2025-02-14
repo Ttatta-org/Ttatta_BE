@@ -1,7 +1,6 @@
-package TtattaBackend.ttatta.Oidc;
+package TtattaBackend.ttatta.oidc;
 
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.Helper;
 
 import static org.springframework.cloud.openfeign.security.OAuth2AccessTokenInterceptor.BEARER;
 

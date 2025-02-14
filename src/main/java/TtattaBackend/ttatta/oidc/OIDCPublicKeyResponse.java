@@ -1,6 +1,5 @@
-package TtattaBackend.ttatta.Oidc;
+package TtattaBackend.ttatta.oidc;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

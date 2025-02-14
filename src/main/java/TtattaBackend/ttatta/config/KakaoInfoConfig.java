@@ -1,6 +1,6 @@
 package TtattaBackend.ttatta.config;
 
-import TtattaBackend.ttatta.Oidc.KakaoInfoErrorDecoder;
+import TtattaBackend.ttatta.oidc.KakaoInfoErrorDecoder;
 import feign.codec.ErrorDecoder;
 import feign.form.FormEncoder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
