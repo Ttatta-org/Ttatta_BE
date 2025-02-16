@@ -11,18 +11,18 @@ import TtattaBackend.ttatta.jwt.JwtUtils;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
-import TtattaBackend.ttatta.web.dto.DiaryCategoryResponseDTO;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +48,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtils jwtUtils;
     private final RedisTemplate<String, String> redisTemplate;
+    private final JavaMailSender javaMailSender;
 
     @Override
     public Users createTestUser() {
@@ -188,5 +189,31 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
         userRepository.delete(user);
+    }
+
+    @Override
+    public void sendVerificationMail() {
+        Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 인증 번호 (6자리 난수) 생성
+        int verificationCode = (int)(Math.random() * 899999) + 100000;
+
+        MimeMessage message = javaMailSender.createMimeMessage();
+
+        try {
+            message.setFrom(user.getEmail());
+            message.setRecipients(MimeMessage.RecipientType.TO, user.getEmail());
+            message.setSubject("[따따] 이메일 인증 코드 발송");
+            String body = "";
+            body += "<h3>" + "요청하신 인증 번호입니다." + "</h3>";
+            body += "<h1>" + verificationCode + "</h1>";
+            body += "<h3>" + "감사합니다." + "</h3>";
+            message.setText(body, "utf-8", "html");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        javaMailSender.send(message);
     }
 }
