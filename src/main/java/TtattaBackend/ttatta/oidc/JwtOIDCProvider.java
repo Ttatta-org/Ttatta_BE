@@ -3,6 +3,8 @@ package TtattaBackend.ttatta.oidc;
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import io.jsonwebtoken.*;
+import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.security.Key;
@@ -12,6 +14,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 
+@Component
 public class JwtOIDCProvider {
 
     // Header, body, VerifyingSignature 중에서 Header와 body만 가져옴

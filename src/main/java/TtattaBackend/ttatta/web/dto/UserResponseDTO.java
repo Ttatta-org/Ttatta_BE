@@ -96,4 +96,25 @@ public class UserResponseDTO {
     public static class VerifyVerificationCodeForPasswordResultDTO {
         String newPassword;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class TokenValidationResultDTO {
+        Boolean isRegistered;
+        String accessToken;
+        String refreshToken;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserKaKaoSignUpResultDTO {
+        Long userId;
+        String nickname;
+        LoginType loginType;
+        LocalDateTime createdAt;
+    }
 }

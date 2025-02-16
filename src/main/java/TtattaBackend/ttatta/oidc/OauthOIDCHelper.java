@@ -1,8 +1,10 @@
 package TtattaBackend.ttatta.oidc;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.Helper;
+import org.springframework.stereotype.Component;
 
-//@Helper
+@Component
 @RequiredArgsConstructor
 public class OauthOIDCHelper {
     private final JwtOIDCProvider jwtOIDCProvider;

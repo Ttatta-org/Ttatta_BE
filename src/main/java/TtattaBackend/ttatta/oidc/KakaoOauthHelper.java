@@ -1,14 +1,16 @@
 package TtattaBackend.ttatta.oidc;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.Helper;
+import org.springframework.stereotype.Component;
 
 import static org.springframework.cloud.openfeign.security.OAuth2AccessTokenInterceptor.BEARER;
 
-//@Helper
+@Component
 @RequiredArgsConstructor
 public class KakaoOauthHelper {
     private final OauthProperties oauthProperties;
-    private final KakaoInfoClient kakaoInfoClient;
+//    private final KakaoInfoClient kakaoInfoClient;
     private final KakaoOauthClient kakaoOauthClient;
     private final OauthOIDCHelper oauthOIDCHelper;
     public static final String KAKAO_OAUTH_QUERY_STRING =
@@ -49,19 +51,19 @@ public class KakaoOauthHelper {
 //                oauthProperties.getKakaoClientSecret());
 //    }
 
-    public KakaoUserInfoDto getUserInfo(String oauthAccessToken) {
-        KakaoInformationResponse response =
-                kakaoInfoClient.kakaoUserInfo(BEARER + oauthAccessToken);
-
-        return KakaoUserInfoDto.builder()
-                .oauthProvider(OauthProvider.KAKAO)
-                .name(response.getName())
-                .phoneNumber(response.getPhoneNumber())
-                .profileImage(response.getProfileUrl())
-                .email(response.getEmail())
-                .oauthId(response.getId())
-                .build();
-    }
+//    public KakaoUserInfoDto getUserInfo(String oauthAccessToken) {
+//        KakaoInformationResponse response =
+//                kakaoInfoClient.kakaoUserInfo(BEARER + oauthAccessToken);
+//
+//        return KakaoUserInfoDto.builder()
+//                .oauthProvider(OauthProvider.KAKAO)
+//                .name(response.getName())
+//                .phoneNumber(response.getPhoneNumber())
+//                .profileImage(response.getProfileUrl())
+//                .email(response.getEmail())
+//                .oauthId(response.getId())
+//                .build();
+//    }
 
     public OIDCDecodePayload getOIDCDecodePayload(String token) {
 
@@ -87,11 +89,10 @@ public class KakaoOauthHelper {
                 .build();
     }
 
-    public void unlink(String oid) {
-        String kakaoAdminKey = oauthProperties.getKakaoAdminKey();
-        UnlinkKaKaoTarget unlinkKaKaoTarget = UnlinkKaKaoTarget.from(oid);
-        String header = "KakaoAK " + kakaoAdminKey;
-        kakaoInfoClient.unlinkUser(header, unlinkKaKaoTarget);
-    }
-
+//    public void unlink(String oid) {
+//        String kakaoAdminKey = oauthProperties.getKakaoAdminKey();
+//        UnlinkKaKaoTarget unlinkKaKaoTarget = UnlinkKaKaoTarget.from(oid);
+//        String header = "KakaoAK " + kakaoAdminKey;
+//        kakaoInfoClient.unlinkUser(header, unlinkKaKaoTarget);
+//    }
 }

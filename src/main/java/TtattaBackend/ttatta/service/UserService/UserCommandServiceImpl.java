@@ -8,6 +8,9 @@ import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.*;
 import TtattaBackend.ttatta.jwt.JwtUtils;
+import TtattaBackend.ttatta.oidc.JwtOIDCProvider;
+import TtattaBackend.ttatta.oidc.KakaoOauthHelper;
+import TtattaBackend.ttatta.oidc.OauthInfo;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
@@ -48,6 +51,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtils jwtUtils;
     private final RedisTemplate<String, String> redisTemplate;
+    private final KakaoOauthHelper kakaoOauthHelper;
 
     @Override
     public Users createTestUser() {
@@ -205,5 +209,11 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
         userRepository.delete(user);
+    }
+
+    @Override
+    public UserResponseDTO.TokenValidationResultDTO validateToken(String kakaoToken) {
+        OauthInfo newInfo = kakaoOauthHelper.getOauthInfoByIdToken(kakaoToken);
+        return null;
     }
 }

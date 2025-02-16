@@ -3,6 +3,10 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.oidc.JwtOIDCProvider;
+import TtattaBackend.ttatta.oidc.KakaoOauthClient;
+import TtattaBackend.ttatta.oidc.OIDCPublicKeyDto;
+import TtattaBackend.ttatta.oidc.OIDCPublicKeyResponse;
 import TtattaBackend.ttatta.service.UserService.UserCommandService;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
@@ -16,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
     private final UserCommandService userCommandService;
+    private final JwtOIDCProvider jwtOIDCProvider;
+    private final KakaoOauthClient kakaoOauthClient;
 
     @Operation(summary = "(개발용) 테스트 유저 생성", description =
             "# Test User를 생성합니다. 다른 기능을 테스트 할때 이용 하세요."
@@ -202,5 +208,21 @@ public class UserController {
         return ApiResponse.onSuccess(
                 null
         );
+    }
+
+    @Operation(summary = "카카오 로그인 시 토큰 검정하는 API", description =
+            "카카오로 계속할 때 회원가입인지 로그인인지 확인하는 API. ID token을 입력해주세요."
+    )
+    @PostMapping("/verificate/kakao")
+    public ApiResponse<UserResponseDTO.TokenValidationResultDTO> validKakaoToken(
+            @RequestBody @Valid UserRequestDTO.tokenValidationRequestDTO request
+    ) {
+        OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
+        System.out.println(oidcPublicKeysResponse);
+
+        for (OIDCPublicKeyDto dto : oidcPublicKeysResponse.getKeys()) {
+            System.out.println(dto.getKid());
+        }
+        return null;
     }
 }

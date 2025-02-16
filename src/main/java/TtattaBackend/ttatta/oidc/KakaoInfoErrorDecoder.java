@@ -23,7 +23,6 @@ public class KakaoInfoErrorDecoder implements ErrorDecoder {
 //                    throw OtherServerBadRequestException.EXCEPTION;
             }
         }
-
         return FeignException.errorStatus(methodKey, response);
     }
 }
