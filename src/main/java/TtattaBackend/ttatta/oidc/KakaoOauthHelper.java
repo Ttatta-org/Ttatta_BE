@@ -13,25 +13,25 @@ public class KakaoOauthHelper {
 //    private final KakaoInfoClient kakaoInfoClient;
     private final KakaoOauthClient kakaoOauthClient;
     private final OauthOIDCHelper oauthOIDCHelper;
-    public static final String KAKAO_OAUTH_QUERY_STRING =
-            "/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code";
+//    public static final String KAKAO_OAUTH_QUERY_STRING =
+//            "/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code";
 
-
-    public String getKaKaoOauthLinkTest() {
-        return oauthProperties.getKakaoBaseUrl()
-                + String.format(
-                KAKAO_OAUTH_QUERY_STRING,
-                oauthProperties.getKakaoClientId(),
-                oauthProperties.getKakaoRedirectUrl());
-    }
-
-    public String getKaKaoOauthLink(String referer) {
-        return oauthProperties.getKakaoBaseUrl()
-                + String.format(
-                KAKAO_OAUTH_QUERY_STRING,
-                oauthProperties.getKakaoClientId(),
-                referer + "/kakao/callback");
-    }
+//
+//    public String getKaKaoOauthLinkTest() {
+//        return oauthProperties.getKakaoBaseUrl()
+//                + String.format(
+//                KAKAO_OAUTH_QUERY_STRING,
+//                oauthProperties.getKakaoClientId(),
+//                oauthProperties.getKakaoRedirectUrl());
+//    }
+//
+//    public String getKaKaoOauthLink(String referer) {
+//        return oauthProperties.getKakaoBaseUrl()
+//                + String.format(
+//                KAKAO_OAUTH_QUERY_STRING,
+//                oauthProperties.getKakaoClientId(),
+//                referer + "/kakao/callback");
+//    }
 
 //    public KakaoTokenResponse getOauthToken(String code, String referer) {
 //
@@ -66,7 +66,6 @@ public class KakaoOauthHelper {
 //    }
 
     public OIDCDecodePayload getOIDCDecodePayload(String token) {
-
         // 공개키 목록을 조회한다. 캐싱이 되어있다.
         OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
         return oauthOIDCHelper.getPayloadFromIdToken(
@@ -81,13 +80,13 @@ public class KakaoOauthHelper {
         );
     }
 
-    public OauthInfo getOauthInfoByIdToken(String idToken) {
-        OIDCDecodePayload oidcDecodePayload = getOIDCDecodePayload(idToken);
-        return OauthInfo.builder()
-                .provider(OauthProvider.KAKAO)
-                .oid(oidcDecodePayload.getSub())
-                .build();
-    }
+//    public OauthInfo getOauthInfoByIdToken(String idToken) {
+//        OIDCDecodePayload oidcDecodePayload = getOIDCDecodePayload(idToken);
+//        return OauthInfo.builder()
+//                .provider(OauthProvider.KAKAO)
+//                .oid(oidcDecodePayload.getSub())
+//                .build();
+//    }
 
 //    public void unlink(String oid) {
 //        String kakaoAdminKey = oauthProperties.getKakaoAdminKey();

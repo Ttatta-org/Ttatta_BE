@@ -67,11 +67,11 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.TokenValidationResultDTO toTokenValidationResultDTO(OauthInfo oauthInfo) {
-        return UserResponseDTO.TokenValidationResultDTO.builder()
-                .isRegistered(false) // 수정 필요
+//    public static UserResponseDTO.TokenValidationResultDTO toTokenValidationResultDTO(OauthInfo oauthInfo) {
+//        return UserResponseDTO.TokenValidationResultDTO.builder()
+//                .isRegistered(false) // 수정 필요
 //                .accessToken()
 //                .refreshToken()
-                .build();
-    }
+//                .build();
+//    }
 }

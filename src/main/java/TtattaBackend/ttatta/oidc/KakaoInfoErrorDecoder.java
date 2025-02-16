@@ -13,13 +13,16 @@ public class KakaoInfoErrorDecoder implements ErrorDecoder {
         if (response.status() >= 400) {
             switch (response.status()) {
                 case 401:
+                    throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
 //                    throw OtherServerUnauthorizedException.EXCEPTION;
-                    throw new ExceptionHandler(ErrorStatus.ITEM_NO_MONEY); // 수정필요
                 case 403:
+                    throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
 //                    throw OtherServerForbiddenException.EXCEPTION;
                 case 419:
+                    throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
 //                    throw OtherServerExpiredTokenException.EXCEPTION;
                 default:
+                    throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
 //                    throw OtherServerBadRequestException.EXCEPTION;
             }
         }

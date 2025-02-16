@@ -20,7 +20,7 @@ public class JwtOIDCProvider {
     // Header, body, VerifyingSignature 중에서 Header와 body만 가져옴
     private String getUnsignedToken(String token) {
         String[] splitToken = token.split("\\.");
-        if (splitToken.length == 3) throw new ExceptionHandler(ErrorStatus.ITEM_NO_MONEY); // 수정 필요
+        if (splitToken.length == 3) throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
         return splitToken[0] + "." + splitToken[1] + ".";
     }
 
@@ -34,11 +34,9 @@ public class JwtOIDCProvider {
                     .build()
                     .parseClaimsJwt(getUnsignedToken(token));
         } catch (ExpiredJwtException e) {
-            throw new ExceptionHandler(ErrorStatus.ITEM_NO_MONEY); // 수정필요
-//            throw ExpiredTokenException.EXCEPTION;
+            throw new ExceptionHandler(ErrorStatus.TOKEN_EXPIRED);
         } catch (Exception e) {
-            throw new ExceptionHandler(ErrorStatus.ITEM_NO_MONEY); // 수정필요
-//            throw InvalidTokenException.EXCEPTION;
+            throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
         }
     }
 
@@ -82,9 +80,9 @@ public class JwtOIDCProvider {
                     .build()
                     .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
-            throw new ExceptionHandler(ErrorStatus.ITEM_NO_MONEY); // 수정 필요
+            throw new ExceptionHandler(ErrorStatus.TOKEN_EXPIRED);
         } catch (Exception e) {
-            throw new ExceptionHandler(ErrorStatus.ITEM_NO_MONEY); // 수정 필요
+            throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
         }
     }
 
@@ -95,7 +93,6 @@ public class JwtOIDCProvider {
         return new OIDCDecodePayload(
                 body.getIssuer(),
                 body.getAudience(),
-                body.getSubject(),
-                body.get("email", String.class));
+                body.getSubject());
     }
 }

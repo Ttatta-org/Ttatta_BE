@@ -12,6 +12,4 @@ public class OIDCDecodePayload {
     private String aud;
     /** oauth provider account unique id */
     private String sub;
-
-    private String email;
 }

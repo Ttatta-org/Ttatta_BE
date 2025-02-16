@@ -8,9 +8,7 @@ import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.*;
 import TtattaBackend.ttatta.jwt.JwtUtils;
-import TtattaBackend.ttatta.oidc.JwtOIDCProvider;
-import TtattaBackend.ttatta.oidc.KakaoOauthHelper;
-import TtattaBackend.ttatta.oidc.OauthInfo;
+import TtattaBackend.ttatta.oidc.*;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
@@ -32,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
@@ -41,17 +40,27 @@ import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 @Slf4j
 public class UserCommandServiceImpl implements UserCommandService {
 
+    private final OauthOIDCHelper oauthOIDCHelper;
     @Value("${jwt.ACCESS_EXP_TIME}")
     private int accessExpTime;
     @Value("${jwt.REFRESH_EXP_TIME}")
     private int refreshExpTime;
+
+    @Value("${oidc.iss}")
+    private String iss;
+
+    @Value("{oidc.aud}")
+    private String aud;
+
     private final UserRepository userRepository;
     private final DiaryCategoryRepository diaryCategoryRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtils jwtUtils;
     private final RedisTemplate<String, String> redisTemplate;
+    private final KakaoOauthClient kakaoOauthClient;
     private final KakaoOauthHelper kakaoOauthHelper;
+    private final JwtOIDCProvider jwtOIDCProvider;
 
     @Override
     public Users createTestUser() {
@@ -212,8 +221,31 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public UserResponseDTO.TokenValidationResultDTO validateToken(String kakaoToken) {
-        OauthInfo newInfo = kakaoOauthHelper.getOauthInfoByIdToken(kakaoToken);
-        return null;
+    public UserResponseDTO.TokenValidationResultDTO validateToken(UserRequestDTO.tokenValidationRequestDTO request) {
+        // 공개키 가져오기
+        OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
+
+        // 페이로드 검증 && 서명 검증 후 sub 값 기준으로 회원가입 or 로그인 처리
+        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(request.getOpenId(), iss, aud, oidcPublicKeysResponse);
+        String sub = oidcDecodePayload.getSub();
+
+        if(sub == null || sub.isEmpty()) {
+            return new UserResponseDTO.TokenValidationResultDTO(false, "access token", "refresh token");
+        }
+
+        Optional<Users> userSub = userRepository.findByProviderId(sub);
+
+        if (userSub.isPresent()) {
+            // 사용자가 이미 존재하면 로그인 처리 (토큰 반환)
+            Users user = userSub.get();
+
+            // 액세스 토큰 및 리프레시 토큰 생성
+            String accessToken = "";
+            String refreshToken = "";
+
+            return new UserResponseDTO.TokenValidationResultDTO(true, accessToken, refreshToken);
+        } else {
+            return new UserResponseDTO.TokenValidationResultDTO(true, null, null);
+        }
     }
 }
