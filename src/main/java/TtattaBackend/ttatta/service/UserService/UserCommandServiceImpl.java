@@ -234,7 +234,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(request.getOpenId(), iss, aud, oidcPublicKeysResponse);
         String sub = oidcDecodePayload.getSub();
 
-        if(sub == null || sub.isEmpty()) {
+        if (sub == null || sub.isEmpty()) {
             return new UserResponseDTO.TokenValidationResultDTO(false, "access token", "refresh token");
         }
 
@@ -252,7 +252,9 @@ public class UserCommandServiceImpl implements UserCommandService {
         } else {
             return new UserResponseDTO.TokenValidationResultDTO(true, null, null);
         }
-      
+    }
+
+    @Override
     public Long getUserPoint() {
         Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
@@ -260,3 +262,4 @@ public class UserCommandServiceImpl implements UserCommandService {
         return user.getPoint();
     }
 }
+

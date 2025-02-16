@@ -63,7 +63,6 @@ public class Users extends BaseEntity {
 
     private LocalDateTime inactiveDate;
 
-    @Column(nullable = false)
     private String providerId;
 
     // 로그인 관련
