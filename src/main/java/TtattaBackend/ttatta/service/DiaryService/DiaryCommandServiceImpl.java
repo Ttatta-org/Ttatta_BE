@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Optional;
 import java.util.UUID;
 
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_CATEGORY_NOT_FOUND;
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_NOT_FOUND;
 
 @Slf4j
@@ -39,7 +40,14 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
 
         Users user = userRepository.findById(userId).get();
-        DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId()).get();
+        DiaryCategories diaryCategories = diaryCategoryRepository.findCategoriesByUsersAndId(user, request.getDiaryCategoryId());
+
+        if(diaryCategories == null) {
+            throw new ExceptionHandler(DIARY_CATEGORY_NOT_FOUND);
+        }
+
+        System.out.println("카테고리 id " + diaryCategories.getId());
+        System.out.println("카테고리 name " + diaryCategories.getName());
 
         // 일기
         Diaries diaries = DiaryConverter.toDiaries(request);
