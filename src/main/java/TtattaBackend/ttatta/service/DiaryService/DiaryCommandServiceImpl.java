@@ -88,7 +88,7 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         if(diaries == null)
             throw new ExceptionHandler(DIARY_NOT_FOUND);
 
-        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_IdAndUsers(diaries.getId(),user);
+        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
 
         if(diaryPhoto == null)
             throw new ExceptionHandler(DIARY_PHOTO_NOT_FOUND);
@@ -119,16 +119,22 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
        Long userId = SecurityUtil.getCurrentUserId();
        Users user = userRepository.findById(userId)
                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
-        Diaries diaries = diaryRepository.findById((diaryId))
-                .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
-        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_IdAndUsers(diaries.getId(),user);
+       Diaries diaries = diaryRepository.findByIdAndUsers(diaryId, user);
+
+       if(diaries == null)
+           throw new ExceptionHandler(DIARY_NOT_FOUND);
+
+       DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
+
+       if(diaryPhoto == null)
+           throw new ExceptionHandler(DIARY_PHOTO_NOT_FOUND);
 
         // 카테고리 수정
-        request.getContent().ifPresent(diaries::updateContent);
-        request.getDiaryCategoryId().ifPresent(diaryCategoryId -> {
-            DiaryCategories diaryCategories = diaryCategoryRepository.findDiaryCategoriesById(diaryCategoryId);
-            diaries.setDiaryCategories(diaryCategories);
-        });
+       request.getContent().ifPresent(diaries::updateContent);
+       request.getDiaryCategoryId().ifPresent(diaryCategoryId -> {
+           DiaryCategories diaryCategories = diaryCategoryRepository.findDiaryCategoriesById(diaryCategoryId);
+           diaries.setDiaryCategories(diaryCategories);
+       });
 
         // 사진 수정
         if(editPhoto != null) {
