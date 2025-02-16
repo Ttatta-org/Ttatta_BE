@@ -16,8 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Optional;
 import java.util.UUID;
 
-import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_CATEGORY_NOT_FOUND;
-import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_NOT_FOUND;
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 
 @Slf4j
 @Service
@@ -39,15 +38,13 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
     public Diaries save(DiaryRequestDTO.PostDTO request, MultipartFile diaryPhoto) {
         Long userId = SecurityUtil.getCurrentUserId();
 
-        Users user = userRepository.findById(userId).get();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
         DiaryCategories diaryCategories = diaryCategoryRepository.findCategoriesByUsersAndId(user, request.getDiaryCategoryId());
 
         if(diaryCategories == null) {
             throw new ExceptionHandler(DIARY_CATEGORY_NOT_FOUND);
         }
-
-        System.out.println("카테고리 id " + diaryCategories.getId());
-        System.out.println("카테고리 name " + diaryCategories.getName());
 
         // 일기
         Diaries diaries = DiaryConverter.toDiaries(request);
@@ -83,10 +80,18 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
    @Override
    @Transactional
     public void delete(Long diaryId) {
-        Diaries diaries = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+        Diaries diaries = diaryRepository.findByIdAndUsers(diaryId, user);
 
-        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
+        if(diaries == null)
+            throw new ExceptionHandler(DIARY_NOT_FOUND);
+
+        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_IdAndUsers(diaries.getId(),user);
+
+        if(diaryPhoto == null)
+            throw new ExceptionHandler(DIARY_PHOTO_NOT_FOUND);
 
         deletePhoto(diaryPhoto);
 
@@ -111,9 +116,12 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
    @Override
    public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId, MultipartFile editPhoto) {
+       Long userId = SecurityUtil.getCurrentUserId();
+       Users user = userRepository.findById(userId)
+               .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
         Diaries diaries = diaryRepository.findById((diaryId))
                 .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
-        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
+        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_IdAndUsers(diaries.getId(),user);
 
         // 카테고리 수정
         request.getContent().ifPresent(diaries::updateContent);
