@@ -79,14 +79,16 @@ public class UserRequestDTO {
     @NoArgsConstructor
     public static class LogoutRequestDTO {
         private Long userId;
-    }  
-    
-    // 미구현  
+    }
+
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SendVerificationCodeRequestDTO {
-        private String email;  
+    public static class SendVerificationMailRequestDTO {
+        @NotBlank(message = "이름은 빈값일 수 없습니다.")
+        private String name;
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
     }
 }

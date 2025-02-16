@@ -192,15 +192,23 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public void sendVerificationMail() {
+    public Integer sendVerificationMail(UserRequestDTO.SendVerificationMailRequestDTO request) {
         Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 이름, 이메일 일치 검증
+        if(!user.getName().equals(request.getName())) {
+            throw new ExceptionHandler(NAME_NOT_EQUAL);
+        } else if(!user.getEmail().equals(request.getEmail())) {
+            throw new ExceptionHandler(EMAIL_NOT_EQUAL);
+        }
 
         // 인증 번호 (6자리 난수) 생성
         int verificationCode = (int)(Math.random() * 899999) + 100000;
 
         MimeMessage message = javaMailSender.createMimeMessage();
 
+        // 이메일 내용 설정
         try {
             message.setFrom(user.getEmail());
             message.setRecipients(MimeMessage.RecipientType.TO, user.getEmail());
@@ -215,5 +223,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         }
 
         javaMailSender.send(message);
+
+        return verificationCode;
     }
 }

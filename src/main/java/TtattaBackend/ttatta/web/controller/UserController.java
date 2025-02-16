@@ -168,51 +168,19 @@ public class UserController {
     }
 
     @Operation(summary = "인증번호 발송 API", description =
-            "# 인증번호 발송 API 입니다."
+            "# 인증번호 발송 API 입니다. 회원 정보에 등록된 이메일로 인증번호를 발송합니다."
     )
     @PostMapping("/verify")
-    public ApiResponse<Object> sendVerificationMail() {
-        userCommandService.sendVerificationMail();
-        return ApiResponse.onSuccess("");
-    }
-
-
-    // 미구현
-    @Operation(summary = "인증번호 발송 API", description =
-            "# 인증번호 발송 API 입니다. 인증번호를 발송할 이메일을 body에 입력해주세요."
-    )
-    @PostMapping("/code")
-    public ApiResponse<UserResponseDTO.SendVerificationCodeResultDTO> sendVerificationCode(
-            @RequestBody UserRequestDTO.SendVerificationCodeRequestDTO request
+    public ApiResponse<UserResponseDTO.SendVerificationMailResultDTO> sendVerificationMail(
+            @RequestBody UserRequestDTO.SendVerificationMailRequestDTO request
     ) {
+        Integer verificationCode = userCommandService.sendVerificationMail(request);
+
         return ApiResponse.onSuccess(
-                null
+                UserConverter.toSendVerificationMailResultDTO(
+                        verificationCode
+                )
         );
     }
 
-    // 미구현
-    @Operation(summary = "인증번호 확인 API (아이디 찾기용)", description =
-            "# 인증번호 확인 API 입니다 (아이디 찾기용). 확인할 인증코드를 query string에 입력해주세요."
-    )
-    @GetMapping("/verify/id")
-    public ApiResponse<UserResponseDTO.VerifyVerificationCodeForUsernameResultDTO> verifyVerificationCodeForUsername(
-            @RequestParam Integer verificationCode
-    ) {
-        return ApiResponse.onSuccess(
-                null
-        );
-    }
-
-    // 미구현
-    @Operation(summary = "인증번호 확인 API (비밀번호 찾기용)", description =
-            "# 인증번호 확인 API 입니다 (비밀번호 찾기용). 확인할 인증코드를 query string에 입력해주세요."
-    )
-    @GetMapping("/verify/pw")
-    public ApiResponse<UserResponseDTO.VerifyVerificationCodeForPasswordResultDTO> verifyVerificationCodeForPassword(
-            @RequestParam Integer verificationCode
-    ) {
-        return ApiResponse.onSuccess(
-                null
-        );
-    }
 }

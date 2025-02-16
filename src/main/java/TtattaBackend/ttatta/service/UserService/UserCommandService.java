@@ -16,5 +16,5 @@ public interface UserCommandService {
     Users getUserInfo();
     Users updateUserInfo(UserRequestDTO.UpdateRequestDTO request);
     void deleteUser();
-    void sendVerificationMail();
+    Integer sendVerificationMail(UserRequestDTO.SendVerificationMailRequestDTO request);
 }
