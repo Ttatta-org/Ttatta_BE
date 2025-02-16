@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.converter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.IsAvailable;
 import TtattaBackend.ttatta.domain.enums.LoginType;
+import TtattaBackend.ttatta.oidc.OauthInfo;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 
@@ -78,4 +79,12 @@ public class UserConverter {
                 .status(users.getStatus())
                 .build();
     }
+
+//    public static UserResponseDTO.TokenValidationResultDTO toTokenValidationResultDTO(OauthInfo oauthInfo) {
+//        return UserResponseDTO.TokenValidationResultDTO.builder()
+//                .isRegistered(false) // 수정 필요
+//                .accessToken()
+//                .refreshToken()
+//                .build();
+//    }
 }

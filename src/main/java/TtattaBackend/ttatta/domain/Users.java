@@ -63,6 +63,8 @@ public class Users extends BaseEntity {
 
     private LocalDateTime inactiveDate;
 
+    private String providerId;
+
     // 로그인 관련
 //    private LocalDateTime lastLogin;
 

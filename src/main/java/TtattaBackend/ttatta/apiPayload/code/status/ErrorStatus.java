@@ -40,6 +40,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_TOKEN_PREFIX(HttpStatus.NOT_FOUND, "TOKEN_4002", "BEARER 로 시작하지 않는 올바르지 않은 토큰 형식입니다."),
     TOKEN_ERROR(HttpStatus.NOT_FOUND, "TOKEN_4003", "토큰관련 에러가 발생했습니다."),
     REFRESHTOKEN_NOT_EQUAL(HttpStatus.NOT_FOUND, "TOKEN_4004", "refresh token이 일치하지 않습니다."),
+    TOKEN_EXPIRED(HttpStatus.BAD_REQUEST,"TOKEN_4005","토큰이 만료되었습니다."),
+    INVALID_TOKEN(HttpStatus.BAD_REQUEST,"TOKEN_4006","유효하지 않은 토큰입니다."),
 
     // 아이템 관련 응답 5000
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND,"ITEM_5001","아이템이 없습니다."),
