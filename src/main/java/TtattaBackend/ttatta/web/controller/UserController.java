@@ -137,11 +137,8 @@ public class UserController {
     )
     @GetMapping("/info")
     public ApiResponse<UserResponseDTO.UserInfoResultDTO> getUserInfo() {
-        Users user = userCommandService.getUserInfo();
         return ApiResponse.onSuccess(
-                UserConverter.toUserInfoResultDTO(
-                        user
-                )
+                userCommandService.getUserInfo()
         );
     }
 
@@ -149,12 +146,12 @@ public class UserController {
             "# 회원 정보 수정 API 입니다. 수정할 정보를 입력해주세요.\n수정을 원하는 데이터만 보내도 수정 가능합니다."
     )
     @PatchMapping("/info")
-    public ApiResponse<UserResponseDTO.UserInfoResultDTO> updateUserInfo(
-            @RequestBody UserRequestDTO.UpdateRequestDTO request
+    public ApiResponse<UserResponseDTO.UserInfoEditResultDTO> editUserInfo(
+            @RequestBody UserRequestDTO.EditRequestDTO request
     ) {
-        Users user = userCommandService.updateUserInfo(request);
+        Users user = userCommandService.editUserInfo(request);
         return ApiResponse.onSuccess(
-                UserConverter.toUserInfoResultDTO(
+                UserConverter.toUserInfoEditResultDTO(
                         user
                 )
         );

@@ -68,6 +68,22 @@ public class UserResponseDTO {
         Long point;
         UserStatus status;
         Gender gender;
+        Long diaryCount;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserInfoEditResultDTO {
+        Long userId;
+        String nickname;
+        LoginType loginType;
+        String email;
+        String profileImg;
+        Long point;
+        UserStatus status;
+        Gender gender;
     }
   
     // 미구현

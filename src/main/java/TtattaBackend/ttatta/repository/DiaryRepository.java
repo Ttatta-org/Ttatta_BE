@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +41,17 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             ")")
     List<Diaries> findAllByUsers(@Param("user") Users user);
 
+    @Query("SELECT d " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "AND d.diaryCategories = :diaryCategories " +
+            "AND d.date = ( " +
+            "    SELECT MAX(d2.date) " +
+            "    FROM Diaries d2 " +
+            "    WHERE d2.users = :user " +
+            "    AND d2.clusterId = d.clusterId " +
+            ")")
+    List<Diaries> findDiariesByUsersAndCategories(@Param("user") Users user, @Param("diaryCategories") DiaryCategories diaryCategories);
 
     @Query("SELECT d.clusterId " +
             "FROM Diaries d " +
@@ -53,4 +65,14 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
 
     @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.clusterId = :clusterId ORDER BY d.date DESC" )
     Page<Diaries> findAllByUsersAndClusterId(@Param("user") Users user, @Param("clusterId") Long clusterId, PageRequest pageRequest);
+
+    @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.clusterId = :clusterId AND d.diaryCategories = :diaryCategories ORDER BY d.date DESC" )
+    Page<Diaries> findAllByUsersAndClusterIdAndCategories(@Param("user") Users user, @Param("clusterId") Long clusterId, @Param("diaryCategories") DiaryCategories diaryCategories, PageRequest pageRequest);
+
+    @Query("SELECT DISTINCT d.date FROM Diaries d WHERE d.users = :user ORDER BY d.date DESC")
+    List<LocalDateTime> findDistinctDatesByUser(@Param("user") Users user);
+  
+    // 유저별 일기 개수 조회
+    @Query("SELECT COUNT(d) FROM Diaries d WHERE d.users = :user")
+    long countByUsers(@Param("user") Users user);
 }

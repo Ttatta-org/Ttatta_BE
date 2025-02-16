@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -62,6 +63,7 @@ public class DiaryResponseDTO {
     @AllArgsConstructor
     public static class KeepDiaryDTO {
         Long diaryId;
+        Long diaryCategoryId;
         LocalDateTime date;
         String content;
         String image;
@@ -96,9 +98,26 @@ public class DiaryResponseDTO {
     @AllArgsConstructor
     public static class SearchDiaryDTO {
         Long diaryId;
+        Long diaryCategoryId;
         LocalDateTime date;
         String content;
         String image;
         String locationName;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DairyDateListResultDTO {
+        List<DiaryDateDTO> diaryDateList;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiaryDateDTO {
+        LocalDate date;
     }
 }
