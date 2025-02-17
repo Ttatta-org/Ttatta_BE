@@ -41,24 +41,26 @@ public class UserRequestDTO {
         private String password;
     }
   
-    // 미구현
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SignUpKakaoRequestDTO {
-        private String kakaoToken;
+        private String openId;
+        @NotBlank(message = "닉네임은 빈값일 수 없습니다.")
+        @Size(max = 8, message = "닉네임은 1 ~ 8자이어야 합니다.")
         private String nickname;
     }
       
     // 미구현
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class SignInKakaoRequestDTO {
-        private String kakaoToken;
-    }
+    // 하단의 tokenValidationRequestDTO 에서 카카오 로그인 구현함
+//    @Getter
+//    @Builder
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    public static class SignInKakaoRequestDTO {
+//        private String kakaoToken;
+//    }
 
     @Getter
     @Builder

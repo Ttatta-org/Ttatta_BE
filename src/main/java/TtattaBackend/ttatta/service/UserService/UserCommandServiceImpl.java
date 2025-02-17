@@ -24,6 +24,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -86,6 +87,24 @@ public class UserCommandServiceImpl implements UserCommandService {
     public Users signUp(UserRequestDTO.SignUpRequestDTO request) {
         Users newUser = UserConverter.toUsers(request);
         newUser.encodePassword(passwordEncoder.encode(request.getPassword()));
+        // 일상 카테고리 생성
+        createDefaultCategory(newUser);
+        return userRepository.save(newUser);
+    }
+
+    @Override
+    @Transactional
+    public Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request) {
+
+        // openId를 통해 sub 추출하기
+        OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
+        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(request.getOpenId(), iss, aud, oidcPublicKeysResponse);
+        String sub = oidcDecodePayload.getSub();
+
+        String accessToken = "";
+        String refreshToken = "";
+
+        Users newUser = UserConverter.toKakaoUsers(request, sub);
         // 일상 카테고리 생성
         createDefaultCategory(newUser);
         return userRepository.save(newUser);
@@ -180,18 +199,11 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     // 미구현
-    @Override
-    public Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request) {
-        // 서비스 구현
-        return null;
-    }
-
-    // 미구현
-    @Override
-    public Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request) {
-        // 서비스 구현
-        return null;
-    }
+//    @Override
+//    public Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request) {
+//        // 서비스 구현
+//        return null;
+//    }
 
     @Override
     public UserResponseDTO.UserInfoResultDTO getUserInfo() {

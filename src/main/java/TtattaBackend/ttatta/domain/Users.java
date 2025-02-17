@@ -28,23 +28,23 @@ public class Users extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private String name;
 
     @Column(nullable = false, length = 8)
     private String nickname;
 
-    @Column(nullable = false, length = 15)
+    @Column(length = 15)
     private String username;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column
     private LoginType loginType;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String email;
 
     @Column(columnDefinition = "TEXT")

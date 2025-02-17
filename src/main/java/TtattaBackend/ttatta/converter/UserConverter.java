@@ -3,7 +3,6 @@ package TtattaBackend.ttatta.converter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.IsAvailable;
 import TtattaBackend.ttatta.domain.enums.LoginType;
-import TtattaBackend.ttatta.oidc.OauthInfo;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 
@@ -21,11 +20,33 @@ public class UserConverter {
                 .build();
     }
 
+    public static Users toKakaoUsers(UserRequestDTO.SignUpKakaoRequestDTO request, String sub) {
+        return Users.builder()
+                .name(null)
+                .email(null)
+                .password(null)
+                .username(null)
+                .diaryCategoriesList(new ArrayList<>())
+                .providerId(sub)
+                .nickname(request.getNickname())
+                .loginType(LoginType.KAKAO)
+                .build();
+    }
+
     public static UserResponseDTO.UserSignUpResultDTO toUserSignUpResultDTO(Users users) {
         return UserResponseDTO.UserSignUpResultDTO.builder()
                 .userId(users.getId())
                 .nickname(users.getNickname())
                 .loginType(users.getLoginType())
+                .createdAt(users.getCreatedAt())
+                .build();
+    }
+
+    public static UserResponseDTO.UserKaKaoSignUpResultDTO toUserKaKaoSignUpResultDTO(Users users) {
+        return UserResponseDTO.UserKaKaoSignUpResultDTO.builder()
+                .nickname(users.getNickname())
+                .loginType(users.getLoginType())
+                .userId(users.getId())
                 .createdAt(users.getCreatedAt())
                 .build();
     }
