@@ -128,6 +128,8 @@ public class UserResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserKaKaoSignUpResultDTO {
+        String accessToken;
+        String refreshToken;
         Long userId;
         String nickname;
         LoginType loginType;

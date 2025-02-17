@@ -17,9 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
     private final UserCommandService userCommandService;
-    private final KakaoOauthClient kakaoOauthClient;
-    private final JwtOIDCProvider jwtOIDCProvider;
-    private final OauthOIDCHelper oauthOIDCHelper;
 
     @Operation(summary = "(개발용) 테스트 유저 생성", description =
             "# Test User를 생성합니다. 다른 기능을 테스트 할때 이용 하세요."
@@ -105,32 +102,33 @@ public class UserController {
             "# 카카오 회원가입 API 입니다."
     )
     @PostMapping("/signup/kakao")
-    public ApiResponse<UserResponseDTO.UserSignUpResultDTO> signUpKakao(
+    public ApiResponse<UserResponseDTO.UserKaKaoSignUpResultDTO> signUpKakao(
             @RequestBody UserRequestDTO.SignUpKakaoRequestDTO request
     ) {
         Users newUser = userCommandService.signUpKakao(request);
+
         return ApiResponse.onSuccess(
-                UserConverter.toUserSignUpResultDTO(
+                UserConverter.toUserKaKaoSignUpResultDTO(
                         newUser
                 )
         );
     }
 
     // 미구현
-    @Operation(summary = "카카오 로그인", description =
-            "# 카카오 로그인 API 입니다."
-    )
-    @PostMapping("/signin/kakao")
-    public ApiResponse<UserResponseDTO.UserSignInResultDTO> signInKakao(
-            @RequestBody UserRequestDTO.SignInKakaoRequestDTO request
-    ) {
-        Users user = userCommandService.signInKakao(request);
-        return ApiResponse.onSuccess(
-                UserConverter.toUserSignInResultDTO(
-                        user, null, null
-                )
-        );
-    }
+//    @Operation(summary = "카카오 로그인", description =
+//            "# 카카오 로그인 API 입니다."
+//    )
+//    @PostMapping("/signin/kakao")
+//    public ApiResponse<UserResponseDTO.UserSignInResultDTO> signInKakao(
+//            @RequestBody UserRequestDTO.SignInKakaoRequestDTO request
+//    ) {
+//        Users user = userCommandService.signInKakao(request);
+//        return ApiResponse.onSuccess(
+//                UserConverter.toUserSignInResultDTO(
+//                        user, null, null
+//                )
+//        );
+//    }
 
     @Operation(summary = "회원 정보 조회", description =
             "# 회원 정보 조회 API 입니다."
