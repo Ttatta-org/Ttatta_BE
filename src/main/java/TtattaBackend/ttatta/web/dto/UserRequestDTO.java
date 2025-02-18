@@ -105,7 +105,7 @@ public class UserRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SendVerificationMailFindRequestDTO {
+    public static class SendVerificationMailFindIdRequestDTO {
         @NotBlank(message = "이름은 빈값일 수 없습니다.")
         private String name;
         @NotBlank(message = "이메일은 빈값일 수 없습니다.")

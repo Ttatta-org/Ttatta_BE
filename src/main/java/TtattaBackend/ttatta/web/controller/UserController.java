@@ -189,14 +189,14 @@ public class UserController {
         return ApiResponse.onSuccess("");
     }
 
-    @Operation(summary = "인증메일 발송 (ID, PW 찾기)", description =
-        "# 인증메일 발송 API 입니다. ID, PW 찾기 시, 입력한 이메일과 이름의 일치 여부를 확인 후 인증 메일을 발송합니다."
+    @Operation(summary = "인증메일 발송 (ID 찾기)", description =
+        "# 인증메일 발송 API 입니다. ID 찾기 시, 입력한 이메일과 이름의 일치 여부를 확인 후 인증 메일을 발송합니다."
     )
-    @PostMapping("/find/send")
-    public ApiResponse<Object> sendVerificationMailFind(
-            @RequestBody UserRequestDTO.SendVerificationMailFindRequestDTO request
+    @PostMapping("/find/send-id")
+    public ApiResponse<Object> sendVerificationMailFindId(
+            @RequestBody UserRequestDTO.SendVerificationMailFindIdRequestDTO request
     ) {
-        userCommandService.sendVerificationMailFind(request);
+        userCommandService.sendVerificationMailFindId(request);
         return ApiResponse.onSuccess("");
     }
 
@@ -211,5 +211,4 @@ public class UserController {
                 userCommandService.findId(request)
         );
     }
-
 }

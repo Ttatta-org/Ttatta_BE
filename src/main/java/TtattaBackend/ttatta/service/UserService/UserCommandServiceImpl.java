@@ -246,7 +246,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public void sendVerificationMailFind(UserRequestDTO.SendVerificationMailFindRequestDTO request) {
+    public void sendVerificationMailFindId(UserRequestDTO.SendVerificationMailFindIdRequestDTO request) {
         String inputName = request.getName();
         String inputEmail = request.getEmail();
 
