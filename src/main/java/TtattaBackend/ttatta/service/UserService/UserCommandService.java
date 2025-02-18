@@ -21,4 +21,6 @@ public interface UserCommandService {
     void checkVerificationCode(UserRequestDTO.CheckVerificationCodeRequestDTO request);
     void sendVerificationMailFindId(UserRequestDTO.SendVerificationMailFindIdRequestDTO request);
     UserResponseDTO.FindIdResultDTO findId(UserRequestDTO.CheckVerificationCodeRequestDTO request);
+    void sendVerificationMailFindPw(UserRequestDTO.SendVerificationMailFindPwRequestDTO request);
+    void findPw(UserRequestDTO.FindPwRequestDTO request);
 }

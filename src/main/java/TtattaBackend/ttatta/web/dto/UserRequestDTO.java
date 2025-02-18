@@ -111,4 +111,28 @@ public class UserRequestDTO {
         @NotBlank(message = "이메일은 빈값일 수 없습니다.")
         private String email;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SendVerificationMailFindPwRequestDTO {
+        @NotBlank(message = "아이디는 빈값일 수 없습니다.")
+        private String username;
+        @NotBlank(message = "이름은 빈값일 수 없습니다.")
+        private String name;
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FindPwRequestDTO {
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+        @NotBlank(message = "비밀번호는 빈값일 수 없습니다.")
+        private String password;
+    }
 }

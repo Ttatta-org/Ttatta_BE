@@ -211,4 +211,26 @@ public class UserController {
                 userCommandService.findId(request)
         );
     }
+
+    @Operation(summary = "인증메일 발송 (PW 찾기)", description =
+            "# 인증메일 발송 API 입니다. PW 찾기 시, 입력한 ID의 존재 여부, 이메일과 이름의 일치 여부를 확인 후 인증 메일을 발송합니다."
+    )
+    @PostMapping("/find/send-pw")
+    public ApiResponse<Object> sendVerificationMailFindPw(
+            @RequestBody UserRequestDTO.SendVerificationMailFindPwRequestDTO request
+    ) {
+        userCommandService.sendVerificationMailFindPw(request);
+        return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "PW 찾기", description =
+            "# PW 찾기 API 입니다. 이메일과 변경할 비밀번호를 입력해주세요."
+    )
+    @PostMapping("/find/pw")
+    public ApiResponse<Object> findPw(
+            @RequestBody UserRequestDTO.FindPwRequestDTO request
+    ) {
+        userCommandService.findPw(request);
+        return ApiResponse.onSuccess("");
+    }
 }

@@ -272,4 +272,44 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         return UserConverter.toFindIdResultDTO(user);
     }
+
+    @Override
+    public void sendVerificationMailFindPw(UserRequestDTO.SendVerificationMailFindPwRequestDTO request) {
+        String inputId = request.getUsername();
+        String inputName = request.getName();
+        String inputEmail = request.getEmail();
+
+        // 아이디 존재 여부 확인
+        if(!userRepository.existsByUsername(inputId)) {
+            throw new ExceptionHandler(ID_NOT_FOUND);
+        }
+
+        // 이메일로 유저 찾기
+        Users user = userRepository.findByEmail(inputEmail)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 이메일와 이름, 아이디 일치 여부 확인
+        if(!user.getName().equals(inputName)) {
+            throw new ExceptionHandler(NAME_NOT_EQUAL);
+        }
+        else if(!user.getUsername().equals(inputId)) {
+            throw new ExceptionHandler(ID_NOT_EQUAL);
+        }
+
+        sendMail(inputEmail);
+    }
+
+    @Override
+    public void findPw(UserRequestDTO.FindPwRequestDTO request) {
+        Users user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 입력된 새 비밀번호가 기존 비밀번호와 동일한지 확인
+        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ExceptionHandler(SAME_PASSWORD);
+        }
+
+        // 새 비밀번호 암호화 후 업데이트
+        user.encodePassword(passwordEncoder.encode(request.getPassword()));
+    }
 }
