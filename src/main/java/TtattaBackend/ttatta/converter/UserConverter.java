@@ -42,11 +42,13 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.UserKaKaoSignUpResultDTO toUserKaKaoSignUpResultDTO(Users users) {
+    public static UserResponseDTO.UserKaKaoSignUpResultDTO toUserKaKaoSignUpResultDTO(String accessToken, String refreshToken, Users users) {
         return UserResponseDTO.UserKaKaoSignUpResultDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .userId(users.getId())
                 .nickname(users.getNickname())
                 .loginType(users.getLoginType())
-                .userId(users.getId())
                 .createdAt(users.getCreatedAt())
                 .build();
     }

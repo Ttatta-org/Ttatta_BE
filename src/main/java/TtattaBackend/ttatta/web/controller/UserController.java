@@ -105,12 +105,8 @@ public class UserController {
     public ApiResponse<UserResponseDTO.UserKaKaoSignUpResultDTO> signUpKakao(
             @RequestBody UserRequestDTO.SignUpKakaoRequestDTO request
     ) {
-        Users newUser = userCommandService.signUpKakao(request);
-
         return ApiResponse.onSuccess(
-                UserConverter.toUserKaKaoSignUpResultDTO(
-                        newUser
-                )
+                userCommandService.signUpKakao(request)
         );
     }
 

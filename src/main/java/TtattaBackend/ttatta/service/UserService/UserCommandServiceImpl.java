@@ -1,6 +1,5 @@
 package TtattaBackend.ttatta.service.UserService;
 
-import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
@@ -24,7 +23,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -94,20 +92,23 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     @Transactional
-    public Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request) {
+    public UserResponseDTO.UserKaKaoSignUpResultDTO signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request) {
 
         // openId를 통해 sub 추출하기
         OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
         OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(request.getOpenId(), iss, aud, oidcPublicKeysResponse);
         String sub = oidcDecodePayload.getSub();
 
-        String accessToken = "";
-        String refreshToken = "";
-
         Users newUser = UserConverter.toKakaoUsers(request, sub);
         // 일상 카테고리 생성
         createDefaultCategory(newUser);
-        return userRepository.save(newUser);
+        // 회원 정보 db에 저장
+        Users savedUser = userRepository.save(newUser);
+        // 액세스 토큰 및 리프레시 토큰 생성
+        String key = "users:" + savedUser.getId().toString();
+        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
+        String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
+        return UserConverter.toUserKaKaoSignUpResultDTO(accessToken, refreshToken, savedUser);
     }
 
     private void createDefaultCategory(Users newUser) {
@@ -124,27 +125,16 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Override
     @Transactional // ???
     public UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request) {
-        String key;
-
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 //        SecurityContextHolder.getContext().setAuthentication(authentication); // 로그인을 한 후 인증 정보를 사용할 일은 없을 것 같다.
 
-        Users user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        Users getUser = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+        String key = "users:" + getUser.getId().toString();
+        String accessToken = generateAccessToken(getUser.getId(), accessExpTime);
+        String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
 
-        // 인증 완료 후 jwt토큰(accessToken) 생성
-        Map<String, Object> valueMap = Map.of(
-                "userId", user.getId() // String으로 저장??? 그래서 SecurityUtil에서 Long으로 타입변환 해주나?
-        );
-        String accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
-
-        // 인증 완료 후 jwt토큰(refreshToken) 생성
-        key = "users:" + user.getId().toString();
-        String refreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
-        redisTemplate.opsForValue().set(key, refreshToken, refreshExpTime, TimeUnit.MINUTES);
-        System.out.println("redis에 저장된 refreshToken: " + (String) redisTemplate.opsForValue().get(key));
-
-        return UserConverter.toUserSignInResultDTO(user, accessToken, refreshToken);
+        return UserConverter.toUserSignInResultDTO(getUser, accessToken, refreshToken);
     }
 
     @Override
@@ -159,14 +149,8 @@ public class UserCommandServiceImpl implements UserCommandService {
         System.out.println("userId: " + userId);
         System.out.println("redis에서 가져온 refreshToken: " + getRefreshTokenFromRedis);
         if (refreshToken.equals(getRefreshTokenFromRedis)) {
-            // 인증 완료 후 jwt토큰(accessToken) 생성
-            Map<String, Object> valueMap = Map.of(
-                    "userId", userId
-            );
-            accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
-            // 인증 완료 후 jwt토큰(refreshToken) 생성
-            newRefreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
-            redisTemplate.opsForValue().set(key, newRefreshToken, refreshExpTime, TimeUnit.MINUTES);
+            accessToken = generateAccessToken(userId, accessExpTime);
+            newRefreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
         } else {
             throw new ExceptionHandler(REFRESHTOKEN_NOT_EQUAL);
         }
@@ -257,8 +241,9 @@ public class UserCommandServiceImpl implements UserCommandService {
             Users user = userSub.get();
 
             // 액세스 토큰 및 리프레시 토큰 생성
-            String accessToken = "";
-            String refreshToken = "";
+            String key = "users:" + user.getId().toString();
+            String accessToken = generateAccessToken(user.getId(), accessExpTime);
+            String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
 
             return new UserResponseDTO.TokenValidationResultDTO(true, accessToken, refreshToken);
         } else {
@@ -272,6 +257,21 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
         return user.getPoint();
+    }
+
+    private String generateAccessToken(Long userId, int accessExpTime) {
+        // 인증 완료 후 jwt토큰(accessToken) 생성
+        Map<String, Object> valueMap = Map.of(
+                "userId", userId // String으로 저장??? 그래서 SecurityUtil에서 Long으로 타입변환 해주나?
+        );
+        return jwtUtils.generateToken(valueMap, accessExpTime);
+    }
+
+    private String generateAndSaveRefreshToken(String key, int refreshExpTime) {
+        // 인증 완료 후 jwt토큰(refreshToken) 생성
+        String refreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
+        redisTemplate.opsForValue().set(key, refreshToken, refreshExpTime, TimeUnit.MINUTES);
+        return refreshToken;
     }
 }
 
