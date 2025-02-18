@@ -92,11 +92,11 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     @Transactional
-    public UserResponseDTO.UserKaKaoSignUpResultDTO signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request) {
+    public UserResponseDTO.UserKaKaoSignUpResultDTO signUpKakao(String openId, UserRequestDTO.SignUpKakaoRequestDTO request) {
 
         // openId를 통해 sub 추출하기
         OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
-        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(request.getOpenId(), iss, aud, oidcPublicKeysResponse);
+        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(openId, iss, aud, oidcPublicKeysResponse);
         String sub = oidcDecodePayload.getSub();
 
         Users newUser = UserConverter.toKakaoUsers(request, sub);
@@ -222,12 +222,12 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public UserResponseDTO.TokenValidationResultDTO validateToken(UserRequestDTO.tokenValidationRequestDTO request) {
+    public UserResponseDTO.TokenValidationResultDTO validateToken(String openId) {
         // 공개키 가져오기
         OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
 
         // 페이로드 검증 && 서명 검증 후 sub 값 기준으로 회원가입 or 로그인 처리
-        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(request.getOpenId(), iss, aud, oidcPublicKeysResponse);
+        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(openId, iss, aud, oidcPublicKeysResponse);
         String sub = oidcDecodePayload.getSub();
 
         if (sub == null || sub.isEmpty()) {
