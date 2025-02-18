@@ -65,10 +65,4 @@ public class UserConverter {
                 .status(users.getStatus())
                 .build();
     }
-
-    public static UserResponseDTO.SendVerificationMailResultDTO toSendVerificationMailResultDTO(Integer verificationCode) {
-        return UserResponseDTO.SendVerificationMailResultDTO.builder()
-                .verificationCode(verificationCode)
-                .build();
-    }
 }

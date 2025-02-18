@@ -85,10 +85,19 @@ public class UserRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SendVerificationMailRequestDTO {
-        @NotBlank(message = "이름은 빈값일 수 없습니다.")
-        private String name;
+    public static class SendVerificationMailSignUpRequestDTO {
         @NotBlank(message = "이메일은 빈값일 수 없습니다.")
         private String email;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CheckVerificationCodeSignUpRequestDTO {
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+        @NotBlank(message = "인증번호는 빈값일 수 없습니다.")
+        private String code;
     }
 }

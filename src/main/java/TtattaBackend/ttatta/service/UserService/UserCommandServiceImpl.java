@@ -192,15 +192,12 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public Integer sendVerificationMail(UserRequestDTO.SendVerificationMailRequestDTO request) {
-        Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
-                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+    public void sendVerificationMailSignUp(UserRequestDTO.SendVerificationMailSignUpRequestDTO request) {
+        String inputEmail = request.getEmail();
 
-        // 이름, 이메일 일치 검증
-        if(!user.getName().equals(request.getName())) {
-            throw new ExceptionHandler(NAME_NOT_EQUAL);
-        } else if(!user.getEmail().equals(request.getEmail())) {
-            throw new ExceptionHandler(EMAIL_NOT_EQUAL);
+        // 이메일 중복 여부 확인
+        if(userRepository.existsByEmail(inputEmail)) {
+            throw new ExceptionHandler(EMAIL_ALREADY_EXIST);
         }
 
         // 인증 번호 (6자리 난수) 생성
@@ -210,8 +207,8 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // 이메일 내용 설정
         try {
-            message.setFrom(user.getEmail());
-            message.setRecipients(MimeMessage.RecipientType.TO, user.getEmail());
+            message.setFrom(inputEmail);
+            message.setRecipients(MimeMessage.RecipientType.TO, inputEmail);
             message.setSubject("[따따] 이메일 인증 코드 발송");
             String body = "";
             body += "<h3>" + "요청하신 인증 번호입니다." + "</h3>";
@@ -222,8 +219,23 @@ public class UserCommandServiceImpl implements UserCommandService {
             e.printStackTrace();
         }
 
-        javaMailSender.send(message);
+        // 인증번호 Redis 저장 (유효시간 10분)
+        redisTemplate.opsForValue().set(inputEmail, String.valueOf(verificationCode), 10, TimeUnit.MINUTES);
 
-        return verificationCode;
+        javaMailSender.send(message);
+    }
+
+    @Override
+    public void checkVerificationCodeSignUp(UserRequestDTO.CheckVerificationCodeSignUpRequestDTO request) {
+        String inputEmail = request.getEmail();
+        String inputCode = request.getCode();
+
+        // 입력한 이메일로 저장된 인증번호 가져오기
+        String code = redisTemplate.opsForValue().get(inputEmail);
+
+        // 인증번호 일치 여부 확인
+        if (code == null || !code.equals(inputCode)) {
+            throw new ExceptionHandler(CODE_NOT_EQUAL);
+        }
     }
 }

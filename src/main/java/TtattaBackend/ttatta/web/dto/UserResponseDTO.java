@@ -69,12 +69,4 @@ public class UserResponseDTO {
         UserStatus status;
         Gender gender;
     }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SendVerificationMailResultDTO {
-        Integer verificationCode;
-    }
 }

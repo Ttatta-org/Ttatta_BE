@@ -167,20 +167,28 @@ public class UserController {
         );
     }
 
-    @Operation(summary = "인증번호 발송 API", description =
-            "# 인증번호 발송 API 입니다. 회원 정보에 등록된 이메일로 인증번호를 발송합니다."
+    @Operation(summary = "인증메일 발송 (회원가입)", description =
+            "# 인증메일 발송 API 입니다. 회원가입 시, 입력한 이메일의 중복 여부를 확인 후 인증 메일을 발송합니다."
     )
-    @PostMapping("/verify")
-    public ApiResponse<UserResponseDTO.SendVerificationMailResultDTO> sendVerificationMail(
-            @RequestBody UserRequestDTO.SendVerificationMailRequestDTO request
+    @PostMapping("/signup/verify/send")
+    public ApiResponse<Object> sendVerificationMailSignUp(
+            @RequestBody UserRequestDTO.SendVerificationMailSignUpRequestDTO request
     ) {
-        Integer verificationCode = userCommandService.sendVerificationMail(request);
+        userCommandService.sendVerificationMailSignUp(request);
 
-        return ApiResponse.onSuccess(
-                UserConverter.toSendVerificationMailResultDTO(
-                        verificationCode
-                )
-        );
+        return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "인증번호 확인 (회원가입)", description =
+            "# 인증번호 확인 API 입니다. 회원가입 시, 입력한 이메일로 발송된 인증번호를 입력해주세요."
+    )
+    @PostMapping("/signup/verify/check")
+    public ApiResponse<Object> checkVerificationCodeSignUp(
+            @RequestBody UserRequestDTO.CheckVerificationCodeSignUpRequestDTO request
+    ) {
+        userCommandService.checkVerificationCodeSignUp(request);
+
+        return ApiResponse.onSuccess("");
     }
 
 }
