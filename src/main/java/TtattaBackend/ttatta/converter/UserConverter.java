@@ -65,4 +65,11 @@ public class UserConverter {
                 .status(users.getStatus())
                 .build();
     }
+
+    public static UserResponseDTO.FindIdResultDTO toFindIdResultDTO(Users users) {
+        return UserResponseDTO.FindIdResultDTO.builder()
+                .id(users.getUsername())
+                .name(users.getName())
+                .build();
+    }
 }

@@ -192,13 +192,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public void sendVerificationMailSignUp(UserRequestDTO.SendVerificationMailSignUpRequestDTO request) {
-        String inputEmail = request.getEmail();
-
-        // 이메일 중복 여부 확인
-        if(userRepository.existsByEmail(inputEmail)) {
-            throw new ExceptionHandler(EMAIL_ALREADY_EXIST);
-        }
+    public void sendMail(String email) {
 
         // 인증 번호 (6자리 난수) 생성
         int verificationCode = (int)(Math.random() * 899999) + 100000;
@@ -207,8 +201,8 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // 이메일 내용 설정
         try {
-            message.setFrom(inputEmail);
-            message.setRecipients(MimeMessage.RecipientType.TO, inputEmail);
+            message.setFrom(email);
+            message.setRecipients(MimeMessage.RecipientType.TO, email);
             message.setSubject("[따따] 이메일 인증 코드 발송");
             String body = "";
             body += "<h3>" + "요청하신 인증 번호입니다." + "</h3>";
@@ -220,13 +214,25 @@ public class UserCommandServiceImpl implements UserCommandService {
         }
 
         // 인증번호 Redis 저장 (유효시간 10분)
-        redisTemplate.opsForValue().set(inputEmail, String.valueOf(verificationCode), 10, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(email, String.valueOf(verificationCode), 10, TimeUnit.MINUTES);
 
         javaMailSender.send(message);
     }
 
     @Override
-    public void checkVerificationCodeSignUp(UserRequestDTO.CheckVerificationCodeSignUpRequestDTO request) {
+    public void sendVerificationMailSignUp(UserRequestDTO.SendVerificationMailSignUpRequestDTO request) {
+        String inputEmail = request.getEmail();
+
+        // 이메일 중복 여부 확인
+        if(userRepository.existsByEmail(inputEmail)) {
+            throw new ExceptionHandler(EMAIL_ALREADY_EXIST);
+        }
+
+        sendMail(inputEmail);
+    }
+
+    @Override
+    public void checkVerificationCode(UserRequestDTO.CheckVerificationCodeRequestDTO request) {
         String inputEmail = request.getEmail();
         String inputCode = request.getCode();
 
@@ -237,5 +243,33 @@ public class UserCommandServiceImpl implements UserCommandService {
         if (code == null || !code.equals(inputCode)) {
             throw new ExceptionHandler(CODE_NOT_EQUAL);
         }
+    }
+
+    @Override
+    public void sendVerificationMailFind(UserRequestDTO.SendVerificationMailFindRequestDTO request) {
+        String inputName = request.getName();
+        String inputEmail = request.getEmail();
+
+        // 이메일로 유저 찾기
+        Users user = userRepository.findByEmail(inputEmail)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 이메일와 이름 일치 여부 확인
+        if(!user.getName().equals(inputName)) {
+            throw new ExceptionHandler(NAME_NOT_EQUAL);
+        }
+
+        sendMail(inputEmail);
+    }
+
+    @Override
+    public UserResponseDTO.FindIdResultDTO findId(UserRequestDTO.CheckVerificationCodeRequestDTO request) {
+        checkVerificationCode(request);
+
+        // 이메일로 유저 찾기
+        Users user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        return UserConverter.toFindIdResultDTO(user);
     }
 }

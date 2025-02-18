@@ -175,20 +175,41 @@ public class UserController {
             @RequestBody UserRequestDTO.SendVerificationMailSignUpRequestDTO request
     ) {
         userCommandService.sendVerificationMailSignUp(request);
-
         return ApiResponse.onSuccess("");
     }
 
-    @Operation(summary = "인증번호 확인 (회원가입)", description =
-            "# 인증번호 확인 API 입니다. 회원가입 시, 입력한 이메일로 발송된 인증번호를 입력해주세요."
+    @Operation(summary = "인증번호 확인", description =
+            "# 인증번호 확인 API 입니다. 입력한 이메일로 발송된 인증번호를 입력해주세요."
     )
     @PostMapping("/signup/verify/check")
     public ApiResponse<Object> checkVerificationCodeSignUp(
-            @RequestBody UserRequestDTO.CheckVerificationCodeSignUpRequestDTO request
+            @RequestBody UserRequestDTO.CheckVerificationCodeRequestDTO request
     ) {
-        userCommandService.checkVerificationCodeSignUp(request);
-
+        userCommandService.checkVerificationCode(request);
         return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "인증메일 발송 (ID, PW 찾기)", description =
+        "# 인증메일 발송 API 입니다. ID, PW 찾기 시, 입력한 이메일과 이름의 일치 여부를 확인 후 인증 메일을 발송합니다."
+    )
+    @PostMapping("/find/send")
+    public ApiResponse<Object> sendVerificationMailFind(
+            @RequestBody UserRequestDTO.SendVerificationMailFindRequestDTO request
+    ) {
+        userCommandService.sendVerificationMailFind(request);
+        return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "ID 찾기", description =
+            "# ID 찾기 API 입니다. 입력한 이메일로 발송된 인증번호를 입력해주세요."
+    )
+    @PostMapping("/find/id")
+    public ApiResponse<UserResponseDTO.FindIdResultDTO> findId(
+            @RequestBody UserRequestDTO.CheckVerificationCodeRequestDTO request
+    ) {
+        return ApiResponse.onSuccess(
+                userCommandService.findId(request)
+        );
     }
 
 }

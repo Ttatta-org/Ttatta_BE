@@ -69,4 +69,13 @@ public class UserResponseDTO {
         UserStatus status;
         Gender gender;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FindIdResultDTO {
+        String name;
+        String id;
+    }
 }
