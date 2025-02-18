@@ -4,6 +4,7 @@ import TtattaBackend.ttatta.domain.common.BaseEntity;
 import TtattaBackend.ttatta.domain.enums.Gender;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
+import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -11,7 +12,6 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,23 +28,23 @@ public class Users extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private String name;
 
     @Column(nullable = false, length = 8)
     private String nickname;
 
-    @Column(nullable = false, length = 15)
+    @Column(length = 15)
     private String username;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column
     private LoginType loginType;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String email;
 
     @Column(columnDefinition = "TEXT")
@@ -63,6 +63,8 @@ public class Users extends BaseEntity {
 
     private LocalDateTime inactiveDate;
 
+    private String providerId;
+
     // 로그인 관련
 //    private LocalDateTime lastLogin;
 
@@ -71,6 +73,12 @@ public class Users extends BaseEntity {
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<DiaryCategories> diaryCategoriesList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<OwnedItems> ownItemsList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<Challenges> challengesList = new ArrayList<>();
 
     public void encodePassword(String password) {
         this.password = password;
@@ -86,7 +94,5 @@ public class Users extends BaseEntity {
     public void updateProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
-    public void updatePoint(Long point) {
-        this.point = point;
-    }
+    public void updatePoint(Long point) {this.point = point;}
 }

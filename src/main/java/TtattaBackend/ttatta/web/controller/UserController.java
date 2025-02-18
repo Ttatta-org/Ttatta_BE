@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.oidc.*;
 import TtattaBackend.ttatta.service.UserService.UserCommandService;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
@@ -85,48 +86,54 @@ public class UserController {
         );
     }
 
+    @Operation(summary = "로그아웃 API", description =
+            "# 로그아웃 API 입니다. 로그아웃하고자 하는 유저의 access token을 header에 입력해주세요."
+    )
+    @DeleteMapping("/logout")
+    public ApiResponse<?> logout(
+            @RequestHeader("Authorization") String accessToken
+    ) {
+        userCommandService.logout(accessToken);
+        return ApiResponse.onSuccess("");
+    }
+
     // 미구현
     @Operation(summary = "카카오 회원가입", description =
-            "# 카카오 회원가입 API 입니다."
+            "# 카카오 회원가입 API 입니다. header에 'OpneId: {ID token}'형식으로 ID token을 입력하고 request body에 닉네임을 입력해주세요."
     )
     @PostMapping("/signup/kakao")
-    public ApiResponse<UserResponseDTO.UserSignUpResultDTO> signUpKakao(
+    public ApiResponse<UserResponseDTO.UserKaKaoSignUpResultDTO> signUpKakao(
+            @RequestHeader("OpneId") String openId,
             @RequestBody UserRequestDTO.SignUpKakaoRequestDTO request
     ) {
-        Users newUser = userCommandService.signUpKakao(request);
         return ApiResponse.onSuccess(
-                UserConverter.toUserSignUpResultDTO(
-                        newUser
-                )
+                userCommandService.signUpKakao(openId, request)
         );
     }
 
     // 미구현
-    @Operation(summary = "카카오 로그인", description =
-            "# 카카오 로그인 API 입니다."
-    )
-    @PostMapping("/signin/kakao")
-    public ApiResponse<UserResponseDTO.UserSignInResultDTO> signInKakao(
-            @RequestBody UserRequestDTO.SignInKakaoRequestDTO request
-    ) {
-        Users user = userCommandService.signInKakao(request);
-        return ApiResponse.onSuccess(
-                UserConverter.toUserSignInResultDTO(
-                        user, null, null
-                )
-        );
-    }
+//    @Operation(summary = "카카오 로그인", description =
+//            "# 카카오 로그인 API 입니다."
+//    )
+//    @PostMapping("/signin/kakao")
+//    public ApiResponse<UserResponseDTO.UserSignInResultDTO> signInKakao(
+//            @RequestBody UserRequestDTO.SignInKakaoRequestDTO request
+//    ) {
+//        Users user = userCommandService.signInKakao(request);
+//        return ApiResponse.onSuccess(
+//                UserConverter.toUserSignInResultDTO(
+//                        user, null, null
+//                )
+//        );
+//    }
 
     @Operation(summary = "회원 정보 조회", description =
             "# 회원 정보 조회 API 입니다."
     )
     @GetMapping("/info")
     public ApiResponse<UserResponseDTO.UserInfoResultDTO> getUserInfo() {
-        Users user = userCommandService.getUserInfo();
         return ApiResponse.onSuccess(
-                UserConverter.toUserInfoResultDTO(
-                        user
-                )
+                userCommandService.getUserInfo()
         );
     }
 
@@ -134,12 +141,12 @@ public class UserController {
             "# 회원 정보 수정 API 입니다. 수정할 정보를 입력해주세요.\n수정을 원하는 데이터만 보내도 수정 가능합니다."
     )
     @PatchMapping("/info")
-    public ApiResponse<UserResponseDTO.UserInfoResultDTO> updateUserInfo(
-            @RequestBody UserRequestDTO.UpdateRequestDTO request
+    public ApiResponse<UserResponseDTO.UserInfoEditResultDTO> editUserInfo(
+            @RequestBody UserRequestDTO.EditRequestDTO request
     ) {
-        Users user = userCommandService.updateUserInfo(request);
+        Users user = userCommandService.editUserInfo(request);
         return ApiResponse.onSuccess(
-                UserConverter.toUserInfoResultDTO(
+                UserConverter.toUserInfoEditResultDTO(
                         user
                 )
         );
@@ -154,18 +161,6 @@ public class UserController {
         return ApiResponse.onSuccess("");
     }
 
-    // 미구현
-    @Operation(summary = "로그아웃 API", description =
-            "# 로그아웃 API 입니다. 로그아웃하고자 하는 userId를 body에 입력해주세요."
-    )
-    @DeleteMapping("/logout")
-    public ApiResponse<?> logout(
-            @RequestBody UserRequestDTO.LogoutRequestDTO request
-    ) {
-        return ApiResponse.onSuccess(
-                null
-        );
-    }
 
     @Operation(summary = "인증메일 발송 (회원가입)", description =
             "# 인증메일 발송 API 입니다. 회원가입 시, 입력한 이메일의 중복 여부를 확인 후 인증 메일을 발송합니다."
@@ -232,5 +227,19 @@ public class UserController {
     ) {
         userCommandService.findPw(request);
         return ApiResponse.onSuccess("");
+
+    @Operation(summary = "카카오 로그인 시 회원가입인지 로그인인지 확인하는 API", description =
+                    "header에 'OpneId: {ID token}'형식으로 ID token을 입력해주세요.\n" +
+                    "1. 페이로드 검증 및 서명 검증을 진행합니다.\n" +
+                    "2. 이미 가입한 회원인지 확인합니다.\n\n" +
+                    "회원가입이라면 isRegistered로 false를 반환하고 로그인이라면 isRegistered로 true를 반환함과 동시에 access token과 refresh token을 반환합니다."
+    )
+    @PostMapping("/verificate/kakao")
+    public ApiResponse<UserResponseDTO.TokenValidationResultDTO> validKakaoToken(
+            @RequestHeader("OpneId") String openId
+    ) {
+        return ApiResponse.onSuccess(
+                userCommandService.validateToken(openId)
+        );
     }
 }

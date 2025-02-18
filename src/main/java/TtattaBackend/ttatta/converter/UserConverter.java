@@ -20,8 +20,32 @@ public class UserConverter {
                 .build();
     }
 
+    public static Users toKakaoUsers(UserRequestDTO.SignUpKakaoRequestDTO request, String sub) {
+        return Users.builder()
+                .name(null)
+                .email(null)
+                .password(null)
+                .username(null)
+                .diaryCategoriesList(new ArrayList<>())
+                .providerId(sub)
+                .nickname(request.getNickname())
+                .loginType(LoginType.KAKAO)
+                .build();
+    }
+
     public static UserResponseDTO.UserSignUpResultDTO toUserSignUpResultDTO(Users users) {
         return UserResponseDTO.UserSignUpResultDTO.builder()
+                .userId(users.getId())
+                .nickname(users.getNickname())
+                .loginType(users.getLoginType())
+                .createdAt(users.getCreatedAt())
+                .build();
+    }
+
+    public static UserResponseDTO.UserKaKaoSignUpResultDTO toUserKaKaoSignUpResultDTO(String accessToken, String refreshToken, Users users) {
+        return UserResponseDTO.UserKaKaoSignUpResultDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .userId(users.getId())
                 .nickname(users.getNickname())
                 .loginType(users.getLoginType())
@@ -54,8 +78,28 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.UserInfoResultDTO toUserInfoResultDTO(Users users) {
+    public static UserResponseDTO.UserInfoResultDTO toUserInfoResultDTO(Users users, long diaryCount) {
         return UserResponseDTO.UserInfoResultDTO.builder()
+                .userId(users.getId())
+                .nickname(users.getNickname())
+                .loginType(users.getLoginType())
+                .email(users.getEmail())
+                .profileImg(users.getProfileImage())
+                .point(users.getPoint())
+                .status(users.getStatus())
+                .diaryCount(diaryCount)
+                .build();
+    }
+
+    public static UserResponseDTO.FindIdResultDTO toFindIdResultDTO(Users users) {
+        return UserResponseDTO.FindIdResultDTO.builder()
+                .id(users.getUsername())
+                .name(users.getName())
+                .build();
+    }
+
+    public static UserResponseDTO.UserInfoEditResultDTO toUserInfoEditResultDTO(Users users) {
+        return UserResponseDTO.UserInfoEditResultDTO.builder()
                 .userId(users.getId())
                 .nickname(users.getNickname())
                 .loginType(users.getLoginType())
@@ -66,10 +110,11 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.FindIdResultDTO toFindIdResultDTO(Users users) {
-        return UserResponseDTO.FindIdResultDTO.builder()
-                .id(users.getUsername())
-                .name(users.getName())
-                .build();
-    }
+//    public static UserResponseDTO.TokenValidationResultDTO toTokenValidationResultDTO(OauthInfo oauthInfo) {
+//        return UserResponseDTO.TokenValidationResultDTO.builder()
+//                .isRegistered(false) // 수정 필요
+//                .accessToken()
+//                .refreshToken()
+//                .build();
+//    }
 }

@@ -9,12 +9,13 @@ public interface UserCommandService {
     Users createTestUser();
     Users signUp(UserRequestDTO.SignUpRequestDTO request);
     IsAvailable verifyUsernameOverlap(String username);
+    void logout(String accessToken);
     UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request);
     UserResponseDTO.RefreshResultDTO refresh(String refreshToken);
-    Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request);    // 미구현
-    Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
-    Users getUserInfo();
-    Users updateUserInfo(UserRequestDTO.UpdateRequestDTO request);
+    UserResponseDTO.UserKaKaoSignUpResultDTO signUpKakao(String openId, UserRequestDTO.SignUpKakaoRequestDTO request);
+//    Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
+    UserResponseDTO.UserInfoResultDTO getUserInfo();
+    Users editUserInfo(UserRequestDTO.EditRequestDTO request);
     void deleteUser();
     void sendMail(String email);
     void sendVerificationMailSignUp(UserRequestDTO.SendVerificationMailSignUpRequestDTO request);
@@ -23,4 +24,6 @@ public interface UserCommandService {
     UserResponseDTO.FindIdResultDTO findId(UserRequestDTO.CheckVerificationCodeRequestDTO request);
     void sendVerificationMailFindPw(UserRequestDTO.SendVerificationMailFindPwRequestDTO request);
     void findPw(UserRequestDTO.FindPwRequestDTO request);
+    UserResponseDTO.TokenValidationResultDTO validateToken(String openId);
+    Long getUserPoint();
 }

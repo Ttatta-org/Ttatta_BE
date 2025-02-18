@@ -17,7 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/diaries")
@@ -25,7 +27,6 @@ import java.time.LocalDateTime;
 public class DiaryController {
 
     private final DiaryCommandService diaryCommandService;
-
     private final DiaryQueryService diaryQueryService;
 
     @Operation(summary = "일기 작성",
@@ -80,6 +81,22 @@ public class DiaryController {
         );
     }
 
+    @Operation(summary = "일기 지도(발자국) 전체 조회",
+            description = """
+                    지도 화면에서 발자국 표현을 위한 일기 전체 조회입니다.\n
+                    카테고리 id를 같이 요청(선택)하면 그 카테고리에 포함된 일기의 발자국 표시가 가능합니다.
+                    """
+    )
+    @GetMapping("/footprint")
+    public ApiResponse<DiaryResponseDTO.FootprintDiaryListDTO> getFootprintDiaryList(@RequestParam(required = false) Long diaryCategoryId) {
+        List<Diaries> diariesList = diaryQueryService.getFootprintDiaryList(diaryCategoryId);
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toFootprintDiaryListDTO(diariesList)
+        );
+    }
+
+
     @Operation(summary = "일기 보관함 화면에서 전체 일기 반환, 캘린더 클릭 시 날짜에 해당하는 일기 반환",
         description = """
                 페이징 번호(필수) -> Path variable, 날짜(선택) -> Query String를 작성해주세요.\n
@@ -99,14 +116,22 @@ public class DiaryController {
 
     @Operation(summary = "일기 지도",
         description = """
-                위도, 경도, 페이징 번호를 작성해주세요.
-                일기 지도 화면에서 발자국 컴포넌트 클릭 시 그 위치의 일기가 반환됩니다.
+                clusterId와 페이징 번호(0번 부터 시작)를 작성해주세요.\n
+                일기 지도 화면에서 발자국 컴포넌트 클릭 시 그 위치의 일기가 1개씩 반환됩니다.\n
+                카테고리 Id가 같이 요청(선택) 될 시 해당 카테고리의 일기만 1개씩 반환됩니다.
+                반환 값에 firstDiary와 lastDiary로 boolean 값을 추가했습니다 ! 해당 범위 내에 있는 일기만 페이징 요청 부탁드립니다 :)
                 """
     )
     @GetMapping("/map/{requestNum}")
-    public ApiResponse<DiaryResponseDTO.MapResultDTO> getMapDiary (@PathVariable int requestNum,
-                                                                   @RequestBody @Valid DiaryRequestDTO.MapDTO request) {
-        return null;
+    public ApiResponse<DiaryResponseDTO.MapResultDTO> getMapDiary (@RequestParam Long clusterId,
+                                                                   @RequestParam(required = false) Long diaryCategoryId,
+                                                                   @PathVariable int requestNum) {
+
+        Page<Diaries> diaryList = diaryQueryService.getMapDiaryList(clusterId,diaryCategoryId, requestNum);
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toMapDiaryDTO(diaryList)
+        );
     }
 
     @Operation(summary = "일기 검색",
@@ -123,6 +148,21 @@ public class DiaryController {
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toSearchDiaryListDTO(searchDiaryList)
+        );
+    }
+
+    @Operation(summary = "전체 일기 날짜 조회",
+            description = """
+                    캘린더에 표시하기 위해 전체 일기의 날짜를 중복없이 조회하는 API입니다.\n
+                    header에 access token을 포함시켜 주세요.
+                    """
+    )
+    @GetMapping("/date")
+    public ApiResponse<DiaryResponseDTO.DairyDateListResultDTO> getDiariesDate() {
+        List<LocalDateTime> diaryDateList = diaryQueryService.getDiaryDateList();
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toDairyDateListResultDTO(diaryDateList)
         );
     }
 

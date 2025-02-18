@@ -68,6 +68,22 @@ public class UserResponseDTO {
         Long point;
         UserStatus status;
         Gender gender;
+        Long diaryCount;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserInfoEditResultDTO {
+        Long userId;
+        String nickname;
+        LoginType loginType;
+        String email;
+        String profileImg;
+        Long point;
+        UserStatus status;
+        Gender gender;
     }
 
     @Getter
@@ -77,5 +93,28 @@ public class UserResponseDTO {
     public static class FindIdResultDTO {
         String name;
         String id;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class TokenValidationResultDTO {
+        Boolean isRegistered;
+        String accessToken;
+        String refreshToken;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserKaKaoSignUpResultDTO {
+        String accessToken;
+        String refreshToken;
+        Long userId;
+        String nickname;
+        LoginType loginType;
+        LocalDateTime createdAt;
     }
 }

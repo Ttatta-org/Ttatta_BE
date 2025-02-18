@@ -10,6 +10,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,6 +30,7 @@ public class JwtUtils {
 
     @Value("${jwt.secret}")
     public String secretKey;
+    private final RedisTemplate<String, String> redisTemplate;
 
     // 헤더에 "Bearer XXX" 형식으로 담겨온 토큰을 추출한다
     public static String getTokenFromHeader(String header) {
@@ -78,6 +80,16 @@ public class JwtUtils {
         return claim;
     }
 
+    public Authentication getAuthenticationFromExpiredAccessToken(String token) { // context에 넣을 Authentication를 jwt의 userId를 넣어 생성 // static 제거
+        Map<String, Object> claims = validateTokenOnlySignature(token);
+        System.out.println("userId type: " + (claims.get("userId") != null ? claims.get("userId").getClass().getName() : "null"));
+
+//        String email = (String) claims.get("email");
+        Long userId = ((Integer) claims.get("userId")).longValue();
+
+        return new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+    }
+
     public Claims validateTokenOnlySignature(String token) { // static 제거
         Claims claims = null;
         try {
@@ -88,7 +100,7 @@ public class JwtUtils {
                     .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
                     .getBody();
         } catch(ExpiredJwtException expiredJwtException){
-            return claims;
+            return expiredJwtException.getClaims(); // ✅ 만료된 토큰에서도 Claims 추출
         } catch(Exception e){
             throw new CustomJwtException("Error access token 검증 못함");
         }
@@ -122,9 +134,33 @@ public class JwtUtils {
     }
 
     // 토큰의 남은 만료시간 계산
-    public long tokenRemainTime(Integer expTime) { // static 제거
-        Date expDate = new Date((long) expTime * (1000));
+    public long tokenRemainTimeSecond(String header) { // static 제거
+        String accessToken = getTokenFromHeader(header);
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody();
+
+        Date expDate = claims.getExpiration(); // 만료 시간 반환 (Date 타입)
         long remainMs = expDate.getTime() - System.currentTimeMillis();
-        return remainMs / (1000 * 60);
+        return remainMs / 1000;
+    }
+
+    // access token redis의 블랙리스트에서 확인
+    public void isTokenBlacklisted(String accessToken) {
+        Set<String> keys = redisTemplate.keys("blackList:*"); // "blackList:*" 패턴의 모든 Key 검색
+        if (keys == null || keys.isEmpty()) {
+            return; // 블랙리스트가 비어있다면 return
+        }
+
+        // 모든 Key에 대해 해당 Token이 Value로 존재하는지 확인
+        for (String key : keys) {
+            String value = redisTemplate.opsForValue().get(key);
+            if (accessToken.equals(value)) {
+                throw new CustomJwtException("로그아웃된 유저입니다.");
+            }
+        }
     }
 }
