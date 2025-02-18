@@ -92,20 +92,23 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     @Transactional
-    public Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request) {
+    public UserResponseDTO.UserKaKaoSignUpResultDTO signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request) {
 
         // openId를 통해 sub 추출하기
         OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
         OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(request.getOpenId(), iss, aud, oidcPublicKeysResponse);
         String sub = oidcDecodePayload.getSub();
 
-        String accessToken = "";
-        String refreshToken = "";
-
         Users newUser = UserConverter.toKakaoUsers(request, sub);
         // 일상 카테고리 생성
         createDefaultCategory(newUser);
-        return userRepository.save(newUser);
+        // 회원 정보 db에 저장
+        Users savedUser = userRepository.save(newUser);
+        // 액세스 토큰 및 리프레시 토큰 생성
+        String key = "users:" + savedUser.getId().toString();
+        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
+        String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
+        return UserConverter.toUserKaKaoSignUpResultDTO(accessToken, refreshToken, savedUser);
     }
 
     private void createDefaultCategory(Users newUser) {
@@ -132,21 +135,6 @@ public class UserCommandServiceImpl implements UserCommandService {
         String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
 
         return UserConverter.toUserSignInResultDTO(getUser, accessToken, refreshToken);
-    }
-
-    private String generateAccessToken(Long userId, int accessExpTime) {
-        // 인증 완료 후 jwt토큰(accessToken) 생성
-        Map<String, Object> valueMap = Map.of(
-                "userId", userId // String으로 저장??? 그래서 SecurityUtil에서 Long으로 타입변환 해주나?
-        );
-        return jwtUtils.generateToken(valueMap, accessExpTime);
-    }
-
-    private String generateAndSaveRefreshToken(String key, int refreshExpTime) {
-        // 인증 완료 후 jwt토큰(refreshToken) 생성
-        String refreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
-        redisTemplate.opsForValue().set(key, refreshToken, refreshExpTime, TimeUnit.MINUTES);
-        return refreshToken;
     }
 
     @Override
@@ -253,8 +241,9 @@ public class UserCommandServiceImpl implements UserCommandService {
             Users user = userSub.get();
 
             // 액세스 토큰 및 리프레시 토큰 생성
-            String accessToken = "";
-            String refreshToken = "";
+            String key = "users:" + user.getId().toString();
+            String accessToken = generateAccessToken(user.getId(), accessExpTime);
+            String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
 
             return new UserResponseDTO.TokenValidationResultDTO(true, accessToken, refreshToken);
         } else {
@@ -268,6 +257,21 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
         return user.getPoint();
+    }
+
+    private String generateAccessToken(Long userId, int accessExpTime) {
+        // 인증 완료 후 jwt토큰(accessToken) 생성
+        Map<String, Object> valueMap = Map.of(
+                "userId", userId // String으로 저장??? 그래서 SecurityUtil에서 Long으로 타입변환 해주나?
+        );
+        return jwtUtils.generateToken(valueMap, accessExpTime);
+    }
+
+    private String generateAndSaveRefreshToken(String key, int refreshExpTime) {
+        // 인증 완료 후 jwt토큰(refreshToken) 생성
+        String refreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
+        redisTemplate.opsForValue().set(key, refreshToken, refreshExpTime, TimeUnit.MINUTES);
+        return refreshToken;
     }
 }
 
