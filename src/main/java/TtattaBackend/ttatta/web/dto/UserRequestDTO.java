@@ -46,7 +46,6 @@ public class UserRequestDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SignUpKakaoRequestDTO {
-        private String openId;
         @NotBlank(message = "닉네임은 빈값일 수 없습니다.")
         @Size(max = 8, message = "닉네임은 1 ~ 8자이어야 합니다.")
         private String nickname;
@@ -61,14 +60,6 @@ public class UserRequestDTO {
 //    public static class SignInKakaoRequestDTO {
 //        private String kakaoToken;
 //    }
-
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class tokenValidationRequestDTO {
-        private String openId;
-    }
 
     @Getter
     @Builder
