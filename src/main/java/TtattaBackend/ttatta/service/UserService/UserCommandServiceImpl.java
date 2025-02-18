@@ -1,6 +1,5 @@
 package TtattaBackend.ttatta.service.UserService;
 
-import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
@@ -24,7 +23,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -124,27 +122,31 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Override
     @Transactional // ???
     public UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request) {
-        String key;
-
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 //        SecurityContextHolder.getContext().setAuthentication(authentication); // 로그인을 한 후 인증 정보를 사용할 일은 없을 것 같다.
 
-        Users user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        Users getUser = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+        String key = "users:" + getUser.getId().toString();
+        String accessToken = generateAccessToken(getUser.getId(), accessExpTime);
+        String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
 
+        return UserConverter.toUserSignInResultDTO(getUser, accessToken, refreshToken);
+    }
+
+    private String generateAccessToken(Long userId, int accessExpTime) {
         // 인증 완료 후 jwt토큰(accessToken) 생성
         Map<String, Object> valueMap = Map.of(
-                "userId", user.getId() // String으로 저장??? 그래서 SecurityUtil에서 Long으로 타입변환 해주나?
+                "userId", userId // String으로 저장??? 그래서 SecurityUtil에서 Long으로 타입변환 해주나?
         );
-        String accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
+        return jwtUtils.generateToken(valueMap, accessExpTime);
+    }
 
+    private String generateAndSaveRefreshToken(String key, int refreshExpTime) {
         // 인증 완료 후 jwt토큰(refreshToken) 생성
-        key = "users:" + user.getId().toString();
         String refreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
         redisTemplate.opsForValue().set(key, refreshToken, refreshExpTime, TimeUnit.MINUTES);
-        System.out.println("redis에 저장된 refreshToken: " + (String) redisTemplate.opsForValue().get(key));
-
-        return UserConverter.toUserSignInResultDTO(user, accessToken, refreshToken);
+        return refreshToken;
     }
 
     @Override
@@ -159,14 +161,8 @@ public class UserCommandServiceImpl implements UserCommandService {
         System.out.println("userId: " + userId);
         System.out.println("redis에서 가져온 refreshToken: " + getRefreshTokenFromRedis);
         if (refreshToken.equals(getRefreshTokenFromRedis)) {
-            // 인증 완료 후 jwt토큰(accessToken) 생성
-            Map<String, Object> valueMap = Map.of(
-                    "userId", userId
-            );
-            accessToken = jwtUtils.generateToken(valueMap, accessExpTime);
-            // 인증 완료 후 jwt토큰(refreshToken) 생성
-            newRefreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
-            redisTemplate.opsForValue().set(key, newRefreshToken, refreshExpTime, TimeUnit.MINUTES);
+            accessToken = generateAccessToken(userId, accessExpTime);
+            newRefreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
         } else {
             throw new ExceptionHandler(REFRESHTOKEN_NOT_EQUAL);
         }
