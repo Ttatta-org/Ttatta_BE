@@ -344,6 +344,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // 새 비밀번호 암호화 후 업데이트
         user.encodePassword(passwordEncoder.encode(request.getPassword()));
+    }
 
     public UserResponseDTO.TokenValidationResultDTO validateToken(String openId) {
         // 공개키 가져오기

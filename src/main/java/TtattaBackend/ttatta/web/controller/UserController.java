@@ -227,6 +227,7 @@ public class UserController {
     ) {
         userCommandService.findPw(request);
         return ApiResponse.onSuccess("");
+    }
 
     @Operation(summary = "카카오 로그인 시 회원가입인지 로그인인지 확인하는 API", description =
                     "header에 'OpneId: {ID token}'형식으로 ID token을 입력해주세요.\n" +
