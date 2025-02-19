@@ -91,6 +91,13 @@ public class UserConverter {
                 .build();
     }
 
+    public static UserResponseDTO.FindIdResultDTO toFindIdResultDTO(Users users) {
+        return UserResponseDTO.FindIdResultDTO.builder()
+                .id(users.getUsername())
+                .name(users.getName())
+                .build();
+    }
+
     public static UserResponseDTO.UserInfoEditResultDTO toUserInfoEditResultDTO(Users users) {
         return UserResponseDTO.UserInfoEditResultDTO.builder()
                 .userId(users.getId())

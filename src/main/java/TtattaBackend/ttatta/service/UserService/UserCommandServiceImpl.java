@@ -15,11 +15,13 @@ import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -58,6 +60,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtils jwtUtils;
     private final RedisTemplate<String, String> redisTemplate;
+    private final JavaMailSender javaMailSender;
     private final KakaoOauthClient kakaoOauthClient;
     private final KakaoOauthHelper kakaoOauthHelper;
     private final JwtOIDCProvider jwtOIDCProvider;
@@ -222,6 +225,136 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
+    public void sendMail(String email) {
+
+        // 인증 번호 (6자리 난수) 생성
+        int verificationCode = (int)(Math.random() * 899999) + 100000;
+
+        MimeMessage message = javaMailSender.createMimeMessage();
+
+        // 이메일 내용 설정
+        try {
+            message.setFrom(email);
+            message.setRecipients(MimeMessage.RecipientType.TO, email);
+            message.setSubject("[따따] 이메일 인증 코드 발송");
+            String body = "";
+            body += "<h3>" + "요청하신 인증 번호입니다." + "</h3>";
+            body += "<h1>" + verificationCode + "</h1>";
+            body += "<h3>" + "감사합니다." + "</h3>";
+            message.setText(body, "utf-8", "html");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // 인증번호 Redis 저장 (유효시간 10분)
+        redisTemplate.opsForValue().set(email, String.valueOf(verificationCode), 10, TimeUnit.MINUTES);
+
+        javaMailSender.send(message);
+    }
+
+    @Override
+    public void sendVerificationMailSignUp(UserRequestDTO.SendVerificationMailSignUpRequestDTO request) {
+        String inputEmail = request.getEmail();
+
+        // 이메일 중복 여부 확인
+        if(userRepository.existsByEmail(inputEmail)) {
+            throw new ExceptionHandler(EMAIL_ALREADY_EXIST);
+        }
+
+        sendMail(inputEmail);
+    }
+
+    @Override
+    public void checkVerificationCode(UserRequestDTO.CheckVerificationCodeRequestDTO request) {
+        String inputEmail = request.getEmail();
+        String inputCode = request.getCode();
+
+        // 입력한 이메일로 저장된 인증번호 가져오기
+        String code = redisTemplate.opsForValue().get(inputEmail);
+
+        // 인증번호 일치 여부 확인
+        if (code == null || !code.equals(inputCode)) {
+            throw new ExceptionHandler(CODE_NOT_EQUAL);
+        }
+    }
+
+    @Override
+    public void sendVerificationMailFindId(UserRequestDTO.SendVerificationMailFindIdRequestDTO request) {
+        String inputName = request.getName();
+        String inputEmail = request.getEmail();
+
+        // 이메일로 유저 찾기
+        Users user = userRepository.findByEmail(inputEmail)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 이메일와 이름 일치 여부 확인
+        if(!user.getName().equals(inputName)) {
+            throw new ExceptionHandler(NAME_NOT_EQUAL);
+        }
+
+        sendMail(inputEmail);
+    }
+
+    @Override
+    public UserResponseDTO.FindIdResultDTO findId(UserRequestDTO.CheckVerificationCodeRequestDTO request) {
+        checkVerificationCode(request);
+
+        // 이메일로 유저 찾기
+        Users user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        return UserConverter.toFindIdResultDTO(user);
+    }
+
+    @Override
+    public void verifyUsername(String username) {
+        // 아이디 존재 여부 확인
+        if(!userRepository.existsByUsername(username)) {
+            throw new ExceptionHandler(ID_NOT_FOUND);
+        }
+    }
+
+    @Override
+    public void sendVerificationMailFindPw(UserRequestDTO.SendVerificationMailFindPwRequestDTO request) {
+        String inputId = request.getUsername();
+        String inputName = request.getName();
+        String inputEmail = request.getEmail();
+
+        // 아이디 존재 여부 확인
+        if(!userRepository.existsByUsername(inputId)) {
+            throw new ExceptionHandler(ID_NOT_FOUND);
+        }
+
+        // 이메일로 유저 찾기
+        Users user = userRepository.findByEmail(inputEmail)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 이메일와 이름, 아이디 일치 여부 확인
+        if(!user.getName().equals(inputName)) {
+            throw new ExceptionHandler(NAME_NOT_EQUAL);
+        }
+        else if(!user.getUsername().equals(inputId)) {
+            throw new ExceptionHandler(ID_NOT_EQUAL);
+        }
+
+        sendMail(inputEmail);
+    }
+
+    @Override
+    @Transactional
+    public void findPw(UserRequestDTO.FindPwRequestDTO request) {
+        Users user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 입력된 새 비밀번호가 기존 비밀번호와 동일한지 확인
+        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ExceptionHandler(SAME_PASSWORD);
+        }
+
+        // 새 비밀번호 암호화 후 업데이트
+        user.encodePassword(passwordEncoder.encode(request.getPassword()));
+    }
+
     public UserResponseDTO.TokenValidationResultDTO validateToken(String openId) {
         // 공개키 가져오기
         OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();

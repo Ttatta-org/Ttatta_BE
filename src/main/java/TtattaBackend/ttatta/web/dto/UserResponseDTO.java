@@ -85,32 +85,14 @@ public class UserResponseDTO {
         UserStatus status;
         Gender gender;
     }
-  
-    // 미구현
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SendVerificationCodeResultDTO {
-        Integer verificationCode;
-    }
 
-    // 미구현
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class VerifyVerificationCodeForUsernameResultDTO {
-        String username;
-    }
-
-    // 미구현
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class VerifyVerificationCodeForPasswordResultDTO {
-        String newPassword;
+    public static class FindIdResultDTO {
+        String name;
+        String id;
     }
 
     @Getter

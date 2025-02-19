@@ -161,43 +161,83 @@ public class UserController {
         return ApiResponse.onSuccess("");
     }
 
-    // 미구현
-    @Operation(summary = "인증번호 발송 API", description =
-            "# 인증번호 발송 API 입니다. 인증번호를 발송할 이메일을 body에 입력해주세요."
+
+    @Operation(summary = "인증메일 발송 (회원가입)", description =
+            "# 인증메일 발송 API 입니다. 회원가입 시, 입력한 이메일의 중복 여부를 확인 후 인증 메일을 발송합니다."
     )
-    @PostMapping("/code")
-    public ApiResponse<UserResponseDTO.SendVerificationCodeResultDTO> sendVerificationCode(
-            @RequestBody UserRequestDTO.SendVerificationCodeRequestDTO request
+    @PostMapping("/signup/verify/send")
+    public ApiResponse<Object> sendVerificationMailSignUp(
+            @RequestBody UserRequestDTO.SendVerificationMailSignUpRequestDTO request
+    ) {
+        userCommandService.sendVerificationMailSignUp(request);
+        return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "인증번호 확인", description =
+            "# 인증번호 확인 API 입니다. 입력한 이메일로 발송된 인증번호를 입력해주세요."
+    )
+    @PostMapping("/signup/verify/check")
+    public ApiResponse<Object> checkVerificationCodeSignUp(
+            @RequestBody UserRequestDTO.CheckVerificationCodeRequestDTO request
+    ) {
+        userCommandService.checkVerificationCode(request);
+        return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "인증메일 발송 (ID 찾기)", description =
+        "# 인증메일 발송 API 입니다. ID 찾기 시, 입력한 이메일과 이름의 일치 여부를 확인 후 인증 메일을 발송합니다."
+    )
+    @PostMapping("/find/send-id")
+    public ApiResponse<Object> sendVerificationMailFindId(
+            @RequestBody UserRequestDTO.SendVerificationMailFindIdRequestDTO request
+    ) {
+        userCommandService.sendVerificationMailFindId(request);
+        return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "ID 찾기", description =
+            "# ID 찾기 API 입니다. 입력한 이메일로 발송된 인증번호를 입력해주세요."
+    )
+    @PostMapping("/find/id")
+    public ApiResponse<UserResponseDTO.FindIdResultDTO> findId(
+            @RequestBody UserRequestDTO.CheckVerificationCodeRequestDTO request
     ) {
         return ApiResponse.onSuccess(
-                null
+                userCommandService.findId(request)
         );
     }
 
-    // 미구현
-    @Operation(summary = "인증번호 확인 API (아이디 찾기용)", description =
-            "# 인증번호 확인 API 입니다 (아이디 찾기용). 확인할 인증코드를 query string에 입력해주세요."
+    @Operation(summary = "비밀번호 찾기 시 ID 존재여부 검증 API", description =
+            "# 비밀번호 찾기 시 ID 존재여부 검증 API 입니다. 비밀번호를 찾고자 하는 계정의 ID를 입력해주세요."
     )
-    @GetMapping("/verify/id")
-    public ApiResponse<UserResponseDTO.VerifyVerificationCodeForUsernameResultDTO> verifyVerificationCodeForUsername(
-            @RequestParam Integer verificationCode
+    @GetMapping("/find/verify/id")
+    public ApiResponse<Object> verifyUsername(
+            @RequestParam String username
     ) {
-        return ApiResponse.onSuccess(
-                null
-        );
+        userCommandService.verifyUsername(username);
+        return ApiResponse.onSuccess("");
     }
 
-    // 미구현
-    @Operation(summary = "인증번호 확인 API (비밀번호 찾기용)", description =
-            "# 인증번호 확인 API 입니다 (비밀번호 찾기용). 확인할 인증코드를 query string에 입력해주세요."
+    @Operation(summary = "인증메일 발송 (PW 찾기)", description =
+            "# 인증메일 발송 API 입니다. PW 찾기 시, 입력한 ID의 존재 여부, 이메일과 이름의 일치 여부를 확인 후 인증 메일을 발송합니다."
     )
-    @GetMapping("/verify/pw")
-    public ApiResponse<UserResponseDTO.VerifyVerificationCodeForPasswordResultDTO> verifyVerificationCodeForPassword(
-            @RequestParam Integer verificationCode
+    @PostMapping("/find/send-pw")
+    public ApiResponse<Object> sendVerificationMailFindPw(
+            @RequestBody UserRequestDTO.SendVerificationMailFindPwRequestDTO request
     ) {
-        return ApiResponse.onSuccess(
-                null
-        );
+        userCommandService.sendVerificationMailFindPw(request);
+        return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "PW 재설정", description =
+            "# PW 재설정 API 입니다. 이메일과 변경할 비밀번호를 입력해주세요."
+    )
+    @PostMapping("/find/pw")
+    public ApiResponse<Object> findPw(
+            @RequestBody UserRequestDTO.FindPwRequestDTO request
+    ) {
+        userCommandService.findPw(request);
+        return ApiResponse.onSuccess("");
     }
 
     @Operation(summary = "카카오 로그인 시 회원가입인지 로그인인지 확인하는 API", description =

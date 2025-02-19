@@ -72,13 +72,59 @@ public class UserRequestDTO {
         private Optional<String> profileImage = Optional.empty();
         private Optional<Long> point = Optional.empty();
     }
-    
-    // 미구현  
+
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SendVerificationCodeRequestDTO {
-        private String email;  
+    public static class SendVerificationMailSignUpRequestDTO {
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CheckVerificationCodeRequestDTO {
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+        @NotBlank(message = "인증번호는 빈값일 수 없습니다.")
+        private String code;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SendVerificationMailFindIdRequestDTO {
+        @NotBlank(message = "이름은 빈값일 수 없습니다.")
+        private String name;
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SendVerificationMailFindPwRequestDTO {
+        @NotBlank(message = "아이디는 빈값일 수 없습니다.")
+        private String username;
+        @NotBlank(message = "이름은 빈값일 수 없습니다.")
+        private String name;
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FindPwRequestDTO {
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+        @NotBlank(message = "비밀번호는 빈값일 수 없습니다.")
+        private String password;
     }
 }

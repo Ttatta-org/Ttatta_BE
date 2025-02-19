@@ -65,6 +65,9 @@ dependencies {
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+	// gmail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 	// Feign Client
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
 
