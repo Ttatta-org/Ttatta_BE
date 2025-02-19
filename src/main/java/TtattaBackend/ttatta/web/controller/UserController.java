@@ -219,7 +219,7 @@ public class UserController {
     }
 
     @Operation(summary = "인증메일 발송 (PW 찾기)", description =
-            "# 인증메일 발송 API 입니다. PW 찾기 시, 입력한 ID의 존재 여부, 이메일과 이름의 일치 여부를 확인 후 인증 메일을 발송합니다."
+            "# 인증메일 발송 API 입니다. PW 찾기 시, 입력한 ID의 존재 여부, 이메일과 이름의 일치 여부를 확인 후 인증메일을 발송합니다."
     )
     @PostMapping("/find/send-pw")
     public ApiResponse<Object> sendVerificationMailFindPw(
