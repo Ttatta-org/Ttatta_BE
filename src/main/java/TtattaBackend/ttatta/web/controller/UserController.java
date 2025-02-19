@@ -99,11 +99,11 @@ public class UserController {
 
     // 미구현
     @Operation(summary = "카카오 회원가입", description =
-            "# 카카오 회원가입 API 입니다. header에 'OpneId: {ID token}'형식으로 ID token을 입력하고 request body에 닉네임을 입력해주세요."
+            "# 카카오 회원가입 API 입니다. header에 'OpenId: {ID token}'형식으로 ID token을 입력하고 request body에 닉네임을 입력해주세요."
     )
     @PostMapping("/signup/kakao")
     public ApiResponse<UserResponseDTO.UserKaKaoSignUpResultDTO> signUpKakao(
-            @RequestHeader("OpneId") String openId,
+            @RequestHeader("OpenId") String openId,
             @RequestBody UserRequestDTO.SignUpKakaoRequestDTO request
     ) {
         return ApiResponse.onSuccess(
@@ -241,14 +241,14 @@ public class UserController {
     }
 
     @Operation(summary = "카카오 로그인 시 회원가입인지 로그인인지 확인하는 API", description =
-                    "header에 'OpneId: {ID token}'형식으로 ID token을 입력해주세요.\n" +
+                    "header에 'OpenId: {ID token}'형식으로 ID token을 입력해주세요.\n" +
                     "1. 페이로드 검증 및 서명 검증을 진행합니다.\n" +
                     "2. 이미 가입한 회원인지 확인합니다.\n\n" +
                     "회원가입이라면 isRegistered로 false를 반환하고 로그인이라면 isRegistered로 true를 반환함과 동시에 access token과 refresh token을 반환합니다."
     )
     @PostMapping("/verificate/kakao")
     public ApiResponse<UserResponseDTO.TokenValidationResultDTO> validKakaoToken(
-            @RequestHeader("OpneId") String openId
+            @RequestHeader("OpenId") String openId
     ) {
         return ApiResponse.onSuccess(
                 userCommandService.validateToken(openId)
