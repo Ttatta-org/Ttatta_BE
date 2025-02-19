@@ -207,6 +207,17 @@ public class UserController {
         );
     }
 
+    @Operation(summary = "비밀번호 찾기 시 ID 존재여부 검증 API", description =
+            "# 비밀번호 찾기 시 ID 존재여부 검증 API 입니다. 비밀번호를 찾고자 하는 계정의 ID를 입력해주세요."
+    )
+    @GetMapping("/find/verify/id")
+    public ApiResponse<Object> verifyUsername(
+            @RequestParam String username
+    ) {
+        userCommandService.verifyUsername(username);
+        return ApiResponse.onSuccess("");
+    }
+
     @Operation(summary = "인증메일 발송 (PW 찾기)", description =
             "# 인증메일 발송 API 입니다. PW 찾기 시, 입력한 ID의 존재 여부, 이메일과 이름의 일치 여부를 확인 후 인증 메일을 발송합니다."
     )

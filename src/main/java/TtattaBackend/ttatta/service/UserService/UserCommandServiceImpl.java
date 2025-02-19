@@ -307,6 +307,14 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
+    public void verifyUsername(String username) {
+        // 아이디 존재 여부 확인
+        if(!userRepository.existsByUsername(username)) {
+            throw new ExceptionHandler(ID_NOT_FOUND);
+        }
+    }
+
+    @Override
     public void sendVerificationMailFindPw(UserRequestDTO.SendVerificationMailFindPwRequestDTO request) {
         String inputId = request.getUsername();
         String inputName = request.getName();
