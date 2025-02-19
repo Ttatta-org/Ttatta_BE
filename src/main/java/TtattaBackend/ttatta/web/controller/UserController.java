@@ -218,8 +218,8 @@ public class UserController {
         return ApiResponse.onSuccess("");
     }
 
-    @Operation(summary = "PW 찾기", description =
-            "# PW 찾기 API 입니다. 이메일과 변경할 비밀번호를 입력해주세요."
+    @Operation(summary = "PW 재설정", description =
+            "# PW 재설정 API 입니다. 이메일과 변경할 비밀번호를 입력해주세요."
     )
     @PostMapping("/find/pw")
     public ApiResponse<Object> findPw(
