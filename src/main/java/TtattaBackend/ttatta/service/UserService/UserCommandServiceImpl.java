@@ -333,6 +333,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
+    @Transactional
     public void findPw(UserRequestDTO.FindPwRequestDTO request) {
         Users user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
