@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[따따] 이메일 인증</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #FEF6F2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 400px;
+            padding: 30px 20px;
+            background-color: #FFEFE4;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-radius: 15px;
+        }
+        .logo img {
+            width: 80px;
+            height: auto;
+            margin-bottom: 16px;
+        }
+        .code-box {
+            background-color: #FEF6F2;
+            width: 250px;
+            height: 80px;
+            border-radius: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 40px auto;
+            margin-top: 10px;
+            text-align: center;
+            min-width: 250px;  /* 최소 너비 유지 */
+            min-height: 80px;  /* 최소 높이 유지 */
+        }
+        .code-box span {
+            display: block;  /* 인라인 요소인 span을 블록 요소로 변경 */
+            width: 100%;  /* span이 부모 div의 전체 크기를 차지하도록 설정 */
+            height: 100%;
+            line-height: 80px; /* 박스 높이에 맞춰 텍스트를 중앙 정렬 */
+        }
+        .description {
+            font-size: 14px;
+            color: #555;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo">
+        <img src='cid:image'>
+    </div>
+    <div class="code-box">
+        <span th:text="${verificationCode}">123456</span>
+    </div>
+    <p class="description">
+        따따에서 요청하신 인증번호를 보내드립니다.<br>
+        아래 인증번호 6자리를 인증번호 입력창에 입력해주세요.
+    </p>
+</div>
+</body>
+</html>
