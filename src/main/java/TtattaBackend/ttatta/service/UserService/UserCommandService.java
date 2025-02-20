@@ -27,4 +27,5 @@ public interface UserCommandService {
     void findPw(UserRequestDTO.FindPwRequestDTO request);
     UserResponseDTO.TokenValidationResultDTO validateToken(String openId);
     Long getUserPoint();
+    void deleteUserByAdmin(Long userId);
 }

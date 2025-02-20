@@ -419,5 +419,13 @@ public class UserCommandServiceImpl implements UserCommandService {
         redisTemplate.opsForValue().set(key, refreshToken, refreshExpTime, TimeUnit.MINUTES);
         return refreshToken;
     }
+
+    @Override
+    public void deleteUserByAdmin(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        userRepository.delete(user);
+    }
 }
 
