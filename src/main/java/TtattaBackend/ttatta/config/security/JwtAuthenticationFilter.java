@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/swagger-ui/**",
             "/v3/**",
             "/items",
-            "/users/verificate/kakao"
+            "/users/verificate/kakao",
             "/users/{userId}"
 //            "/refresh", "/",
 //            "/index.html"
