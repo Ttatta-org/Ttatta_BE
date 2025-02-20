@@ -30,16 +30,16 @@ jobs:
         java-version: '17'
         distribution: "temurin"
 
-    #   # gradle caching - 빌드 시간 향상
-    # - name: Gradle Caching
-    #   uses: actions/cache@v3
-    #   with:
-    #     path: |
-    #       ~/.gradle/caches
-    #       ~/.gradle/wrapper
-    #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-gradle-
+      # gradle caching - 빌드 시간 향상
+    - name: Gradle Caching
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
 
     # Github secrets로부터 데이터를 받아서, 워크 플로우에 파일을 생성
     - name: make application.yml
