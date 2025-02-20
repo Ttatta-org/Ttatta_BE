@@ -28,6 +28,7 @@ import com.drew.metadata.*;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.imaging.ImageMetadataReader;
 
+import java.io.IOException;
 
 @Slf4j
 @Component

@@ -20,13 +20,17 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -61,6 +65,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final JwtUtils jwtUtils;
     private final RedisTemplate<String, String> redisTemplate;
     private final JavaMailSender javaMailSender;
+    private final SpringTemplateEngine templateEngine;
     private final KakaoOauthClient kakaoOauthClient;
     private final KakaoOauthHelper kakaoOauthHelper;
     private final JwtOIDCProvider jwtOIDCProvider;
@@ -226,30 +231,35 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     public void sendMail(String email) {
-
         // 인증 번호 (6자리 난수) 생성
         int verificationCode = (int)(Math.random() * 899999) + 100000;
 
-        MimeMessage message = javaMailSender.createMimeMessage();
-
         // 이메일 내용 설정
         try {
-            message.setFrom(email);
-            message.setRecipients(MimeMessage.RecipientType.TO, email);
-            message.setSubject("[따따] 이메일 인증 코드 발송");
-            String body = "";
-            body += "<h3>" + "요청하신 인증 번호입니다." + "</h3>";
-            body += "<h1>" + verificationCode + "</h1>";
-            body += "<h3>" + "감사합니다." + "</h3>";
-            message.setText(body, "utf-8", "html");
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
+
+            messageHelper.setSubject("[따따] 이메일 인증 코드 발송");  // 메일 제목
+            messageHelper.setTo(email);  // 수신자 이메일
+            messageHelper.setFrom("2025ttatta@gmail.com");  // 발신자 이메일
+
+            // 템플릿에 전달할 데이터 설정
+            Context context = new Context();
+            context.setVariable("verificationCode", verificationCode);
+
+            String html = templateEngine.process("verification-email", context);
+            messageHelper.setText(html, true);
+
+            // 템플릿에 들어가는 이미지 cid로 삽입
+            messageHelper.addInline("image", new ClassPathResource("img/ttatta_logo.png"));
+
+            // 인증번호 Redis 저장 (유효시간 10분)
+            redisTemplate.opsForValue().set(email, String.valueOf(verificationCode), 10, TimeUnit.MINUTES);
+
+            javaMailSender.send(message);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // 인증번호 Redis 저장 (유효시간 10분)
-        redisTemplate.opsForValue().set(email, String.valueOf(verificationCode), 10, TimeUnit.MINUTES);
-
-        javaMailSender.send(message);
     }
 
     @Override
@@ -276,6 +286,9 @@ public class UserCommandServiceImpl implements UserCommandService {
         if (code == null || !code.equals(inputCode)) {
             throw new ExceptionHandler(CODE_NOT_EQUAL);
         }
+
+        // 인증번호 삭제
+        redisTemplate.delete(inputEmail);
     }
 
     @Override
@@ -405,6 +418,14 @@ public class UserCommandServiceImpl implements UserCommandService {
         String refreshToken = jwtUtils.generateToken(Collections.emptyMap(), refreshExpTime);
         redisTemplate.opsForValue().set(key, refreshToken, refreshExpTime, TimeUnit.MINUTES);
         return refreshToken;
+    }
+
+    @Override
+    public void deleteUserByAdmin(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        userRepository.delete(user);
     }
 }
 
