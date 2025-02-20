@@ -258,7 +258,7 @@ public class UserController {
     @Operation(summary = "[관리자용] 회원 삭제", description =
             "# 관리자용 API입니다. 삭제할 회원의 ID를 입력해주세요. (사용 주의)"
     )
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/admin/{userId}")
     public ApiResponse<Object> deleteUserByAdmin(
             @PathVariable Long userId
     ) {

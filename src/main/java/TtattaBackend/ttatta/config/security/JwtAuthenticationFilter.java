@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/v3/**",
             "/items",
             "/users/verificate/kakao",
-            "/users/{userId}"
+            "/users/admin/**",
 //            "/refresh", "/",
 //            "/index.html"
     };
