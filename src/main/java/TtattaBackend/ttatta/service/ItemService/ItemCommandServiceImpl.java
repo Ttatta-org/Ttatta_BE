@@ -82,7 +82,7 @@ public class ItemCommandServiceImpl implements ItemCommandService {
 
         if(!ownedItem.getIsEquipped()) {
             // 다른 아이템 착용 중
-            Optional<Items> other = itemRepository.findByBodyPartAndCharacterType(item.getCharacterType(), item.getBodyPart());
+            Optional<Items> other = itemRepository.findByBodyPartAndCharacterType(user, item.getCharacterType(), item.getBodyPart());
             if(other.isPresent()) {
                 disrobeItem(other.get().getId()); // 기존 아이템 착용 해제
                 ownedItem.setEquipped(true); // 새로운 아이템 착용
