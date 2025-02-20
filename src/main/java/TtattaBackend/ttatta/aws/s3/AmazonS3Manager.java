@@ -21,10 +21,8 @@ import javax.imageio.ImageIO;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
 
 import com.drew.metadata.*;
 import com.drew.metadata.exif.ExifIFD0Directory;
@@ -51,7 +49,7 @@ public class AmazonS3Manager{
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(resizedFile.getSize());
         metadata.setContentDisposition("inline");
-        metadata.setContentType(file.getContentType());
+        metadata.setContentType(resizedFile.getContentType());
 
         try(InputStream inputStream = resizedFile.getInputStream()) {
             amazonS3.putObject(new PutObjectRequest(amazonConfig.getBucket(), keyName, inputStream, metadata)
@@ -81,10 +79,12 @@ public class AmazonS3Manager{
 
     MultipartFile resizeImageByMarvin(String fileName, String originalFilename, String fileFormatName, MultipartFile originalImage, int targetWidth) {
         try {
-            InputStream imageStream = new ByteArrayInputStream(originalImage.getBytes());
+            byte[] imageBytes = originalImage.getBytes();
+            InputStream imageStream = new ByteArrayInputStream(imageBytes);
+
             BufferedImage image = ImageIO.read(imageStream);
 
-            image = correctImageOrientation(image, originalImage);
+            image = correctImageOrientation(image, new ByteArrayInputStream(imageBytes));
 
             int originWidth = image.getWidth();
             int originHeight = image.getHeight();
@@ -93,7 +93,6 @@ public class AmazonS3Manager{
             if(originWidth < targetWidth)
                 return originalImage;
             MarvinImage imageMarvin = new MarvinImage(image);
-
             Scale scale = new Scale();
             scale.load();
             scale.setAttribute("newWidth", targetWidth);
@@ -101,19 +100,23 @@ public class AmazonS3Manager{
             scale.process(imageMarvin.clone(), imageMarvin, null, null, false);
 
             BufferedImage imageNoAlpha = imageMarvin.getBufferedImageNoAlpha();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(imageNoAlpha, fileFormatName, baos);
-            baos.flush();
+            File tempFile = File.createTempFile("resized_", "." + fileFormatName);
+            ImageIO.write(imageNoAlpha, fileFormatName, tempFile);
 
-            return new CustomMultipartFile(fileName, originalFilename, fileFormatName, baos.toByteArray());
+            return new CustomMultipartFile(
+                    fileName,
+                    originalFilename,
+                    fileFormatName,
+                    Files.readAllBytes(tempFile.toPath())
+            );
+
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 리사이즈에 실패했습니다.");
         }
     }
 
-    private BufferedImage correctImageOrientation(BufferedImage image, MultipartFile file) {
+    private BufferedImage correctImageOrientation(BufferedImage image, InputStream inputStream) {
         try {
-            InputStream inputStream = new ByteArrayInputStream(file.getBytes());
             Metadata metadata = ImageMetadataReader.readMetadata(inputStream);
             ExifIFD0Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
 
