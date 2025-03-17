@@ -76,4 +76,34 @@ public class DiaryCategoryRepositoryTest {
                     assertThat(newCategory.getUsers()).isEqualTo(savedUser);
                 });
     }
+
+    @Test
+    @DisplayName("다이어리 카테고리 수정")
+    void modifyDiaryCategoryTest() {
+        // Given
+        DiaryCategories diaryCategory = new DiaryCategories(null,"testCategory", CategoryColor.WHITE,savedUser,null);
+        DiaryCategories savedDiaryCategory = diaryCategoryRepository.save(diaryCategory);
+
+        savedDiaryCategory.modifyCategoryColor(CategoryColor.BLACK);
+        savedDiaryCategory.modifyCategoryName("changed name");
+
+        assertThat(savedDiaryCategory.getColor()).isEqualTo(CategoryColor.BLACK);
+        assertThat(savedDiaryCategory.getName()).isEqualTo("changed name");
+    }
+
+    @Test
+    @DisplayName("모든 기록 삭제")
+    void deleteAllDiaryCategoryTest() {
+
+    }
+
+    @Test
+    @DisplayName("카테고리 삭제")
+    void deleteDiaryCategoryTest() {
+
+    }
+
+
+
+
 }
