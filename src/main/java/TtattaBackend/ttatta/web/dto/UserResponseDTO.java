@@ -68,33 +68,53 @@ public class UserResponseDTO {
         Long point;
         UserStatus status;
         Gender gender;
-        String phoneNum;
-    }
-  
-    // 미구현
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SendVerificationCodeResultDTO {
-        Integer verificationCode;
+        Long diaryCount;
     }
 
-    // 미구현
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class VerifyVerificationCodeForUsernameResultDTO {
-        String username;
+    public static class UserInfoEditResultDTO {
+        Long userId;
+        String nickname;
+        LoginType loginType;
+        String email;
+        String profileImg;
+        Long point;
+        UserStatus status;
+        Gender gender;
     }
 
-    // 미구현
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class VerifyVerificationCodeForPasswordResultDTO {
-        String newPassword;
+    public static class FindIdResultDTO {
+        String name;
+        String id;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class TokenValidationResultDTO {
+        Boolean isRegistered;
+        String accessToken;
+        String refreshToken;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserKaKaoSignUpResultDTO {
+        String accessToken;
+        String refreshToken;
+        Long userId;
+        String nickname;
+        LoginType loginType;
+        LocalDateTime createdAt;
     }
 }

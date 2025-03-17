@@ -36,8 +36,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/users/signin",
             "/users/signin/**",
             "/users/testuser",
+            "/users/find/**",
             "/swagger-ui/**",
-            "/v3/**"
+            "/v3/**",
+            "/items",
+            "/users/verificate/kakao",
+            "/users/admin/**",
 //            "/refresh", "/",
 //            "/index.html"
     };
@@ -61,10 +65,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("--------------------------- JwtVerifyFilter ---------------------------");
+        String authHeader = request.getHeader(jwtHeader);
 
         String requestUri = request.getRequestURI();
-        String authHeader = request.getHeader(jwtHeader);
         String refreshToken = request.getHeader("refreshToken");
 
         // 특정 경로에서만 Refresh Token 처리
@@ -75,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
                     String token = JwtUtils.getTokenFromHeader(authHeader);
                     Claims claims = jwtUtils.validateTokenOnlySignature(token); // 토큰 검증
-                    Authentication authentication = jwtUtils.getAuthentication(token); // 사용자 인증 정보 생성
+                    Authentication authentication = jwtUtils.getAuthenticationFromExpiredAccessToken(token); // 사용자 인증 정보 생성
                     SecurityContextHolder.getContext().setAuthentication(authentication); // 사용자 인증 정보 저장
                     // refresh token 검증
                     jwtUtils.validateRefreshToken(refreshToken); // 토큰 검증
@@ -83,11 +86,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 } catch (Exception e) {
                     Gson gson = new Gson();
                     String json = "";
-                    json = gson.toJson(Map.of("error", e.getMessage()));
+                    if (e instanceof CustomExpiredJwtException) {
+                        json = gson.toJson(Map.of("Token_Expired", e.getMessage()));
+                    } else {
+                        json = gson.toJson(Map.of("error", e.getMessage()));
+                    }
+
+                    response.setContentType("application/json; charset=UTF-8");
+                    PrintWriter printWriter = response.getWriter();
+                    printWriter.println(json);
+                    printWriter.close();
                 }
             }
+            // refreshToken != null 처리해주어야함.
+            return; // return을 해주는게 맞나?? dofilter안해줘도 되나??(try에서 해주고 있어서 필요없어 보임.) 일단 /users/refresh로 요청 들어온 상황이면 아래 상황 필요없어서 return함.
+        }
+
+        try {
+            log.info("------------------------------------------------------");
+            checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
+            String accessToken = JwtUtils.getTokenFromHeader(authHeader);
+            jwtUtils.validateToken(accessToken); // 토큰 검증
+            jwtUtils.isTokenBlacklisted(authHeader); // 🚨 블랙리스트 확인
+        } catch (Exception e) {
+            Gson gson = new Gson();
+            String json = "";
+            if (e instanceof CustomExpiredJwtException) {
+                json = gson.toJson(Map.of("Token_Expired", e.getMessage()));
+            } else {
+                json = gson.toJson(Map.of("error", e.getMessage()));
+            }
+
+            response.setContentType("application/json; charset=UTF-8");
+            PrintWriter printWriter = response.getWriter();
+            printWriter.println(json);
+            printWriter.close();
+
             return;
         }
+        // accessToken != null 처리해주어야함.
+
+        log.info("--------------------------- JwtVerifyFilter ---------------------------");
 
         try {
             checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크

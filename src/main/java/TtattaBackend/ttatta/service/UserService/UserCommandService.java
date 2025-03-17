@@ -9,11 +9,23 @@ public interface UserCommandService {
     Users createTestUser();
     Users signUp(UserRequestDTO.SignUpRequestDTO request);
     IsAvailable verifyUsernameOverlap(String username);
+    void logout(String accessToken);
     UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request);
     UserResponseDTO.RefreshResultDTO refresh(String refreshToken);
-    Users signUpKakao(UserRequestDTO.SignUpKakaoRequestDTO request);    // 미구현
-    Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
-    Users getUserInfo(Long userId);
-    Users updateUserInfo(Long userId, UserRequestDTO.UpdateRequestDTO request);
-    void deleteUser(Long userId);
+    UserResponseDTO.UserKaKaoSignUpResultDTO signUpKakao(String openId, UserRequestDTO.SignUpKakaoRequestDTO request);
+//    Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
+    UserResponseDTO.UserInfoResultDTO getUserInfo();
+    Users editUserInfo(UserRequestDTO.EditRequestDTO request);
+    void deleteUser();
+    void sendMail(String email);
+    void sendVerificationMailSignUp(UserRequestDTO.SendVerificationMailSignUpRequestDTO request);
+    void checkVerificationCode(UserRequestDTO.CheckVerificationCodeRequestDTO request);
+    void sendVerificationMailFindId(UserRequestDTO.SendVerificationMailFindIdRequestDTO request);
+    UserResponseDTO.FindIdResultDTO findId(UserRequestDTO.CheckVerificationCodeRequestDTO request);
+    void verifyUsername(String username);
+    void sendVerificationMailFindPw(UserRequestDTO.SendVerificationMailFindPwRequestDTO request);
+    void findPw(UserRequestDTO.FindPwRequestDTO request);
+    UserResponseDTO.TokenValidationResultDTO validateToken(String openId);
+    Long getUserPoint();
+    void deleteUserByAdmin(Long userId);
 }

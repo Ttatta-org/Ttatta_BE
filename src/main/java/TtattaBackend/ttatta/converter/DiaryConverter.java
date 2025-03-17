@@ -6,6 +6,8 @@ import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,15 +45,36 @@ public class DiaryConverter {
                 .build();
     }
 
+    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries) {
+        return DiaryResponseDTO.FootprintDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .categoryColor(diaries.getDiaryCategories().getColor().toString())
+                .latitude(diaries.getLatitude())
+                .longitude(diaries.getLongitude())
+                .clusterId(diaries.getClusterId())
+                .build();
+    }
+
+    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList) {
+       List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
+               .map(DiaryConverter::toFootprintDiaryDTO).collect(Collectors.toList());
+
+       return DiaryResponseDTO.FootprintDiaryListDTO.builder()
+               .footprintList(footprintDiaryDTOList)
+               .build();
+    }
+
     public static DiaryResponseDTO.KeepDiaryDTO toKeepDiaryDTO(Diaries diaries) {
-        List<String> imageUrl = diaries.getDiaryPhotosList().stream()
-                .map(DiaryPhotos::getImageUrl).collect(Collectors.toList());
+        String imageUrl = diaries.getDiaryPhotosList().stream()
+                .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);
 
         return DiaryResponseDTO.KeepDiaryDTO.builder()
                 .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
-                .image(imageUrl.toString())
+                .image(imageUrl)
                 .locationName(diaries.getLocationName())
                 .build();
     }
@@ -65,18 +88,60 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.MapResultDTO toMapResultDTO(Diaries diaries) {
+    public static DiaryResponseDTO.MapResultDTO toMapDiaryDTO(Page<Diaries> diaryList) {
+        Diaries diaries = diaryList.getContent().stream().findFirst().get();
+
+        String imageUrl = diaries.getDiaryPhotosList().stream()
+                .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);
+
         return DiaryResponseDTO.MapResultDTO.builder()
                 .diaryId(diaries.getId())
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
-                .image(diaries.getDiaryPhotosList().toString())
+                .image(imageUrl)
+                .firstDiary(diaryList.isFirst())
+                .lastDiary(diaryList.isLast())
                 .build();
 
     }
 
-    public static DiaryResponseDTO.SearchResultDTO toSearchResultDTO(Diaries diaries) {
-        return null;
+    public static DiaryResponseDTO.SearchDiaryDTO toSearchDiaryDTO(Diaries diaries) {
+        String imageUrl = diaries.getDiaryPhotosList().stream()
+                .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);
+
+        return DiaryResponseDTO.SearchDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .content(diaries.getContent())
+                .date(diaries.getDate())
+                .image(imageUrl)
+                .locationName(diaries.getLocationName())
+                .build();
+    }
+
+    public static DiaryResponseDTO.SearchDiaryListDTO toSearchDiaryListDTO(Page<Diaries> diaryList) {
+        List<DiaryResponseDTO.SearchDiaryDTO> searchDiaryList = diaryList.stream()
+                .map(DiaryConverter::toSearchDiaryDTO).collect(Collectors.toList());
+
+
+        return DiaryResponseDTO.SearchDiaryListDTO.builder()
+                .searchDiaryList(searchDiaryList)
+                .build();
+    }
+
+    public static DiaryResponseDTO.DiaryDateDTO toDiaryDateDTO(LocalDateTime diaryDate) {
+        return DiaryResponseDTO.DiaryDateDTO.builder()
+                .date(diaryDate.toLocalDate())
+                .build();
+    }
+
+    public static DiaryResponseDTO.DairyDateListResultDTO toDairyDateListResultDTO(List<LocalDateTime> diaryDateList) {
+        List<DiaryResponseDTO.DiaryDateDTO> dairyDateListResultDTOList = diaryDateList.stream()
+                .map(DiaryConverter::toDiaryDateDTO).collect(Collectors.toList());
+
+        return DiaryResponseDTO.DairyDateListResultDTO.builder()
+                .diaryDateList(dairyDateListResultDTOList)
+                .build();
     }
 }

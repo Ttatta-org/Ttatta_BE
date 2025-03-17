@@ -35,7 +35,7 @@ public class DiaryCategoryController {
             summary = "카테고리 생성 api",
             description = "새로운 카테고리를 생성할 때 사용하는 api 입니다.\n카테고리 이름과 색상, 사용자의 id 데이터를 넣어주시면 됩니다.")
 
-    @PostMapping("/")
+    @PostMapping("")
     public ApiResponse<DiaryCategoryResponseDTO.CreateCategoryResultDTO> create(@RequestBody @Valid DiaryCategoryRequestDTO.CreateCategoryDTO request) {
         DiaryCategories diaryCategory = diaryCategoryCommandService.createCategory(request);
         return ApiResponse.onSuccess(DiaryCategoryConverter.toCreateCategoryResultDTO(diaryCategory));

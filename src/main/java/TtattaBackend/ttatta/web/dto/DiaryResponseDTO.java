@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,6 +18,26 @@ public class DiaryResponseDTO {
     public static class PostResultDTO {
         Long diaryId;
         LocalDateTime date;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FootprintDiaryListDTO {
+        List<FootprintDiaryDTO> footprintList;
+    }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FootprintDiaryDTO {
+        Long diaryId;
+        Long diaryCategoryId;
+        String categoryColor;
+        double latitude;
+        double longitude;
+        Long clusterId;
     }
 
     @Getter
@@ -42,6 +63,7 @@ public class DiaryResponseDTO {
     @AllArgsConstructor
     public static class KeepDiaryDTO {
         Long diaryId;
+        Long diaryCategoryId;
         LocalDateTime date;
         String content;
         String image;
@@ -58,24 +80,44 @@ public class DiaryResponseDTO {
         LocalDateTime date;
         String content;
         String image;
+        boolean firstDiary;
+        boolean lastDiary;
     }
 
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SearchResultDTO {
-        List<SearchDiary> diaryList;
+    public static class SearchDiaryListDTO {
+        List<SearchDiaryDTO> searchDiaryList;
+    }
 
-        @Getter
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class SearchDiary {
-            Long diaryId;
-            LocalDateTime date;
-            String content;
-            String image;
-        }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SearchDiaryDTO {
+        Long diaryId;
+        Long diaryCategoryId;
+        LocalDateTime date;
+        String content;
+        String image;
+        String locationName;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DairyDateListResultDTO {
+        List<DiaryDateDTO> diaryDateList;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiaryDateDTO {
+        LocalDate date;
     }
 }

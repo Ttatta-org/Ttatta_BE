@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_NOT_FOUND;
@@ -45,19 +46,30 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
         diaries.setUsers(user);
         diaries.setDiaryCategories(diaryCategories);
+
+        // 클러스터 Id 지정
+        setClusterId(user, request, diaries);
         Diaries savedDiaries = diaryRepository.save(diaries);
 
         // 일기 사진
-        String uuid = UUID.randomUUID().toString();
-        Uuid savedUuid = uuidRepository.save(Uuid.builder()
-                .uuid(uuid).build());
-        String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
-        DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(pictureUrl);
+        DiaryPhotos diaryPhotos = savePhoto(diaryPhoto);
 
         diaryPhotos.setDiaries(savedDiaries);
         diaryPhotosRepository.save(diaryPhotos);
 
         return savedDiaries;
+   }
+
+   // s3 객체 사진 저장
+   @Override
+   public DiaryPhotos savePhoto(MultipartFile diaryPhoto) {
+       String uuid = UUID.randomUUID().toString();
+       Uuid savedUuid = uuidRepository.save(Uuid.builder()
+               .uuid(uuid).build());
+       String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
+       DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(pictureUrl);
+
+       return diaryPhotos;
    }
 
    @Override
@@ -68,29 +80,68 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
         DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
 
-        String savedUuid = s3Manager.getUuidByUrl(diaryPhoto.getImageUrl());
-
-        Uuid uuid = uuidRepository.findByUuid(savedUuid);
-        uuidRepository.delete(uuid);
-
-        s3Manager.deleteFile(s3Manager.generateDiaryKeyName(uuid));
+        deletePhoto(diaryPhoto);
 
         diaryRepository.delete(diaries);
 
    }
 
+   // s3에서 객체 삭제
    @Override
-   public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId) {
+   public void deletePhoto(DiaryPhotos diaryPhoto) {
+       String savedUuid = s3Manager.getUuidByUrl(diaryPhoto.getImageUrl());
+
+       Uuid uuid = uuidRepository.findByUuid(savedUuid);
+       uuidRepository.delete(uuid);
+
+       s3Manager.deleteFile(s3Manager.generateDiaryKeyName(uuid));
+
+       // db에서 삭제
+       diaryPhotosRepository.delete(diaryPhoto);
+   }
+
+
+   @Override
+   public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId, MultipartFile editPhoto) {
         Diaries diaries = diaryRepository.findById((diaryId))
                 .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
+        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
 
+        // 카테고리 수정
         request.getContent().ifPresent(diaries::updateContent);
         request.getDiaryCategoryId().ifPresent(diaryCategoryId -> {
             DiaryCategories diaryCategories = diaryCategoryRepository.findDiaryCategoriesById(diaryCategoryId);
             diaries.setDiaryCategories(diaryCategories);
         });
 
+        // 사진 수정
+        if(editPhoto != null) {
+            deletePhoto(diaryPhoto);
+            DiaryPhotos diaryPhotos = savePhoto(editPhoto);
+            diaryPhotos.setDiaries(diaries);
+        }
+
         return diaryRepository.save(diaries);
    }
 
+   @Override
+   public void setClusterId(Users user, DiaryRequestDTO.PostDTO request, Diaries diaries) {
+       Optional<Long> existClusterId = diaryRepository.findFirstClusterIdByUsersAndLatitudeAndLongitude(user, request.getLatitude(), request.getLongitude());
+
+       if(existClusterId.isPresent()) {
+           // 장소 같은 경우
+           diaries.setClusterId(existClusterId.get());
+       } else { // 장소 다름
+           // 가장 최근 클러스터 id
+           Optional<Diaries> clusterDiary = diaryRepository.findTop1ClusterIdByUsersOrderByClusterIdDesc(user);
+
+           if(clusterDiary.isPresent()) {
+               Long newClusterId = clusterDiary.get().getClusterId();
+               diaries.setClusterId(newClusterId + 1);
+           } else {
+               // 첫 일기
+               diaries.setClusterId(0L);
+           }
+       }
+   }
 }

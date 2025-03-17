@@ -24,7 +24,7 @@ public class UserRequestDTO {
         @Size(max = 8, message = "닉네임은 1 ~ 8자이어야 합니다.")
         private String nickname;
         @NotBlank(message = "아이디는 빈값일 수 없습니다.")
-        @Size(max = 15, message = "아이디는 1 ~ 15자이어야 합니다.")
+        @Size(min = 6, max = 15, message = "아이디는 6 ~ 15자이어야 합니다.")
         private String username;
         @NotBlank(message = "비밀번호는 빈값일 수 없습니다.")
         private String password;
@@ -41,53 +41,90 @@ public class UserRequestDTO {
         private String password;
     }
   
-    // 미구현
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SignUpKakaoRequestDTO {
-        private String kakaoToken;
+        @NotBlank(message = "닉네임은 빈값일 수 없습니다.")
+        @Size(max = 8, message = "닉네임은 1 ~ 8자이어야 합니다.")
         private String nickname;
     }
       
     // 미구현
+    // 하단의 tokenValidationRequestDTO 에서 카카오 로그인 구현함
+//    @Getter
+//    @Builder
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    public static class SignInKakaoRequestDTO {
+//        private String kakaoToken;
+//    }
+
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SignInKakaoRequestDTO {
-        private String kakaoToken;
+    public static class EditRequestDTO {
+        // 입력 값을 선택적으로 받기 위해 Optional 사용
+        private Optional<String> nickname = Optional.empty();
+        private Optional<String> email = Optional.empty();
+        private Optional<String> profileImage = Optional.empty();
+        private Optional<Long> point = Optional.empty();
     }
 
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UpdateRequestDTO {
-        // 입력 값을 선택적으로 받기 위해 Optional 사용
-        private Optional<String> nickname = Optional.empty();
-        private Optional<String> email = Optional.empty();
-        private Optional<String> phoneNumber = Optional.empty();
-        private Optional<String> profileImage = Optional.empty();
-        private Optional<Long> point = Optional.empty();
+    public static class SendVerificationMailSignUpRequestDTO {
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
     }
-      
-    // 미구현
+
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class LogoutRequestDTO {
-        private Long userId;
-    }  
-    
-    // 미구현  
+    public static class CheckVerificationCodeRequestDTO {
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+        @NotBlank(message = "인증번호는 빈값일 수 없습니다.")
+        private String code;
+    }
+
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SendVerificationCodeRequestDTO {
-        private String email;  
+    public static class SendVerificationMailFindIdRequestDTO {
+        @NotBlank(message = "이름은 빈값일 수 없습니다.")
+        private String name;
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SendVerificationMailFindPwRequestDTO {
+        @NotBlank(message = "아이디는 빈값일 수 없습니다.")
+        private String username;
+        @NotBlank(message = "이름은 빈값일 수 없습니다.")
+        private String name;
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FindPwRequestDTO {
+        @NotBlank(message = "이메일은 빈값일 수 없습니다.")
+        private String email;
+        @NotBlank(message = "비밀번호는 빈값일 수 없습니다.")
+        private String password;
     }
 }

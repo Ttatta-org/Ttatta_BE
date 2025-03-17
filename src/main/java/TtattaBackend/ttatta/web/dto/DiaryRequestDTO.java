@@ -26,16 +26,4 @@ public class DiaryRequestDTO {
         private Optional<String> content = Optional.empty();
         private Optional<Long> diaryCategoryId = Optional.empty();
     }
-
-
-    @Getter
-    public static class MapDTO {
-        private double latitude;
-        private double longitude;
-    }
-
-    @Getter
-    public static class SearchDTO {
-        private String searchContent;
-    }
 }
