@@ -44,7 +44,6 @@ public class DiaryCategoryRepositoryTest {
     void setUp() {
         this.savedUser = userRepository.save(
             Users.builder()
-                    .id(1L)
                     .name("testName")
                     .nickname("testnick")
                     .username("testUsername")
@@ -54,11 +53,8 @@ public class DiaryCategoryRepositoryTest {
                     .status(UserStatus.ACTIVE)
                     .loginType(REGULAR)
                     .point(null)
-                    .phoneNumber(null)
                     .profileImage(null)
                     .inactiveDate(null)
-                    .refreshToken(null)
-                    .tokenExpiry(null)
                     .diaryCategoriesList(null)
                     .build()
         );
@@ -121,8 +117,8 @@ public class DiaryCategoryRepositoryTest {
         DiaryCategories savedDiaryCategory2 = diaryCategoryRepository.save(diaryCategory2);
 
 
-        Diaries diary1 = new Diaries(null,"즐거운 하루", LocalDateTime.now(),0L,0L,"숭실대학교",savedUser,savedDiaryCategory,null);
-        Diaries diary2 = new Diaries(null,"재밌는 하루", LocalDateTime.now(),0L,0L,"정보과학관",savedUser,savedDiaryCategory,null);
+        Diaries diary1 = new Diaries(null,"즐거운 하루", LocalDateTime.now(),0L,0L,"숭실대학교",savedUser,savedDiaryCategory,null,null);
+        Diaries diary2 = new Diaries(null,"재밌는 하루", LocalDateTime.now(),0L,0L,"정보과학관",savedUser,savedDiaryCategory,null,null);
 
         diaryRepository.save(diary1);
         diaryRepository.save(diary2);
@@ -131,11 +127,11 @@ public class DiaryCategoryRepositoryTest {
         assertThat(diaryCategoryRepository.findAll()).hasSize(2);
 
         // When
-//        diaryCategoryRepository.delete(savedDiaryCategory);
+        diaryCategoryRepository.deleteById(savedDiaryCategory.getId());
 
         // Then
 //        assertThat(diaryCategoryRepository.findAll()).hasSize(1);
-//        assertThat(diaryRepository.findAllByDiaryCategories(savedDiaryCategory)).isEmpty();
+        assertThat(diaryRepository.findAllByDiaryCategories(savedDiaryCategory)).isEmpty();
     }
 
     @Test
@@ -162,4 +158,50 @@ public class DiaryCategoryRepositoryTest {
         // Then
         assertThat(diaryCategoryRepository.findAll().stream().count()).isEqualTo(3);
     }
+
+    @Test
+    @DisplayName("사용자의 카테고리 조회")
+    void findCategoriesByUsersIdTest() {
+        // given
+        DiaryCategories diaryCategory = new DiaryCategories(null,"testCategory", CategoryColor.WHITE,savedUser,null);
+        DiaryCategories savedDiaryCategory = diaryCategoryRepository.save(diaryCategory);
+        DiaryCategories diaryCategory2 = new DiaryCategories(null,"testCategory2", CategoryColor.RED,savedUser,null);
+        DiaryCategories savedDiaryCategory2 = diaryCategoryRepository.save(diaryCategory2);
+
+        // when
+        diaryCategoryRepository.findCategoriesByUsersId(savedUser.getId());
+
+        // then
+        assertThat(diaryCategoryRepository.findAll()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("카테고리 id로 카테고리 찾기")
+    void findDiaryCategoryByIdTest() {
+        // given
+        DiaryCategories diaryCategory = new DiaryCategories(null,"testCategory", CategoryColor.WHITE,savedUser,null);
+        diaryCategoryRepository.save(diaryCategory);
+
+        // when
+        DiaryCategories foundCategory = diaryCategoryRepository.findDiaryCategoriesById(diaryCategory.getId());
+
+        // then
+        assertThat(foundCategory.getName())
+                .isEqualTo("testCategory");
+    }
+
+    @Test
+    @DisplayName("유저와 카테고리 이름으로 카테고리 찾기")
+    void findDiaryCategoryByNameTest() {
+        // given
+        DiaryCategories diaryCategory = new DiaryCategories(null,"testCategory", CategoryColor.WHITE,savedUser,null);
+        diaryCategoryRepository.save(diaryCategory);
+
+        // when
+        Optional<DiaryCategories> foundCategory = diaryCategoryRepository.findByUsersAndName(diaryCategory.getUsers(),diaryCategory.getName());
+
+        // then
+        assertThat(foundCategory.isPresent()).isTrue();
+    }
+
 }
