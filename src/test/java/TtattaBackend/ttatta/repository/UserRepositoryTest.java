@@ -15,12 +15,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
-public class UserRespositoryTest {
+public class UserRepositoryTest {
     private final UserRepository userRepository;
     private static Users testUser;
 
     @Autowired
-    public UserRespositoryTest(UserRepository userRepository) {
+    public UserRepositoryTest(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
