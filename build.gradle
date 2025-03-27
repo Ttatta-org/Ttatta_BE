@@ -39,9 +39,6 @@ dependencies {
 	testImplementation 'org.junit.jupiter:junit-jupiter' // JUnit 5 기본 라이브러리
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine' // JUnit 5 실행 엔진
 
-	// h2 데이터베이스 추가
-	runtimeOnly 'com.h2database:h2'
-
 	// mysql
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
