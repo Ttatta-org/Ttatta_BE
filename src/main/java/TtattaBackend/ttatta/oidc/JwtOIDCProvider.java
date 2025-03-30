@@ -20,7 +20,7 @@ public class JwtOIDCProvider {
     // Header, body, VerifyingSignature 중에서 Header와 body만 가져옴
     private String getUnsignedToken(String token) {
         String[] splitToken = token.split("\\.");
-        if (splitToken.length == 3) throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
+        if (splitToken.length != 3) throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
         return splitToken[0] + "." + splitToken[1] + ".";
     }
 
@@ -36,7 +36,9 @@ public class JwtOIDCProvider {
         } catch (ExpiredJwtException e) {
             throw new ExceptionHandler(ErrorStatus.TOKEN_EXPIRED);
         } catch (Exception e) {
-            throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
+            System.out.println("1JWT error: " + e.getMessage());
+            throw new ExceptionHandler(ErrorStatus.TOKEN_ERROR);
+//            throw new ExceptionHandler(ErrorStatus.INVALID_TOKEN);
         }
     }
 

@@ -54,7 +54,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Value("${oidc.iss}")
     private String iss;
 
-    @Value("{oidc.aud}")
+    @Value("${oidc.aud}")
     private String aud;
 
     private final UserRepository userRepository;
