@@ -19,6 +19,8 @@ public class DiaryRequestDTO {
         private double longitude;
         private String locationName;
 
+        private String fileName;
+
     }
 
     @Getter

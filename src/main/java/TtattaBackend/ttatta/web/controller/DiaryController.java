@@ -166,4 +166,18 @@ public class DiaryController {
         );
     }
 
+    @Operation(summary = "Presigned Url",
+            description = """
+                    파일명을 작성해주세요. \n
+                    Presigned Url을 반환됩니다.
+                    """
+    )
+    @GetMapping(value = "/getUrl/{fileName}")
+    public ApiResponse<DiaryResponseDTO.PresignedResultDTO> getPresignedUrl(@PathVariable String fileName) {
+        String presignedUrl = diaryQueryService.getPresignedUrl(fileName);
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toPresignedUrlResultDTO(presignedUrl)
+        );
+    }
 }

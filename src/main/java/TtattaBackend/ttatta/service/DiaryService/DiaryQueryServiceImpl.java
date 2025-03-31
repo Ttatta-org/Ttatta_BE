@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.service.DiaryService;
 
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
+import TtattaBackend.ttatta.aws.s3.AmazonS3Manager;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.domain.DiaryCategories;
@@ -30,6 +31,9 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     private final UserRepository userRepository;
 
     private final DiaryCategoryRepository diaryCategoryRepository;
+
+    private final AmazonS3Manager s3Manager;
+
 
     @Override
     public List<Diaries> getFootprintDiaryList(Long diaryCategoryId){
@@ -102,4 +106,10 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         Users user = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
         return diaryRepository.findDistinctDatesByUser(user);
     }
+
+    @Override
+    public String getPresignedUrl(String fileName) {
+        return s3Manager.getPresignedUrl(fileName);
+    }
+
 }

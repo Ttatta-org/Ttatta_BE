@@ -3,16 +3,19 @@ package TtattaBackend.ttatta.aws.s3;
 import TtattaBackend.ttatta.config.AmazonConfig;
 import TtattaBackend.ttatta.domain.Uuid;
 import TtattaBackend.ttatta.repository.UuidRepository;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -55,5 +58,40 @@ public class AmazonS3Manager{
         } catch (Exception e) {
             log.error("error at AmazonS3Manager deleteFile : {}", (Object) e.getStackTrace());
         }
+    }
+
+    public String getPresignedUrl(String fileName) {
+        String presignedUrl = "";
+
+        String uuid = UUID.randomUUID().toString();
+        Uuid savedUuid = Uuid.builder()
+                .uuid(uuid).build();
+        String urlName = generateDiaryKeyName(savedUuid);
+
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 2;
+        expiration.setTime(expTimeMillis);
+
+        try{
+            // PUT
+            GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                    new GeneratePresignedUrlRequest(amazonConfig.getBucket(), urlName)
+                            .withMethod(HttpMethod.PUT)
+                            .withExpiration(expiration);
+
+            // 액세스 권한
+            generatePresignedUrlRequest.addRequestParameter(
+                    Headers.S3_CANNED_ACL,
+                    CannedAccessControlList.PublicRead.toString()
+            );
+
+            URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+            presignedUrl = url.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return presignedUrl;
     }
 }
