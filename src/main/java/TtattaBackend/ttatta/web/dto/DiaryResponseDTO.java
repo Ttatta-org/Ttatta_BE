@@ -120,4 +120,12 @@ public class DiaryResponseDTO {
     public static class DiaryDateDTO {
         LocalDate date;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PresignedResultDTO {
+        String presignedUrl;
+    }
 }

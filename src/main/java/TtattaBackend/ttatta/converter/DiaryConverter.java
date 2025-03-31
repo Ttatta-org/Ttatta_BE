@@ -144,4 +144,10 @@ public class DiaryConverter {
                 .diaryDateList(dairyDateListResultDTOList)
                 .build();
     }
+
+    public static DiaryResponseDTO.PresignedResultDTO toPresignedUrlResultDTO(String url) {
+        return DiaryResponseDTO.PresignedResultDTO.builder()
+                .presignedUrl(url)
+                .build();
+    }
 }
