@@ -59,8 +59,8 @@ public class AmazonS3Manager{
 
     // 객체 키 생성(파일 이름 추가)
     // userName 해시값으로 추가하는 코드 필요
-    public String generateDiaryKeyName(Uuid uuid, String fileName, String userName) {
-        return amazonConfig.getDiaryPath() + '/' + fileName + '_' + uuid.getUuid();
+    public String generateDiaryKeyName(Uuid uuid, String originalFileName, String extension, String userName) {
+        return amazonConfig.getDiaryPath() + '/' + originalFileName + '_' + uuid.getUuid() + extension;
     }
 
     /*
@@ -71,8 +71,9 @@ public class AmazonS3Manager{
 
     // 객체 url을 이용하여 Unique id 반환
     public String getUuidByUrl(String pictureUrl) {
-        String uuidAndFileName = pictureUrl.substring(pictureUrl.lastIndexOf("/") + 1);
-        return uuidAndFileName.substring(uuidAndFileName.lastIndexOf("_") + 1);
+        String keyName = pictureUrl.substring(pictureUrl.lastIndexOf("/") + 1);
+        String withoutExtension = keyName.substring(0, keyName.lastIndexOf("."));
+        return withoutExtension.substring(withoutExtension.lastIndexOf(".") + 1);
     }
 
 
@@ -82,7 +83,10 @@ public class AmazonS3Manager{
 
         Uuid savedUuid = createAndSaveUuid();
 
-        String keyName = generateDiaryKeyName(savedUuid, fileName, userName);
+        String originalFileName = getOriginalFileName(fileName);
+        String extension = getExtension(fileName);
+
+        String keyName = generateDiaryKeyName(savedUuid, originalFileName, extension, userName);
 
         try{
             // PUT
@@ -107,16 +111,24 @@ public class AmazonS3Manager{
     }
 
     // 만료 시간 설정
-    private Date getExpirationTime(int minutes) {
+    public Date getExpirationTime(int minutes) {
         Date expiration = new Date();
         expiration.setTime(expiration.getTime() + (1000L * 60 * minutes));
         return expiration;
     }
 
     // Unique id 생성 및 저장
-    private Uuid createAndSaveUuid() {
+    public Uuid createAndSaveUuid() {
         String uuid = UUID.randomUUID().toString();
         return uuidRepository.save(Uuid.builder().uuid(uuid).build());
     }
 
+    // fileName 명
+    public String getOriginalFileName(String fileName) {
+        return fileName.substring(0, fileName.lastIndexOf("."));
+    }
+
+    public String getExtension(String fileName) {
+        return fileName.substring(fileName.lastIndexOf("."));
+    }
 }
