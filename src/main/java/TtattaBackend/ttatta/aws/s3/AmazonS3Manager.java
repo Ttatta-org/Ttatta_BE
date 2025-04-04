@@ -59,8 +59,8 @@ public class AmazonS3Manager{
 
     // 객체 키 생성(파일 이름 추가)
     // userName 해시값으로 추가하는 코드 필요
-    public String generateDiaryKeyName(Uuid uuid, String originalFileName, String extension, String userName) {
-        return amazonConfig.getDiaryPath() + '/' + originalFileName + '_' + uuid.getUuid() + extension;
+    public String generateDiaryKeyName(Uuid uuid, String fileName, String userName) {
+        return amazonConfig.getDiaryPath() + '/' + uuid.getUuid() + '_' + fileName;
     }
 
     /*
@@ -83,10 +83,7 @@ public class AmazonS3Manager{
 
         Uuid savedUuid = createAndSaveUuid();
 
-        String originalFileName = getOriginalFileName(fileName);
-        String extension = getExtension(fileName);
-
-        String keyName = generateDiaryKeyName(savedUuid, originalFileName, extension, userName);
+        String keyName = generateDiaryKeyName(savedUuid, fileName, userName);
 
         try{
             // PUT
@@ -121,14 +118,5 @@ public class AmazonS3Manager{
     public Uuid createAndSaveUuid() {
         String uuid = UUID.randomUUID().toString();
         return uuidRepository.save(Uuid.builder().uuid(uuid).build());
-    }
-
-    // fileName 명
-    public String getOriginalFileName(String fileName) {
-        return fileName.substring(0, fileName.lastIndexOf("."));
-    }
-
-    public String getExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf("."));
     }
 }
