@@ -7,8 +7,8 @@ import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface DiaryCommandService {
-    Diaries save(DiaryRequestDTO.PostDTO postDTO, MultipartFile diaryPhotos);
-    DiaryPhotos savePhoto(MultipartFile diaryPhoto);
+    Diaries save(DiaryRequestDTO.PostDTO postDTO);
+    DiaryPhotos savePhoto(String objectKey);
     void delete(Long diaryId);
     void deletePhoto(DiaryPhotos diaryPhoto);
     Diaries edit(DiaryRequestDTO.EditDTO editDTO, Long diaryId, MultipartFile editPhoto);
