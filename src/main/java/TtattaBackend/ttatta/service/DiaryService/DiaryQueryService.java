@@ -13,5 +13,6 @@ public interface DiaryQueryService {
     Page<Diaries> getSearchDiaryList(String content, int requestNum);
     Page<Diaries> getMapDiaryList(Long clusterId, Long diaryCategoryId, int requestNum);
     List<LocalDateTime> getDiaryDateList();
-    List<String> getPresignedUrl(String fileName);
+    List<String> getPresignedUrlAndKey(String imageType);
+    String getPresignedUrl(Long diaryId, String imageType);
 }

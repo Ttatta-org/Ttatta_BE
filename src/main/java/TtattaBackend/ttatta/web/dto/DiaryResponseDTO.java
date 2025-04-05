@@ -131,4 +131,12 @@ public class DiaryResponseDTO {
         String presignedUrl;
         String objectKey;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EditPresignedResultDTO {
+        String presignedUrl;
+    }
 }

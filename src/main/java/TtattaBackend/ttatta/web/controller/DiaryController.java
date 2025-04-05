@@ -31,7 +31,7 @@ public class DiaryController {
 
     @Operation(summary = "일기 작성",
             description = """
-                    카테고리 ID, 일기 내용, 일기 사진, 사진 찍은 날짜, 위도, 경도, 위치이름을 작성해주세요.
+                    카테고리 ID, 일기 내용, 사진 찍은 날짜, 위도, 경도, 위치이름, objectKey를 작성해주세요.
                     저장된 일기의 ID와 사진 찍은 날짜가 반환됩니다.
                     """
     )
@@ -61,18 +61,16 @@ public class DiaryController {
     @Operation(summary = "일기 수정",
             description = """
                     일기 id -> Path Variable \n
-                    수정할 일기의 내용, 수정할 카테고리 id, 수정할 사진 파일 -> body 를 작성해주세요.\n
+                    수정할 일기의 내용, 수정할 카테고리 id -> body 를 작성해주세요.\n
                     ⭐️ 수정 하는 항목만 보내주세요. ⭐️\n
-                    ⭐️ body에 들어오는 -> 내용/카테고리 id/파일 중 최소 하나는 필수로 들어와야 합니다. ⭐️
+                    ⭐️ body에 들어오는 -> 내용/카테고리 id 중 최소 하나는 필수로 들어와야 합니다. ⭐️
                     """
     )
-    @PatchMapping(value = "/edit/{diaryId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(value = "/edit/{diaryId}")
     public ApiResponse<DiaryResponseDTO.EditResultDTO> editDiary(@PathVariable Long diaryId,
-                                                                 @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-                                                                 @RequestPart @Valid DiaryRequestDTO.EditDTO request,
-                                                                 @RequestPart(required = false) MultipartFile editPhoto) {
+                                                                 @RequestBody DiaryRequestDTO.EditDTO request) {
 
-        Diaries diaries = diaryCommandService.edit(request, diaryId, editPhoto);
+        Diaries diaries = diaryCommandService.edit(request, diaryId);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toEditResultDTO(diaries)
@@ -164,15 +162,31 @@ public class DiaryController {
         );
     }
 
-    @Operation(summary = "Presigned Url",
+    @Operation(summary = "업로드용 Presigned Url",
             description = """
                     파일명을 작성해주세요. \n
-                    Presigned Url을 반환됩니다.
+                    Presigned Url과 objectKey가 반환됩니다.
                     """
     )
-    @GetMapping(value = "/getUrl/{fileName}")
-    public ApiResponse<DiaryResponseDTO.PresignedResultDTO> getPresignedUrl(@PathVariable String fileName) {
-        List<String> urlList = diaryQueryService.getPresignedUrl(fileName);
+    @GetMapping(value = "/post/presignedUrl")
+    public ApiResponse<DiaryResponseDTO.PresignedResultDTO> getPresignedUrlAndKey(@RequestParam String imageType) {
+        List<String> urlList = diaryQueryService.getPresignedUrlAndKey(imageType);
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toPresignedUrlResultDTO(urlList)
+        );
+    }
+
+    @Operation(summary = "수정용 Presigned Url",
+            description = """
+                    이미지의 일기 id와 업로드할 이미지의 type을 작성해주세요. \n
+                    Presigned Url이 반환됩니다.
+                    """
+    )
+    @GetMapping(value = "/edit/presignedUrl/{diaryId}")
+    public ApiResponse<DiaryResponseDTO.EditPresignedResultDTO> getPresignedUrl(@PathVariable Long diaryId,
+                                                                                @RequestParam String imageType) {
+        String urlList = diaryQueryService.getPresignedUrl(diaryId, imageType);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toPresignedUrlResultDTO(urlList)
