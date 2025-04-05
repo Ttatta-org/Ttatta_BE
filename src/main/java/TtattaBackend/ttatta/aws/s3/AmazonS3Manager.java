@@ -14,7 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -78,8 +80,8 @@ public class AmazonS3Manager{
 
 
     // 업로드 Presinged Url
-    public String getPresignedUrlForPost(String fileName, String userName) {
-        String presignedUrl = "";
+    public List<String> getPresignedUrlForPost(String fileName, String userName) {
+        List<String> urlList = new ArrayList<>();
 
         Uuid savedUuid = createAndSaveUuid();
 
@@ -99,12 +101,13 @@ public class AmazonS3Manager{
             );
 
             URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
-            presignedUrl = url.toString();
+            urlList.add(url.toString());
+            urlList.add(keyName);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return presignedUrl;
+        return urlList;
     }
 
     // 만료 시간 설정

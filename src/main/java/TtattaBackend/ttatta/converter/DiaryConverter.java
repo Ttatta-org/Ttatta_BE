@@ -145,9 +145,10 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.PresignedResultDTO toPresignedUrlResultDTO(String url) {
+    public static DiaryResponseDTO.PresignedResultDTO toPresignedUrlResultDTO(List<String> urlList) {
         return DiaryResponseDTO.PresignedResultDTO.builder()
-                .presignedUrl(url)
+                .presignedUrl(urlList.get(0))
+                .objectKey(urlList.get(1))
                 .build();
     }
 }
