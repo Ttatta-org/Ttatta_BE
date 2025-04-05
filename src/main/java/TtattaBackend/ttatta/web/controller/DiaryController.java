@@ -174,10 +174,10 @@ public class DiaryController {
     )
     @GetMapping(value = "/getUrl/{fileName}")
     public ApiResponse<DiaryResponseDTO.PresignedResultDTO> getPresignedUrl(@PathVariable String fileName) {
-        String presignedUrl = diaryQueryService.getPresignedUrl(fileName);
+        List<String> urlList = diaryQueryService.getPresignedUrl(fileName);
 
         return ApiResponse.onSuccess(
-                DiaryConverter.toPresignedUrlResultDTO(presignedUrl)
+                DiaryConverter.toPresignedUrlResultDTO(urlList)
         );
     }
 }

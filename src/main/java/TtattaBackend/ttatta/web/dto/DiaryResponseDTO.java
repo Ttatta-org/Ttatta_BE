@@ -129,5 +129,6 @@ public class DiaryResponseDTO {
     @AllArgsConstructor
     public static class PresignedResultDTO {
         String presignedUrl;
+        String objectKey;
     }
 }
