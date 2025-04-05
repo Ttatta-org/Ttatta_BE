@@ -35,7 +35,7 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
     private final DiaryPhotosRepository diaryPhotosRepository;
 
     @Override
-    public Diaries save(DiaryRequestDTO.PostDTO request, MultipartFile diaryPhoto) {
+    public Diaries save(DiaryRequestDTO.PostDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
 
         Users user = userRepository.findById(userId)
@@ -57,22 +57,18 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         Diaries savedDiaries = diaryRepository.save(diaries);
 
         // 일기 사진
-        DiaryPhotos diaryPhotos = savePhoto(diaryPhoto);
+        DiaryPhotos diaryPhotos = savePhoto(request.getObjectKey());
 
         diaryPhotos.setDiaries(savedDiaries);
         diaryPhotosRepository.save(diaryPhotos);
 
         return savedDiaries;
-   }
+    }
 
    // s3 객체 사진 저장
    @Override
-   public DiaryPhotos savePhoto(MultipartFile diaryPhoto) {
-       String uuid = UUID.randomUUID().toString();
-       Uuid savedUuid = uuidRepository.save(Uuid.builder()
-               .uuid(uuid).build());
-       String pictureUrl = s3Manager.uploadFile(s3Manager.generateDiaryKeyName(savedUuid), diaryPhoto);
-       DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(pictureUrl);
+   public DiaryPhotos savePhoto(String objectKey) {
+       DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(objectKey);
 
        return diaryPhotos;
    }
