@@ -31,7 +31,7 @@ public class Users extends BaseEntity {
     @Column
     private String name;
 
-    @Column(nullable = false, length = 8)
+    @Column(length = 8)
     private String nickname;
 
     @Column(length = 15)
