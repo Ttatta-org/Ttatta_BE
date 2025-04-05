@@ -108,10 +108,18 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     }
 
     @Override
-    public List<String> getPresignedUrl(String fileName) {
+    public List<String> getPresignedUrlAndKey(String imageType) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-        return s3Manager.getPresignedUrlForPost(fileName, user.getName());
+        return s3Manager.getPresignedUrlAndKey(imageType, user.getName());
+    }
+
+    @Override
+    public String getPresignedUrl(Long diaryId, String imageType) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        diaryRepository.findById(diaryId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_NOT_FOUND));
+        return s3Manager.getPresignedUrl(diaryId, imageType);
     }
 
 }

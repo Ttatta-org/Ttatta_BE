@@ -11,6 +11,6 @@ public interface DiaryCommandService {
     DiaryPhotos savePhoto(String objectKey);
     void delete(Long diaryId);
     void deletePhoto(DiaryPhotos diaryPhoto);
-    Diaries edit(DiaryRequestDTO.EditDTO editDTO, Long diaryId, MultipartFile editPhoto);
+    Diaries edit(DiaryRequestDTO.EditDTO editDTO, Long diaryId);
     void setClusterId(Users user, DiaryRequestDTO.PostDTO postDTO, Diaries diaries);
 }

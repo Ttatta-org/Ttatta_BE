@@ -60,7 +60,6 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         return savedDiaries;
     }
 
-   // s3 객체 사진 저장
    @Override
    public DiaryPhotos savePhoto(String objectKey) {
        DiaryPhotos diaryPhotos = DiaryConverter.toDiaryPhoto(objectKey);
@@ -98,24 +97,15 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
 
    @Override
-   public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId, MultipartFile editPhoto) {
+   public Diaries edit(DiaryRequestDTO.EditDTO request, Long diaryId) {
         Diaries diaries = diaryRepository.findById((diaryId))
                 .orElseThrow(() -> new ExceptionHandler(DIARY_NOT_FOUND));
-        DiaryPhotos diaryPhoto = diaryPhotosRepository.findByDiaries_Id(diaries.getId());
 
-        // 카테고리 수정
         request.getContent().ifPresent(diaries::updateContent);
         request.getDiaryCategoryId().ifPresent(diaryCategoryId -> {
             DiaryCategories diaryCategories = diaryCategoryRepository.findDiaryCategoriesById(diaryCategoryId);
             diaries.setDiaryCategories(diaryCategories);
         });
-
-        // 사진 수정
-        if(editPhoto != null) {
-            deletePhoto(diaryPhoto);
-            DiaryPhotos diaryPhotos = savePhoto(editPhoto);
-            diaryPhotos.setDiaries(diaries);
-        }
 
         return diaryRepository.save(diaries);
    }

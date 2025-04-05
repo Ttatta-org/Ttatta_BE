@@ -2,6 +2,7 @@ package TtattaBackend.ttatta.aws.s3;
 
 import TtattaBackend.ttatta.config.AmazonConfig;
 import TtattaBackend.ttatta.domain.Uuid;
+import TtattaBackend.ttatta.repository.DiaryPhotosRepository;
 import TtattaBackend.ttatta.repository.UuidRepository;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +29,8 @@ public class AmazonS3Manager{
     private final AmazonConfig amazonConfig;
 
     private final UuidRepository uuidRepository;
+
+    private final DiaryPhotosRepository diaryPhotosRepository;
 
     public String uploadFile(String keyName, MultipartFile file){
         ObjectMetadata metadata = new ObjectMetadata();
@@ -61,8 +63,8 @@ public class AmazonS3Manager{
 
     // 객체 키 생성(파일 이름 추가)
     // userName 해시값으로 추가하는 코드 필요
-    public String generateDiaryKeyName(Uuid uuid, String fileName, String userName) {
-        return amazonConfig.getDiaryPath() + '/' + uuid.getUuid() + '_' + fileName;
+    public String generateDiaryKeyName(Uuid uuid, String userName) {
+        return amazonConfig.getDiaryPath() + '/' + uuid.getUuid();
     }
 
     /*
@@ -78,36 +80,46 @@ public class AmazonS3Manager{
         return withoutExtension.substring(withoutExtension.lastIndexOf(".") + 1);
     }
 
-
-    // 업로드 Presinged Url
-    public List<String> getPresignedUrlForPost(String fileName, String userName) {
-        List<String> urlList = new ArrayList<>();
-
-        Uuid savedUuid = createAndSaveUuid();
-
-        String keyName = generateDiaryKeyName(savedUuid, fileName, userName);
-
-        try{
-            // PUT
+    // presigned url 생성
+    private String generatePresignedUrl(String keyName, String imageType) {
+        try {
             GeneratePresignedUrlRequest generatePresignedUrlRequest =
                     new GeneratePresignedUrlRequest(amazonConfig.getBucket(), keyName)
                             .withMethod(HttpMethod.PUT)
+                            .withContentType(imageType)
                             .withExpiration(getExpirationTime(5));
 
-            // 액세스 권한
+            generatePresignedUrlRequest.addRequestParameter("Content-Type", imageType);
+
             generatePresignedUrlRequest.addRequestParameter(
                     Headers.S3_CANNED_ACL,
                     CannedAccessControlList.Private.toString()
             );
 
-            URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
-            urlList.add(url.toString());
-            urlList.add(keyName);
+            return amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
+    }
 
+    // 업로드 presinged Url
+    public List<String> getPresignedUrlAndKey(String imageType, String userName) {
+        List<String> urlList = new ArrayList<>();
+        Uuid savedUuid = createAndSaveUuid();
+
+        String keyName = generateDiaryKeyName(savedUuid,userName);
+        String presignedUrl = generatePresignedUrl(keyName, imageType);
+
+        urlList.add(presignedUrl);
+        urlList.add(keyName);
         return urlList;
+    }
+
+    // 수정용 presigned url
+    public String getPresignedUrl(Long diaryId, String imageType) {
+        String keyName = diaryPhotosRepository.findByDiaries_Id(diaryId).getImageUrl();
+        return generatePresignedUrl(keyName, imageType);
     }
 
     // 만료 시간 설정
