@@ -3,7 +3,6 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
-import TtattaBackend.ttatta.oidc.*;
 import TtattaBackend.ttatta.service.UserService.UserCommandService;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
@@ -97,35 +96,30 @@ public class UserController {
         return ApiResponse.onSuccess("");
     }
 
-    // 미구현
-    @Operation(summary = "카카오 회원가입", description =
-            "# 카카오 회원가입 API 입니다. header에 'OpenId: {ID token}'형식으로 ID token을 입력하고 request body에 닉네임을 입력해주세요."
+    @Operation(summary = "카카오 openId 검증 API", description =
+            "# 카카오 openId 검증 API 입니다. header에 'OpenId: {ID token}'형식으로 ID token을 입력해주세요."
     )
     @PostMapping("/signup/kakao")
-    public ApiResponse<UserResponseDTO.UserKaKaoSignUpResultDTO> signUpKakao(
+    public ApiResponse<UserResponseDTO.UserKaKaoOpenIdResultDTO> openIdKakao(
+            @RequestHeader("OpenId") String openId
+    ) {
+        return ApiResponse.onSuccess(
+                userCommandService.openIdKakao(openId)
+        );
+    }
+
+    @Operation(summary = "카카오 회원가입 API", description =
+            "# 카카오 회원가입 API 입니다. header에 'OpenId: {ID token}'형식으로 ID token을 입력하고 request body에 닉네임을 입력해주세요."
+    )
+    @PostMapping("/signup/kakao/nickname")
+    public ApiResponse<UserResponseDTO.KaKaoFinalSignUpResultDTO> signUpNickname(
             @RequestHeader("OpenId") String openId,
             @RequestBody UserRequestDTO.SignUpKakaoRequestDTO request
     ) {
         return ApiResponse.onSuccess(
-                userCommandService.signUpKakao(openId, request)
+                userCommandService.kakaoSignUp(openId, request)
         );
     }
-
-    // 미구현
-//    @Operation(summary = "카카오 로그인", description =
-//            "# 카카오 로그인 API 입니다."
-//    )
-//    @PostMapping("/signin/kakao")
-//    public ApiResponse<UserResponseDTO.UserSignInResultDTO> signInKakao(
-//            @RequestBody UserRequestDTO.SignInKakaoRequestDTO request
-//    ) {
-//        Users user = userCommandService.signInKakao(request);
-//        return ApiResponse.onSuccess(
-//                UserConverter.toUserSignInResultDTO(
-//                        user, null, null
-//                )
-//        );
-//    }
 
     @Operation(summary = "회원 정보 조회", description =
             "# 회원 정보 조회 API 입니다."

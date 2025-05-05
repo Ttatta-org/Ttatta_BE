@@ -5,6 +5,7 @@ import TtattaBackend.ttatta.domain.enums.Gender;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
 import TtattaBackend.ttatta.domain.mapping.OwnedItems;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -31,7 +32,7 @@ public class Users extends BaseEntity {
     @Column
     private String name;
 
-    @Column(length = 8)
+    @Column(length = 8, nullable = true)
     private String nickname;
 
     @Column(length = 15)
@@ -95,4 +96,5 @@ public class Users extends BaseEntity {
         this.profileImage = profileImage;
     }
     public void updatePoint(Long point) {this.point = point;}
+    public void updateStatus(UserStatus status) {this.status = status;}
 }

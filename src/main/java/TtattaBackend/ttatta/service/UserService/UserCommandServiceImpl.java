@@ -98,25 +98,60 @@ public class UserCommandServiceImpl implements UserCommandService {
         return userRepository.save(newUser);
     }
 
+    // open id 인증 완료 한 후 가입 대기상태의 유저로 처리.
     @Override
     @Transactional
-    public UserResponseDTO.UserKaKaoSignUpResultDTO signUpKakao(String openId, UserRequestDTO.SignUpKakaoRequestDTO request) {
+    public UserResponseDTO.UserKaKaoOpenIdResultDTO openIdKakao(String openId) {
 
         // openId를 통해 sub 추출하기
         OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
         OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(openId, iss, aud, oidcPublicKeysResponse);
         String sub = oidcDecodePayload.getSub();
 
-        Users newUser = UserConverter.toKakaoUsers(request, sub);
-        // 일상 카테고리 생성
-        createDefaultCategory(newUser);
+        // 새로운 유저 생성
+        Users newUser = UserConverter.toKakaoUsers(sub);
+
         // 회원 정보 db에 저장
         Users savedUser = userRepository.save(newUser);
+
+//        // 일상 카테고리 생성
+//        createDefaultCategory(newUser);
         // 액세스 토큰 및 리프레시 토큰 생성
         String key = "users:" + savedUser.getId().toString();
         String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
         String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
-        return UserConverter.toUserKaKaoSignUpResultDTO(accessToken, refreshToken, savedUser);
+        return UserConverter.toUserKaKaoOpenIdResultDTO(accessToken, refreshToken, savedUser);
+    }
+
+    // Nickname 입력받고 회원 상태 업데이트
+    // 여기서 일상 카테고리 만들어도 될듯!
+    @Override
+    @Transactional
+    public UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(String openId, UserRequestDTO.SignUpKakaoRequestDTO request) {
+        // openId를 통해 sub 추출하기
+        OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
+        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(openId, iss, aud, oidcPublicKeysResponse);
+        String sub = oidcDecodePayload.getSub();
+
+        // openId를 이용해 db에 있는 회원 찾기
+        Users savedUser = userRepository.findByProviderId(sub)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 해당 닉네임을 업데이트
+        savedUser.updateNickname(request.getNickname());
+
+        // 유저의 상태 pending -> activate 업데이트
+        savedUser.updateStatus(UserStatus.ACTIVE);
+
+        // 일상 카테고리 생성
+        createDefaultCategory(savedUser);
+
+        // 액세스 토큰 및 리프레시 토큰 생성
+        String key = "users:" + savedUser.getId().toString();
+        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
+        String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
+
+        return UserConverter.toUserKaKaoFinalSignUpResultDTO(accessToken, refreshToken, savedUser);
     }
 
     private void createDefaultCategory(Users newUser) {

@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.converter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.IsAvailable;
 import TtattaBackend.ttatta.domain.enums.LoginType;
+import TtattaBackend.ttatta.domain.enums.UserStatus;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
 
@@ -21,15 +22,15 @@ public class UserConverter {
                 .build();
     }
 
-    public static Users toKakaoUsers(UserRequestDTO.SignUpKakaoRequestDTO request, String sub) {
+    public static Users toKakaoUsers(String sub) {
         return Users.builder()
                 .name(null)
                 .email(null)
                 .password(null)
                 .username(null)
+                .status(UserStatus.PENDING)
                 .diaryCategoriesList(new ArrayList<>())
                 .providerId(sub)
-                .nickname(request.getNickname())
                 .loginType(LoginType.KAKAO)
                 .build();
     }
@@ -43,8 +44,18 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.UserKaKaoSignUpResultDTO toUserKaKaoSignUpResultDTO(String accessToken, String refreshToken, Users users) {
-        return UserResponseDTO.UserKaKaoSignUpResultDTO.builder()
+    public static UserResponseDTO.UserKaKaoOpenIdResultDTO toUserKaKaoOpenIdResultDTO(String accessToken, String refreshToken, Users users) {
+        return UserResponseDTO.UserKaKaoOpenIdResultDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .userId(users.getId())
+                .loginType(users.getLoginType())
+                .createdAt(users.getCreatedAt())
+                .build();
+    }
+
+    public static UserResponseDTO.KaKaoFinalSignUpResultDTO toUserKaKaoFinalSignUpResultDTO(String accessToken, String refreshToken, Users users) {
+        return UserResponseDTO.KaKaoFinalSignUpResultDTO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userId(users.getId())

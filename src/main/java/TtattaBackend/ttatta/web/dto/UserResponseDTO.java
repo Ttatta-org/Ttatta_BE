@@ -109,7 +109,19 @@ public class UserResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UserKaKaoSignUpResultDTO {
+    public static class UserKaKaoOpenIdResultDTO {
+        String accessToken;
+        String refreshToken;
+        Long userId;
+        LoginType loginType;
+        LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class KaKaoFinalSignUpResultDTO {
         String accessToken;
         String refreshToken;
         Long userId;
