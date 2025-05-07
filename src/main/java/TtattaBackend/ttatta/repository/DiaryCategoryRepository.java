@@ -16,4 +16,6 @@ public interface DiaryCategoryRepository extends JpaRepository<DiaryCategories, 
     List<DiaryCategories> findCategoriesByUsersId(Long userId);
     DiaryCategories findDiaryCategoriesById(Long diaryCategoriesId);
     Optional<DiaryCategories> findByUsersAndName(Users user, String name);
+    DiaryCategories findCategoriesByUsersAndId(Users user, Long categoriesId);
+
 }
