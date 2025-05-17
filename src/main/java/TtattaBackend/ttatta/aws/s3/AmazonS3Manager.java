@@ -61,10 +61,9 @@ public class AmazonS3Manager{
         return amazonConfig.getDiaryPath() + '/' + uuid.getUuid();
     }
 
-    // 객체 키 생성(파일 이름 추가)
-    // userName 해시값으로 추가하는 코드 필요
-    public String generateDiaryKeyName(Uuid uuid, String userName) {
-        return amazonConfig.getDiaryPath() + '/' + uuid.getUuid();
+    // 객체 키 생성
+    public String generateDiaryKeyName(Uuid uuid, Long userId) {
+        return amazonConfig.getDiaryPath() + '/' + userId + '/' + uuid.getUuid();
     }
 
     /*
@@ -104,11 +103,11 @@ public class AmazonS3Manager{
     }
 
     // 업로드 presinged Url
-    public List<String> getPresignedUrlAndKey(String imageType, String userName) {
+    public List<String> getPresignedUrlAndKey(String imageType, Long userId) {
         List<String> urlList = new ArrayList<>();
         Uuid savedUuid = createAndSaveUuid();
 
-        String keyName = generateDiaryKeyName(savedUuid,userName);
+        String keyName = generateDiaryKeyName(savedUuid,userId);
         String presignedUrl = generatePresignedUrl(keyName, imageType);
 
         urlList.add(presignedUrl);

@@ -111,7 +111,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     public List<String> getPresignedUrlAndKey(String imageType) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-        return s3Manager.getPresignedUrlAndKey(imageType, user.getName());
+        return s3Manager.getPresignedUrlAndKey(imageType, user.getId());
     }
 
     @Override
