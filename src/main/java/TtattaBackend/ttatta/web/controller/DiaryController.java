@@ -169,7 +169,7 @@ public class DiaryController {
                     """
     )
     @GetMapping(value = "/post/presignedUrl")
-    public ApiResponse<DiaryResponseDTO.PresignedResultDTO> getPresignedUrlAndKey(@RequestParam String imageType) {
+    public ApiResponse<DiaryResponseDTO.PresignedResultDTO> getPresignedForPost(@RequestParam String imageType) {
         List<String> urlList = diaryQueryService.getPresignedUrlAndKey(imageType);
 
         return ApiResponse.onSuccess(
@@ -184,12 +184,13 @@ public class DiaryController {
                     """
     )
     @GetMapping(value = "/edit/presignedUrl/{diaryId}")
-    public ApiResponse<DiaryResponseDTO.EditPresignedResultDTO> getPresignedUrl(@PathVariable Long diaryId,
+    public ApiResponse<DiaryResponseDTO.EditPresignedResultDTO> getPresignedUrlForEdit(@PathVariable Long diaryId,
                                                                                 @RequestParam String imageType) {
-        String urlList = diaryQueryService.getPresignedUrl(diaryId, imageType);
+        String url = diaryQueryService.getPresignedUrl(diaryId, imageType);
 
         return ApiResponse.onSuccess(
-                DiaryConverter.toPresignedUrlResultDTO(urlList)
+                DiaryConverter.toPresignedUrlResultDTO(url)
         );
     }
+
 }
