@@ -110,6 +110,7 @@ public class UserResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserKaKaoOpenIdResultDTO {
+        Boolean isRegistered;
         String accessToken;
         String refreshToken;
         Long userId;

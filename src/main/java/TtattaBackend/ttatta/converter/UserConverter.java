@@ -44,8 +44,9 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.UserKaKaoOpenIdResultDTO toUserKaKaoOpenIdResultDTO(String accessToken, String refreshToken, Users users) {
+    public static UserResponseDTO.UserKaKaoOpenIdResultDTO toUserKaKaoOpenIdResultDTO(Boolean isRegistered,String accessToken, String refreshToken, Users users) {
         return UserResponseDTO.UserKaKaoOpenIdResultDTO.builder()
+                .isRegistered(isRegistered)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userId(users.getId())
