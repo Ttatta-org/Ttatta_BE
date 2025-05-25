@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -108,14 +107,14 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     }
 
     @Override
-    public List<String> getPresignedUrlAndKey(String imageType) {
+    public List<String> getPresignedForPost(String imageType) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
         return s3Manager.getPresignedUrlAndKey(imageType, user.getId());
     }
 
     @Override
-    public String getPresignedUrl(Long diaryId, String imageType) {
+    public String getPresignedUrlForEdit(Long diaryId, String imageType) {
         Long userId = SecurityUtil.getCurrentUserId();
         userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
         diaryRepository.findById(diaryId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_NOT_FOUND));

@@ -8,16 +8,10 @@ import TtattaBackend.ttatta.service.DiaryService.DiaryQueryService;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -170,7 +164,7 @@ public class DiaryController {
     )
     @GetMapping(value = "/post/presignedUrl")
     public ApiResponse<DiaryResponseDTO.PresignedResultDTO> getPresignedForPost(@RequestParam String imageType) {
-        List<String> urlList = diaryQueryService.getPresignedUrlAndKey(imageType);
+        List<String> urlList = diaryQueryService.getPresignedForPost(imageType);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toPresignedUrlResultDTO(urlList)
@@ -186,7 +180,7 @@ public class DiaryController {
     @GetMapping(value = "/edit/presignedUrl/{diaryId}")
     public ApiResponse<DiaryResponseDTO.EditPresignedResultDTO> getPresignedUrlForEdit(@PathVariable Long diaryId,
                                                                                 @RequestParam String imageType) {
-        String url = diaryQueryService.getPresignedUrl(diaryId, imageType);
+        String url = diaryQueryService.getPresignedUrlForEdit(diaryId, imageType);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toPresignedUrlResultDTO(url)
