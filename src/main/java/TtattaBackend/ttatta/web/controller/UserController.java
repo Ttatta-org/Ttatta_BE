@@ -111,13 +111,13 @@ public class UserController {
     @Operation(summary = "카카오 회원가입 API", description =
             "# 카카오 회원가입 API 입니다. header에 'OpenId: {ID token}'형식으로 ID token을 입력하고 request body에 닉네임을 입력해주세요."
     )
-    @PostMapping("/signup/kakao/nickname")
+    @PostMapping("/kakao/signup/nickname")
     public ApiResponse<UserResponseDTO.KaKaoFinalSignUpResultDTO> signUpNickname(
-            @RequestHeader("AccessToken") String accessToken,
+//            @RequestHeader("AccessToken") String accessToken,
             @RequestBody UserRequestDTO.SignUpKakaoRequestDTO request
     ) {
         return ApiResponse.onSuccess(
-                userCommandService.kakaoSignUp(accessToken, request)
+                userCommandService.kakaoSignUp(null, request)
         );
     }
 

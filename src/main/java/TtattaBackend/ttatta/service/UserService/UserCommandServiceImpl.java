@@ -181,8 +181,9 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Transactional
     public UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(String accessToken, UserRequestDTO.SignUpKakaoRequestDTO request) {
 
-        Long savedUserId = JwtUtils.extractUserId(accessToken);
-        Users savedUser = userRepository.findById(savedUserId)
+//        Long savedUserId = jwtUtils.extractUserId(accessToken);
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users savedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
 
         // 해당 닉네임을 업데이트
