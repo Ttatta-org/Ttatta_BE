@@ -65,6 +65,9 @@ public class Users extends BaseEntity {
 
     private String providerId;
 
+    @Column(length = 100)
+    private String fcmToken;
+
     // 로그인 관련
 //    private LocalDateTime lastLogin;
 
@@ -95,4 +98,7 @@ public class Users extends BaseEntity {
         this.profileImage = profileImage;
     }
     public void updatePoint(Long point) {this.point = point;}
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
 }
