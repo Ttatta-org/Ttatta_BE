@@ -2,6 +2,7 @@ package TtattaBackend.ttatta.service.UserService;
 
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
+import TtattaBackend.ttatta.config.security.JwtAuthenticationFilter;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
 import TtattaBackend.ttatta.converter.UserConverter;
@@ -47,6 +48,7 @@ import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 public class UserCommandServiceImpl implements UserCommandService {
 
     private final OauthOIDCHelper oauthOIDCHelper;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     @Value("${jwt.ACCESS_EXP_TIME}")
     private int accessExpTime;
     @Value("${jwt.REFRESH_EXP_TIME}")
@@ -100,36 +102,36 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
 
-    public UserResponseDTO.TokenValidationResultDTO validateToken(String openId) {
-        // 공개키 가져오기
-        OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
+//    public UserResponseDTO.TokenValidationResultDTO validateToken(String openId) {
+//        // 공개키 가져오기
+//        OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
+//
+//        // 페이로드 검증 && 서명 검증 후 sub 값 기준으로 회원가입 or 로그인 처리
+//        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(openId, iss, aud, oidcPublicKeysResponse);
+//        String sub = oidcDecodePayload.getSub();
+//
+//        if (sub == null || sub.isEmpty()) {
+//            return new UserResponseDTO.TokenValidationResultDTO(false, "access token", "refresh token");
+//        }
+//
+//        Optional<Users> userSub = userRepository.findByProviderId(sub);
+//
+//        if (userSub.isPresent()) {
+//            // 사용자가 이미 존재하면 로그인 처리 (토큰 반환)
+//            Users user = userSub.get();
+//
+//            // 액세스 토큰 및 리프레시 토큰 생성
+//            String key = "users:" + user.getId().toString();
+//            String accessToken = generateAccessToken(user.getId(), accessExpTime);
+//            String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
+//
+//            return new UserResponseDTO.TokenValidationResultDTO(true, accessToken, refreshToken);
+//        } else {
+//            return new UserResponseDTO.TokenValidationResultDTO(true, null, null);
+//        }
+//    }
 
-        // 페이로드 검증 && 서명 검증 후 sub 값 기준으로 회원가입 or 로그인 처리
-        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(openId, iss, aud, oidcPublicKeysResponse);
-        String sub = oidcDecodePayload.getSub();
-
-        if (sub == null || sub.isEmpty()) {
-            return new UserResponseDTO.TokenValidationResultDTO(false, "access token", "refresh token");
-        }
-
-        Optional<Users> userSub = userRepository.findByProviderId(sub);
-
-        if (userSub.isPresent()) {
-            // 사용자가 이미 존재하면 로그인 처리 (토큰 반환)
-            Users user = userSub.get();
-
-            // 액세스 토큰 및 리프레시 토큰 생성
-            String key = "users:" + user.getId().toString();
-            String accessToken = generateAccessToken(user.getId(), accessExpTime);
-            String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
-
-            return new UserResponseDTO.TokenValidationResultDTO(true, accessToken, refreshToken);
-        } else {
-            return new UserResponseDTO.TokenValidationResultDTO(true, null, null);
-        }
-    }
-
-    // open id 인증 완료 한 후 로그인을 시키거나, 가입 대기상태의 유저로 임시 회원가입 처리
+    // open id 인증 완료 한 후 1. 로그인을 시키거나, 2. 가입 대기상태의 유저로 임시 회원가입 처리
     @Override
     @Transactional
     public UserResponseDTO.UserKaKaoOpenIdResultDTO openIdKakao(String openId) {
@@ -177,15 +179,11 @@ public class UserCommandServiceImpl implements UserCommandService {
     // 여기서 일상 카테고리 만들어도 될듯!
     @Override
     @Transactional
-    public UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(String openId, UserRequestDTO.SignUpKakaoRequestDTO request) {
-        // openId를 통해 sub 추출하기
-        OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
-        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(openId, iss, aud, oidcPublicKeysResponse);
-        String sub = oidcDecodePayload.getSub();
+    public UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(String accessToken, UserRequestDTO.SignUpKakaoRequestDTO request) {
 
-        // openId를 이용해 db에 있는 회원 찾기
-        Users savedUser = userRepository.findByProviderId(sub)
-                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+        Long savedUserId = JwtUtils.extractUserId(accessToken);
+        Users savedUser = userRepository.findById(savedUserId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
 
         // 해당 닉네임을 업데이트
         savedUser.updateNickname(request.getNickname());
@@ -198,7 +196,6 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // 액세스 토큰 및 리프레시 토큰 생성
         String key = "users:" + savedUser.getId().toString();
-        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
         String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
 
         return UserConverter.toUserKaKaoFinalSignUpResultDTO(accessToken, refreshToken, savedUser);

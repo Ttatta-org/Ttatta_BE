@@ -13,7 +13,7 @@ public interface UserCommandService {
     UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request);
     UserResponseDTO.RefreshResultDTO refresh(String refreshToken);
     UserResponseDTO.UserKaKaoOpenIdResultDTO openIdKakao(String openId);
-    UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(String openId, UserRequestDTO.SignUpKakaoRequestDTO request);
+    UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(String accessToken, UserRequestDTO.SignUpKakaoRequestDTO request);
 //    Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
     UserResponseDTO.UserInfoResultDTO getUserInfo();
     Users editUserInfo(UserRequestDTO.EditRequestDTO request);
@@ -26,7 +26,7 @@ public interface UserCommandService {
     void verifyUsername(String username);
     void sendVerificationMailFindPw(UserRequestDTO.SendVerificationMailFindPwRequestDTO request);
     void findPw(UserRequestDTO.FindPwRequestDTO request);
-    UserResponseDTO.TokenValidationResultDTO validateToken(String openId);
+//    UserResponseDTO.TokenValidationResultDTO validateToken(String openId);
     Long getUserPoint();
     void deleteUserByAdmin(Long userId);
 }
