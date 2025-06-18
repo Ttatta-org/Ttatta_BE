@@ -101,36 +101,6 @@ public class UserCommandServiceImpl implements UserCommandService {
         return userRepository.save(newUser);
     }
 
-
-//    public UserResponseDTO.TokenValidationResultDTO validateToken(String openId) {
-//        // 공개키 가져오기
-//        OIDCPublicKeyResponse oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
-//
-//        // 페이로드 검증 && 서명 검증 후 sub 값 기준으로 회원가입 or 로그인 처리
-//        OIDCDecodePayload oidcDecodePayload = oauthOIDCHelper.getPayloadFromIdToken(openId, iss, aud, oidcPublicKeysResponse);
-//        String sub = oidcDecodePayload.getSub();
-//
-//        if (sub == null || sub.isEmpty()) {
-//            return new UserResponseDTO.TokenValidationResultDTO(false, "access token", "refresh token");
-//        }
-//
-//        Optional<Users> userSub = userRepository.findByProviderId(sub);
-//
-//        if (userSub.isPresent()) {
-//            // 사용자가 이미 존재하면 로그인 처리 (토큰 반환)
-//            Users user = userSub.get();
-//
-//            // 액세스 토큰 및 리프레시 토큰 생성
-//            String key = "users:" + user.getId().toString();
-//            String accessToken = generateAccessToken(user.getId(), accessExpTime);
-//            String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
-//
-//            return new UserResponseDTO.TokenValidationResultDTO(true, accessToken, refreshToken);
-//        } else {
-//            return new UserResponseDTO.TokenValidationResultDTO(true, null, null);
-//        }
-//    }
-
     // open id 인증 완료 한 후 1. 로그인을 시키거나, 2. 가입 대기상태의 유저로 임시 회원가입 처리
     @Override
     @Transactional
@@ -179,26 +149,23 @@ public class UserCommandServiceImpl implements UserCommandService {
     // 여기서 일상 카테고리 만들어도 될듯!
     @Override
     @Transactional
-    public UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(String accessToken, UserRequestDTO.SignUpKakaoRequestDTO request) {
-
-//        Long savedUserId = jwtUtils.extractUserId(accessToken);
+    public UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(UserRequestDTO.SignUpKakaoRequestDTO request) {
+        
         Long userId = SecurityUtil.getCurrentUserId();
         Users savedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
 
         // 해당 닉네임을 업데이트
         savedUser.updateNickname(request.getNickname());
-
         // 유저의 상태 pending -> activate 업데이트
         savedUser.updateStatus(UserStatus.ACTIVE);
-
         // 일상 카테고리 생성
         createDefaultCategory(savedUser);
 
         // 액세스 토큰 및 리프레시 토큰 생성
         String key = "users:" + savedUser.getId().toString();
+        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
         String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
-
         return UserConverter.toUserKaKaoFinalSignUpResultDTO(accessToken, refreshToken, savedUser);
     }
 

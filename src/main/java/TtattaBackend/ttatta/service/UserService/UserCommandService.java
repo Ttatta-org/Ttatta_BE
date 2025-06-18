@@ -13,7 +13,7 @@ public interface UserCommandService {
     UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request);
     UserResponseDTO.RefreshResultDTO refresh(String refreshToken);
     UserResponseDTO.UserKaKaoOpenIdResultDTO openIdKakao(String openId);
-    UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(String accessToken, UserRequestDTO.SignUpKakaoRequestDTO request);
+    UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(UserRequestDTO.SignUpKakaoRequestDTO request);
 //    Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
     UserResponseDTO.UserInfoResultDTO getUserInfo();
     Users editUserInfo(UserRequestDTO.EditRequestDTO request);

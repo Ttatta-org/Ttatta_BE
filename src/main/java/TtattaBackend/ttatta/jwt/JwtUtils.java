@@ -163,12 +163,4 @@ public class JwtUtils {
             }
         }
     }
-
-    public Long extractUserId(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey.getBytes())
-                .parseClaimsJws(token)
-                .getBody();
-        return Long.parseLong(claims.getSubject());
-    }
 }
