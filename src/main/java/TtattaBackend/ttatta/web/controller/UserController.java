@@ -96,6 +96,17 @@ public class UserController {
         return ApiResponse.onSuccess("");
     }
 
+    @Operation(summary = "사용자가 PENDING 상태인지 확인하는 API", description =
+            "# 사용자의 상태 검증 API 입니다."
+    )
+    @GetMapping("/status")
+    public ApiResponse<UserResponseDTO.IsPendingResultDTO> checkIsPending(
+    ) {
+        return ApiResponse.onSuccess(
+                userCommandService.checkIsPending()
+        );
+    }
+
     @Operation(summary = "카카오 openId 검증 API", description =
             "# 카카오 openId 검증 API 입니다. header에 'OpenId: {ID token}'형식으로 ID token을 입력해주세요."
     )

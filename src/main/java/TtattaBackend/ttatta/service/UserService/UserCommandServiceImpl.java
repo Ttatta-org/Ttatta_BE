@@ -101,6 +101,19 @@ public class UserCommandServiceImpl implements UserCommandService {
         return userRepository.save(newUser);
     }
 
+    @Override
+    @Transactional
+    public UserResponseDTO.IsPendingResultDTO checkIsPending() {
+        Long UserId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(UserId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        boolean isPending = user.getStatus().equals(UserStatus.PENDING);
+        return UserResponseDTO.IsPendingResultDTO.builder()
+                .isPending(isPending)
+                .build();
+    }
+
     // open id 인증 완료 한 후 1. 로그인을 시키거나, 2. 가입 대기상태의 유저로 임시 회원가입 처리
     @Override
     @Transactional

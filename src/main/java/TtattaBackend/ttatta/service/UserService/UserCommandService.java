@@ -14,6 +14,7 @@ public interface UserCommandService {
     UserResponseDTO.RefreshResultDTO refresh(String refreshToken);
     UserResponseDTO.UserKaKaoOpenIdResultDTO openIdKakao(String openId);
     UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(UserRequestDTO.SignUpKakaoRequestDTO request);
+    UserResponseDTO.IsPendingResultDTO checkIsPending();
 //    Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
     UserResponseDTO.UserInfoResultDTO getUserInfo();
     Users editUserInfo(UserRequestDTO.EditRequestDTO request);

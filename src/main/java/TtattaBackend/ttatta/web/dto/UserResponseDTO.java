@@ -130,4 +130,12 @@ public class UserResponseDTO {
         LoginType loginType;
         LocalDateTime createdAt;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IsPendingResultDTO {
+        boolean isPending;
+    }
 }
