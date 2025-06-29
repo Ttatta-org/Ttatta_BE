@@ -76,4 +76,9 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     // 유저별 일기 개수 조회
     @Query("SELECT COUNT(d) FROM Diaries d WHERE d.users = :user")
     long countByUsers(@Param("user") Users user);
+
+    @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.date BETWEEN :start AND :end")
+    List<Diaries> findAllByUserIdAndDate(@Param("user") Users user,
+                                            @Param("start") LocalDateTime start,
+                                            @Param("end") LocalDateTime end);
 }

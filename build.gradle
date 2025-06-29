@@ -83,7 +83,7 @@ dependencies {
 
 	// OPENAI
 	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4'
-	implementation 'org.springframework.boot:spring-boot-starter-comcat'
+	implementation 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
 tasks.named('test') {

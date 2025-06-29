@@ -1,9 +1,9 @@
 package TtattaBackend.ttatta.web.dto;
 
 import TtattaBackend.ttatta.validation.annotation.ExistDiaryCategory;
-import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -25,5 +25,11 @@ public class DiaryRequestDTO {
     public static class EditDTO {
         private Optional<String> content = Optional.empty();
         private Optional<Long> diaryCategoryId = Optional.empty();
+    }
+
+    @Getter
+    public static class SummarizeDTO {
+        private Long userId;
+        private LocalDate date;
     }
 }
