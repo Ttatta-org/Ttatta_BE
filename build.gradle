@@ -80,6 +80,10 @@ dependencies {
 
 	// spring cache
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+	// OPENAI
+	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4'
+	implementation 'org.springframework.boot:spring-boot-starter-comcat'
 }
 
 tasks.named('test') {
