@@ -100,6 +100,7 @@ public class DiaryConverter {
                 .date(diaries.getDate())
                 .content(diaries.getContent())
                 .image(imageUrl)
+                .color(diaries.getDiaryCategories().getColor())
                 .firstDiary(diaryList.isFirst())
                 .lastDiary(diaryList.isLast())
                 .build();
