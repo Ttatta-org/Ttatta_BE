@@ -6,7 +6,6 @@ import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import org.springframework.data.domain.Page;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +65,7 @@ public class DiaryConverter {
     }
 
     public static DiaryResponseDTO.KeepDiaryDTO toKeepDiaryDTO(Diaries diaries) {
-        String imageUrl = diaries.getDiaryPhotosList().stream()
+        String presignedUrl = diaries.getDiaryPhotosList().stream()
                 .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);
 
         return DiaryResponseDTO.KeepDiaryDTO.builder()
@@ -74,7 +73,18 @@ public class DiaryConverter {
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
-                .image(imageUrl)
+                .presignedUrl(presignedUrl)
+                .locationName(diaries.getLocationName())
+                .build();
+    }
+
+    public static DiaryResponseDTO.KeepDiaryDTO toKeepDiaryDTO(Diaries diaries, String presignedUrl) {
+        return DiaryResponseDTO.KeepDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .date(diaries.getDate())
+                .content(diaries.getContent())
+                .presignedUrl(presignedUrl)
                 .locationName(diaries.getLocationName())
                 .build();
     }

@@ -67,7 +67,7 @@ public class DiaryResponseDTO {
         Long diaryCategoryId;
         LocalDateTime date;
         String content;
-        String image;
+        String presignedUrl;
         String locationName;
     }
 
