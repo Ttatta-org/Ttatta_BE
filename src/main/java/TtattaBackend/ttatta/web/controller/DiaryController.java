@@ -88,19 +88,17 @@ public class DiaryController {
 
 
     @Operation(summary = "일기 보관함 화면에서 전체 일기 반환, 캘린더 클릭 시 날짜에 해당하는 일기 반환",
-        description = """
-                페이징 번호(필수) -> Path variable, 날짜(선택) -> Query String를 작성해주세요.\n
-                날짜 없으면 전체, 있으면 해당 날짜의 일기 반환\n
-                일기는 최신순으로 반환됩니다.
-                """
+            description = """
+            페이징 번호(필수) -> Path variable, 날짜(선택) -> Query String를 작성해주세요.\n
+            날짜 없으면 전체, 있으면 해당 날짜의 일기 반환\n
+            일기는 최신순으로 반환됩니다.
+            """
     )
     @GetMapping("/keep/{requestNum}")
     public ApiResponse<DiaryResponseDTO.KeepDiaryListDTO> getKeepDiaryList(@PathVariable int requestNum,
                                                                            @RequestParam(required = false) LocalDateTime date) {
-        Page<Diaries> diaryList = diaryQueryService.getDiaryList(date,requestNum);
-
         return ApiResponse.onSuccess(
-                DiaryConverter.toKeepDiaryListDTO(diaryList)
+                diaryQueryService.getDiaryList(date,requestNum)
         );
     }
 

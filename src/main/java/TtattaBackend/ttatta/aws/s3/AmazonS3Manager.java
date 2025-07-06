@@ -133,4 +133,24 @@ public class AmazonS3Manager{
         String uuid = UUID.randomUUID().toString();
         return uuidRepository.save(Uuid.builder().uuid(uuid).build());
     }
+
+    // 조회 용 presigned url
+    public String generatePresignedUrlForView(String keyName) {
+        try {
+            GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                    new GeneratePresignedUrlRequest(amazonConfig.getBucket(), keyName)
+                            .withMethod(HttpMethod.GET)
+                            .withExpiration(getExpirationTime(10));
+
+            generatePresignedUrlRequest.addRequestParameter(
+                    Headers.S3_CANNED_ACL,
+                    CannedAccessControlList.Private.toString()
+            );
+
+            return amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
