@@ -9,7 +9,6 @@ import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -115,10 +114,8 @@ public class DiaryController {
                                                                    @RequestParam(required = false) Long diaryCategoryId,
                                                                    @PathVariable int requestNum) {
 
-        Page<Diaries> diaryList = diaryQueryService.getMapDiaryList(clusterId,diaryCategoryId, requestNum);
-
         return ApiResponse.onSuccess(
-                DiaryConverter.toMapDiaryDTO(diaryList)
+                diaryQueryService.getMapDiaryList(clusterId,diaryCategoryId, requestNum)
         );
     }
 
@@ -132,10 +129,8 @@ public class DiaryController {
     public ApiResponse<DiaryResponseDTO.SearchDiaryListDTO> getSearchDiary(@PathVariable int requestNum,
                                                                            @RequestParam String searchContent) {
 
-        Page<Diaries> searchDiaryList = diaryQueryService.getSearchDiaryList(searchContent, requestNum);
-
         return ApiResponse.onSuccess(
-                DiaryConverter.toSearchDiaryListDTO(searchDiaryList)
+                diaryQueryService.getSearchDiaryList(searchContent, requestNum)
         );
     }
 
