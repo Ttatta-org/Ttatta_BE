@@ -91,18 +91,34 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     }
 
     @Override
-    public Page<Diaries> getSearchDiaryList(String content, int requestNum) {
+    public DiaryResponseDTO.SearchDiaryListDTO getSearchDiaryList(String content, int requestNum) {
         Long userId = SecurityUtil.getCurrentUserId();
 
         Users user = userRepository.findById(userId).get();
 
         Page<Diaries> diariesPage = diaryRepository.findAllByUsersAndContent(user, content, PageRequest.of(requestNum, 5));
 
-        return diariesPage;
+        List<DiaryResponseDTO.SearchDiaryDTO> diaryDTOList = diariesPage.getContent().stream()
+                .map(diary -> {
+                    String presignedUrl = null;
+                    List<DiaryPhotos> photoList = diary.getDiaryPhotosList();
+
+                    if (photoList != null && !photoList.isEmpty()) {
+                        String objectKey = photoList.get(0).getImageUrl();
+                        presignedUrl = s3Manager.generatePresignedUrlForView(objectKey);
+                    }
+
+                    return DiaryConverter.toSearchDiaryDTO(diary, presignedUrl);
+                })
+                .collect(Collectors.toList());
+
+        return DiaryResponseDTO.SearchDiaryListDTO.builder()
+                .searchDiaryList(diaryDTOList)
+                .build();
     }
 
     @Override
-    public Page<Diaries> getMapDiaryList(Long clusterId, Long diaryCategoryId, int requestNum) {
+    public DiaryResponseDTO.MapResultDTO getMapDiaryList(Long clusterId, Long diaryCategoryId, int requestNum) {
         Long userId = SecurityUtil.getCurrentUserId();
 
         Users user = userRepository.findById(userId).get();
@@ -116,7 +132,17 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
             diariesPage = diaryRepository.findAllByUsersAndClusterIdAndCategories(user, clusterId, diaryCategories, PageRequest.of(requestNum, 1));
         }
 
-        return diariesPage;
+        Diaries diary = diariesPage.getContent().get(0);
+
+        String presignedUrl = null;
+        List<DiaryPhotos> photoList = diary.getDiaryPhotosList();
+
+        if (photoList != null && !photoList.isEmpty()) {
+            String objectKey = photoList.get(0).getImageUrl();
+            presignedUrl = s3Manager.generatePresignedUrlForView(objectKey);
+        }
+
+        return DiaryConverter.toMapDiaryDTO(diariesPage, presignedUrl);
     }
 
     @Override
@@ -141,8 +167,4 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         return s3Manager.getPresignedUrl(diaryId, imageType);
     }
 
-    @Override
-    public String getPresignedUrlForView(String objectKey) {
-        return s3Manager.generatePresignedUrlForView(objectKey);
-    }
 }

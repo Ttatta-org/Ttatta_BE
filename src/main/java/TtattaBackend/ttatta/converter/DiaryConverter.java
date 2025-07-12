@@ -73,7 +73,7 @@ public class DiaryConverter {
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
-                .presignedUrl(presignedUrl)
+                .image(presignedUrl)
                 .locationName(diaries.getLocationName())
                 .build();
     }
@@ -84,7 +84,7 @@ public class DiaryConverter {
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
-                .presignedUrl(presignedUrl)
+                .image(presignedUrl)
                 .locationName(diaries.getLocationName())
                 .build();
     }
@@ -116,6 +116,33 @@ public class DiaryConverter {
                 .build();
 
     }
+
+    public static DiaryResponseDTO.MapResultDTO toMapDiaryDTO(Page<Diaries> diaryList, String presignedUrl) {
+        Diaries diaries = diaryList.getContent().stream().findFirst().get();
+
+        return DiaryResponseDTO.MapResultDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .date(diaries.getDate())
+                .content(diaries.getContent())
+                .image(presignedUrl)
+                .firstDiary(diaryList.isFirst())
+                .lastDiary(diaryList.isLast())
+                .build();
+
+    }
+
+    public static DiaryResponseDTO.SearchDiaryDTO toSearchDiaryDTO(Diaries diaries, String presignedUrl) {
+        return DiaryResponseDTO.SearchDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .content(diaries.getContent())
+                .date(diaries.getDate())
+                .image(presignedUrl)
+                .locationName(diaries.getLocationName())
+                .build();
+    }
+
 
     public static DiaryResponseDTO.SearchDiaryDTO toSearchDiaryDTO(Diaries diaries) {
         String imageUrl = diaries.getDiaryPhotosList().stream()
