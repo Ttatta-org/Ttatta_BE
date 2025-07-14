@@ -1,8 +1,10 @@
 package TtattaBackend.ttatta.service.OpenAiService;
 
-import TtattaBackend.ttatta.web.dto.ChatGPTRequestDTO;
-import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
+import TtattaBackend.ttatta.domain.SummaryDiary;
+import TtattaBackend.ttatta.web.dto.DiarySummaryRequestDTO;
+import TtattaBackend.ttatta.web.dto.DiarySummaryResponseDTO;
 
 public interface SummaryCommandService {
-    public String summarize(DiaryRequestDTO.SummarizeDTO request);
+    public String summarize(DiarySummaryRequestDTO.SummarizeDTO request);
+    public DiarySummaryResponseDTO.DiarySummaryResultDTO getSummary(DiarySummaryRequestDTO.GetDiarySummaryDTO request);
 }

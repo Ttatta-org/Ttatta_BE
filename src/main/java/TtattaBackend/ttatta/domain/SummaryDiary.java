@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.joda.time.DateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -19,7 +19,7 @@ public class SummaryDiary extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private DateTime date;
+    private LocalDate date;
 
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -39,5 +39,4 @@ public class SummaryDiary extends BaseEntity {
             user.getSummaryDiaryList().add(this);
         }
     }
-
 }

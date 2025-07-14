@@ -1,12 +1,16 @@
 package TtattaBackend.ttatta.service.OpenAiService;
 
+import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
+import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
+import TtattaBackend.ttatta.config.security.SecurityUtil;
+import TtattaBackend.ttatta.converter.SummarizeConverter;
 import TtattaBackend.ttatta.domain.Diaries;
+import TtattaBackend.ttatta.domain.SummaryDiary;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.repository.DiaryRepository;
+import TtattaBackend.ttatta.repository.SummaryDiaryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
-import TtattaBackend.ttatta.web.dto.ChatGPTRequestDTO;
-import TtattaBackend.ttatta.web.dto.ChatGPTResponseDTO;
-import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
+import TtattaBackend.ttatta.web.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +39,13 @@ public class SummaryCommandServiceImpl implements SummaryCommandService {
 
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private SummaryDiaryRepository summaryDiaryRepository;
 
 
     @Override
-    public String summarize(DiaryRequestDTO.SummarizeDTO request) {
-        Long userId = request.getUserId();
+    public String summarize(DiarySummaryRequestDTO.SummarizeDTO request) {
+        Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElse(null);
         LocalDate  day = request.getDate();
 
@@ -50,8 +56,29 @@ public class SummaryCommandServiceImpl implements SummaryCommandService {
         String prompt  = PromptBuilder.buildPrompt(diaries);
 
         ChatGPTRequestDTO gptRequest = new ChatGPTRequestDTO(model, prompt);
-
         ChatGPTResponseDTO responseDTO = restTemplate.postForObject(apiUrl, gptRequest, ChatGPTResponseDTO.class);
-        return responseDTO.getChoices().get(0).getMessage().getContent();
+
+        String content = responseDTO.getChoices().get(0).getMessage().getContent();
+
+        SummaryDiary summaryDiary = SummaryDiary.builder()
+                .date(day)
+                .content(content)
+                .users(user)
+                .build();
+
+        summaryDiaryRepository.save(summaryDiary);
+        return content;
+    }
+
+    @Override
+    public DiarySummaryResponseDTO.DiarySummaryResultDTO getSummary(DiarySummaryRequestDTO.GetDiarySummaryDTO request) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        LocalDate day = request.getDate();
+
+        SummaryDiary result = summaryDiaryRepository.findByDateAndUsers(day, user)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.SUMMARY_DIARY_NOT_FOUND));
+        return SummarizeConverter.toGetDiarySummaryResponseDTO(result);
     }
 }

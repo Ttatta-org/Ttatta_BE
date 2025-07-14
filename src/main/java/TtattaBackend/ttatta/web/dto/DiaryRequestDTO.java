@@ -27,9 +27,4 @@ public class DiaryRequestDTO {
         private Optional<Long> diaryCategoryId = Optional.empty();
     }
 
-    @Getter
-    public static class SummarizeDTO {
-        private Long userId;
-        private LocalDate date;
-    }
 }
