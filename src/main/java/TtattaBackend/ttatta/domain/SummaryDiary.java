@@ -28,6 +28,9 @@ public class SummaryDiary extends BaseEntity {
     @JoinColumn(name = "user_id")
     private Users users;
 
+    @Column(nullable = false)
+    private String diaryKeyHash;
+
     public void setUser(Users user) {
         if (this.users != null) {
             this.users.getDiariesList().remove(this);
