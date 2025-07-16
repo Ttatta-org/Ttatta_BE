@@ -32,10 +32,20 @@ public class ChatGPTController {
             summary = "하루 일기 요약 api",
             description = "하루동안의 일기를 요약하는 api 입니다."
     )
-    @PostMapping("/chat")
+    @PostMapping("/summary")
     public ApiResponse<ChatGPTResponseDTO> summarizeDiary(@RequestBody DiarySummaryRequestDTO.SummarizeDTO request) {
         String summary = summaryCommandService.summarize(request);
         return ApiResponse.onSuccess(SummarizeConverter.toSummarizeResponseDTO(summary));
+    }
+
+    @Operation(
+            summary = "하루 일기 재생성 api",
+            description = "hash값으로 일기 추가 / 삭제 / 수정 감지 후 재생성하는 api 입니다."
+    )
+    @PutMapping("/summary/reSummary")
+    public ApiResponse<String> reSummarizeDiary(@RequestBody DiarySummaryRequestDTO.SummarizeDTO request) {
+        String summary = summaryCommandService.reSummarize(request);
+        return ApiResponse.onSuccess(summary);
     }
 
 
@@ -47,4 +57,5 @@ public class ChatGPTController {
     public ApiResponse<DiarySummaryResponseDTO.DiarySummaryResultDTO> getSummarizeDiary(@ModelAttribute DiarySummaryRequestDTO.GetDiarySummaryDTO request) {
         return ApiResponse.onSuccess(summaryCommandService.getSummary(request));
     }
+
 }

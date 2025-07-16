@@ -22,5 +22,4 @@ public class DiarySummaryRequestDTO {
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         private LocalDate date;
     }
-
 }

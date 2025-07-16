@@ -42,4 +42,9 @@ public class SummaryDiary extends BaseEntity {
             user.getSummaryDiaryList().add(this);
         }
     }
+
+    public void updateContentAndKeyHash(String content, String diaryKeyHash) {
+        this.content = content;
+        this.diaryKeyHash = diaryKeyHash;
+    }
 }
