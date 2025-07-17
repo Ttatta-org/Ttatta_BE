@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Time;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -28,5 +29,5 @@ public class DailySummaryAlarm extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(10)")
     private IsActive isActive;
 
-    private Time alaramTime;
+    private LocalDateTime alaramTime;
 }

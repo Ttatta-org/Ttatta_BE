@@ -58,7 +58,11 @@ public enum ErrorStatus implements BaseErrorCode {
     ITEM_NOT_BUY(HttpStatus.BAD_REQUEST,"ITEM_5006","구매한 아이템이 아닙니다."),
 
     // 챌린지 관련 응답 6000
-    CHALLENGE_FULL(HttpStatus.BAD_REQUEST,"CHANLLENGE_6001","챌린지 3개가 이미 생성되어 있어 새로운 챌린지를 생성할 수 없습니다.");
+    CHALLENGE_FULL(HttpStatus.BAD_REQUEST,"CHANLLENGE_6001","챌린지 3개가 이미 생성되어 있어 새로운 챌린지를 생성할 수 없습니다."),
+
+    // 알람 관련 응답 7000
+    ALARM_FCM_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "ALARM_7001", "FCM토큰이 설정되지 않았습니다."),
+    ALARM_FCM_SEND_FAIL(HttpStatus.BAD_REQUEST, "ALARM_7002", "FCM 푸시 알림 전송에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

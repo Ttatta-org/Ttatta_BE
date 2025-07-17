@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.service.AlarmService.AlarmCommandService;
 import TtattaBackend.ttatta.web.dto.AlarmRequestDTO;
+import TtattaBackend.ttatta.web.dto.AlarmResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,5 +20,13 @@ public class AlarmController {
     ) {
         alarmCommandService.saveFcmToken(request);
         return ApiResponse.onSuccess("");
+    }
+
+    // 일기 작성 알림 on (일기 작성 알림 시간 설정 및 변경 가능)
+    @PostMapping("/write/diary/on")
+    public ApiResponse<AlarmResponseDTO.WrittingDiaryAlarmOnResponseDTO> writeDiaryAlarmOn() {
+        return ApiResponse.onSuccess(
+                alarmCommandService.sendPushNotificationByFcm()
+        );
     }
 }
