@@ -6,7 +6,6 @@ import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import org.springframework.data.domain.Page;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,16 +56,16 @@ public class DiaryConverter {
     }
 
     public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList) {
-       List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
-               .map(DiaryConverter::toFootprintDiaryDTO).collect(Collectors.toList());
+        List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
+                .map(DiaryConverter::toFootprintDiaryDTO).collect(Collectors.toList());
 
-       return DiaryResponseDTO.FootprintDiaryListDTO.builder()
-               .footprintList(footprintDiaryDTOList)
-               .build();
+        return DiaryResponseDTO.FootprintDiaryListDTO.builder()
+                .footprintList(footprintDiaryDTOList)
+                .build();
     }
 
     public static DiaryResponseDTO.KeepDiaryDTO toKeepDiaryDTO(Diaries diaries) {
-        String imageUrl = diaries.getDiaryPhotosList().stream()
+        String presignedUrl = diaries.getDiaryPhotosList().stream()
                 .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);
 
         return DiaryResponseDTO.KeepDiaryDTO.builder()
@@ -74,7 +73,18 @@ public class DiaryConverter {
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
-                .image(imageUrl)
+                .image(presignedUrl)
+                .locationName(diaries.getLocationName())
+                .build();
+    }
+
+    public static DiaryResponseDTO.KeepDiaryDTO toKeepDiaryDTO(Diaries diaries, String presignedUrl) {
+        return DiaryResponseDTO.KeepDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .date(diaries.getDate())
+                .content(diaries.getContent())
+                .image(presignedUrl)
                 .locationName(diaries.getLocationName())
                 .build();
     }
@@ -106,6 +116,33 @@ public class DiaryConverter {
                 .build();
 
     }
+
+    public static DiaryResponseDTO.MapResultDTO toMapDiaryDTO(Page<Diaries> diaryList, String presignedUrl) {
+        Diaries diaries = diaryList.getContent().stream().findFirst().get();
+
+        return DiaryResponseDTO.MapResultDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .date(diaries.getDate())
+                .content(diaries.getContent())
+                .image(presignedUrl)
+                .firstDiary(diaryList.isFirst())
+                .lastDiary(diaryList.isLast())
+                .build();
+
+    }
+
+    public static DiaryResponseDTO.SearchDiaryDTO toSearchDiaryDTO(Diaries diaries, String presignedUrl) {
+        return DiaryResponseDTO.SearchDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .content(diaries.getContent())
+                .date(diaries.getDate())
+                .image(presignedUrl)
+                .locationName(diaries.getLocationName())
+                .build();
+    }
+
 
     public static DiaryResponseDTO.SearchDiaryDTO toSearchDiaryDTO(Diaries diaries) {
         String imageUrl = diaries.getDiaryPhotosList().stream()
@@ -143,6 +180,19 @@ public class DiaryConverter {
 
         return DiaryResponseDTO.DairyDateListResultDTO.builder()
                 .diaryDateList(dairyDateListResultDTOList)
+                .build();
+    }
+
+    public static DiaryResponseDTO.PresignedResultDTO toPresignedUrlResultDTO(List<String> urlList) {
+        return DiaryResponseDTO.PresignedResultDTO.builder()
+                .presignedUrl(urlList.get(0))
+                .objectKey(urlList.get(1))
+                .build();
+    }
+
+    public static DiaryResponseDTO.EditPresignedResultDTO toPresignedUrlResultDTO(String url) {
+        return DiaryResponseDTO.EditPresignedResultDTO.builder()
+                .presignedUrl(url)
                 .build();
     }
 }

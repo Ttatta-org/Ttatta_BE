@@ -8,16 +8,9 @@ import TtattaBackend.ttatta.service.DiaryService.DiaryQueryService;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,16 +24,14 @@ public class DiaryController {
 
     @Operation(summary = "일기 작성",
             description = """
-                    카테고리 ID, 일기 내용, 일기 사진, 사진 찍은 날짜, 위도, 경도, 위치이름을 작성해주세요.
+                    카테고리 ID, 일기 내용, 사진 찍은 날짜, 위도, 경도, 위치이름, objectKey를 작성해주세요.
                     저장된 일기의 ID와 사진 찍은 날짜가 반환됩니다.
                     """
     )
 
-    @PostMapping(value = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ApiResponse<DiaryResponseDTO.PostResultDTO> diarySave(@Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-                                                                 @RequestPart @Valid DiaryRequestDTO.PostDTO request,
-                                                                 @RequestPart("image") MultipartFile diaryPhotos){
-        Diaries diaries = diaryCommandService.save(request, diaryPhotos);
+    @PostMapping(value = "/post")
+    public ApiResponse<DiaryResponseDTO.PostResultDTO> diarySave(@RequestBody DiaryRequestDTO.PostDTO request){
+        Diaries diaries = diaryCommandService.save(request);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toPostResultDTO(diaries)
@@ -63,18 +54,16 @@ public class DiaryController {
     @Operation(summary = "일기 수정",
             description = """
                     일기 id -> Path Variable \n
-                    수정할 일기의 내용, 수정할 카테고리 id, 수정할 사진 파일 -> body 를 작성해주세요.\n
+                    수정할 일기의 내용, 수정할 카테고리 id -> body 를 작성해주세요.\n
                     ⭐️ 수정 하는 항목만 보내주세요. ⭐️\n
-                    ⭐️ body에 들어오는 -> 내용/카테고리 id/파일 중 최소 하나는 필수로 들어와야 합니다. ⭐️
+                    ⭐️ body에 들어오는 -> 내용/카테고리 id 중 최소 하나는 필수로 들어와야 합니다. ⭐️
                     """
     )
-    @PatchMapping(value = "/edit/{diaryId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(value = "/edit/{diaryId}")
     public ApiResponse<DiaryResponseDTO.EditResultDTO> editDiary(@PathVariable Long diaryId,
-                                                                 @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-                                                                 @RequestPart @Valid DiaryRequestDTO.EditDTO request,
-                                                                 @RequestPart(required = false) MultipartFile editPhoto) {
+                                                                 @RequestBody DiaryRequestDTO.EditDTO request) {
 
-        Diaries diaries = diaryCommandService.edit(request, diaryId, editPhoto);
+        Diaries diaries = diaryCommandService.edit(request, diaryId);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toEditResultDTO(diaries)
@@ -98,24 +87,22 @@ public class DiaryController {
 
 
     @Operation(summary = "일기 보관함 화면에서 전체 일기 반환, 캘린더 클릭 시 날짜에 해당하는 일기 반환",
-        description = """
-                페이징 번호(필수) -> Path variable, 날짜(선택) -> Query String를 작성해주세요.\n
-                날짜 없으면 전체, 있으면 해당 날짜의 일기 반환\n
-                일기는 최신순으로 반환됩니다.
-                """
+            description = """
+            페이징 번호(필수) -> Path variable, 날짜(선택) -> Query String를 작성해주세요.\n
+            날짜 없으면 전체, 있으면 해당 날짜의 일기 반환\n
+            일기는 최신순으로 반환됩니다.
+            """
     )
     @GetMapping("/keep/{requestNum}")
     public ApiResponse<DiaryResponseDTO.KeepDiaryListDTO> getKeepDiaryList(@PathVariable int requestNum,
                                                                            @RequestParam(required = false) LocalDateTime date) {
-        Page<Diaries> diaryList = diaryQueryService.getDiaryList(date,requestNum);
-
         return ApiResponse.onSuccess(
-                DiaryConverter.toKeepDiaryListDTO(diaryList)
+                diaryQueryService.getDiaryList(date,requestNum)
         );
     }
 
     @Operation(summary = "일기 지도",
-        description = """
+            description = """
                 clusterId와 페이징 번호(0번 부터 시작)를 작성해주세요.\n
                 일기 지도 화면에서 발자국 컴포넌트 클릭 시 그 위치의 일기가 1개씩 반환됩니다.\n
                 카테고리 Id가 같이 요청(선택) 될 시 해당 카테고리의 일기만 1개씩 반환됩니다.
@@ -127,15 +114,13 @@ public class DiaryController {
                                                                    @RequestParam(required = false) Long diaryCategoryId,
                                                                    @PathVariable int requestNum) {
 
-        Page<Diaries> diaryList = diaryQueryService.getMapDiaryList(clusterId,diaryCategoryId, requestNum);
-
         return ApiResponse.onSuccess(
-                DiaryConverter.toMapDiaryDTO(diaryList)
+                diaryQueryService.getMapDiaryList(clusterId,diaryCategoryId, requestNum)
         );
     }
 
     @Operation(summary = "일기 검색",
-        description = """
+            description = """
                 검색 내용(필수), 페이징 번호(필수)를 작성해주세요.\n
                 검색한 내용이 들어가 있는 일기가 최신순으로 5개씩 반환됩니다.
                 """
@@ -144,10 +129,8 @@ public class DiaryController {
     public ApiResponse<DiaryResponseDTO.SearchDiaryListDTO> getSearchDiary(@PathVariable int requestNum,
                                                                            @RequestParam String searchContent) {
 
-        Page<Diaries> searchDiaryList = diaryQueryService.getSearchDiaryList(searchContent, requestNum);
-
         return ApiResponse.onSuccess(
-                DiaryConverter.toSearchDiaryListDTO(searchDiaryList)
+                diaryQueryService.getSearchDiaryList(searchContent, requestNum)
         );
     }
 
@@ -163,6 +146,37 @@ public class DiaryController {
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toDairyDateListResultDTO(diaryDateList)
+        );
+    }
+
+    @Operation(summary = "업로드용 Presigned Url",
+            description = """
+                    파일명을 작성해주세요. \n
+                    Presigned Url과 objectKey가 반환됩니다.
+                    """
+    )
+    @GetMapping(value = "/post/presignedUrl")
+    public ApiResponse<DiaryResponseDTO.PresignedResultDTO> getPresignedForPost(@RequestParam String imageType) {
+        List<String> urlList = diaryQueryService.getPresignedForPost(imageType);
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toPresignedUrlResultDTO(urlList)
+        );
+    }
+
+    @Operation(summary = "수정용 Presigned Url",
+            description = """
+                    이미지의 일기 id와 업로드할 이미지의 type을 작성해주세요. \n
+                    Presigned Url이 반환됩니다.
+                    """
+    )
+    @GetMapping(value = "/edit/presignedUrl/{diaryId}")
+    public ApiResponse<DiaryResponseDTO.EditPresignedResultDTO> getPresignedUrlForEdit(@PathVariable Long diaryId,
+                                                                                       @RequestParam String imageType) {
+        String url = diaryQueryService.getPresignedUrlForEdit(diaryId, imageType);
+
+        return ApiResponse.onSuccess(
+                DiaryConverter.toPresignedUrlResultDTO(url)
         );
     }
 

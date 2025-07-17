@@ -2,17 +2,22 @@ package TtattaBackend.ttatta.aws.s3;
 
 import TtattaBackend.ttatta.config.AmazonConfig;
 import TtattaBackend.ttatta.domain.Uuid;
+import TtattaBackend.ttatta.repository.DiaryPhotosRepository;
 import TtattaBackend.ttatta.repository.UuidRepository;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -24,6 +29,8 @@ public class AmazonS3Manager{
     private final AmazonConfig amazonConfig;
 
     private final UuidRepository uuidRepository;
+
+    private final DiaryPhotosRepository diaryPhotosRepository;
 
     public String uploadFile(String keyName, MultipartFile file){
         ObjectMetadata metadata = new ObjectMetadata();
@@ -41,19 +48,109 @@ public class AmazonS3Manager{
         return amazonS3.getUrl(amazonConfig.getBucket(), keyName).toString();
     }
 
-    public String generateDiaryKeyName(Uuid uuid) {
-        return amazonConfig.getDiaryPath() + '/' + uuid.getUuid();
-    }
-
-    public String getUuidByUrl(String pictureUrl) {
-        return pictureUrl.substring(pictureUrl.lastIndexOf("/") + 1);
-    }
-
     public void deleteFile(String keyName) {
         try {
             amazonS3.deleteObject(new DeleteObjectRequest(amazonConfig.getBucket(), keyName));
         } catch (Exception e) {
             log.error("error at AmazonS3Manager deleteFile : {}", (Object) e.getStackTrace());
+        }
+    }
+
+    // 객체 url 생성
+    public String generateDiaryKeyName(Uuid uuid) {
+        return amazonConfig.getDiaryPath() + '/' + uuid.getUuid();
+    }
+
+    // 객체 키 생성
+    public String generateDiaryKeyName(Uuid uuid, Long userId) {
+        return amazonConfig.getDiaryPath() + '/' + userId + '/' + uuid.getUuid();
+    }
+
+    /*
+    public String getUuidByUrl(String pictureUrl) {
+        return pictureUrl.substring(pictureUrl.lastIndexOf("/") + 1);
+    }
+    */
+
+    // 객체 url을 이용하여 Unique id 반환
+    public String getUuidByUrl(String pictureUrl) {
+        String keyName = pictureUrl.substring(pictureUrl.lastIndexOf("/") + 1);
+        String withoutExtension = keyName.substring(0, keyName.lastIndexOf("."));
+        return withoutExtension.substring(withoutExtension.lastIndexOf(".") + 1);
+    }
+
+    // presigned url 생성
+    private String generatePresignedUrl(String keyName, String imageType) {
+        try {
+            GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                    new GeneratePresignedUrlRequest(amazonConfig.getBucket(), keyName)
+                            .withMethod(HttpMethod.PUT)
+                            .withContentType(imageType)
+                            .withExpiration(getExpirationTime(5));
+
+            generatePresignedUrlRequest.addRequestParameter("Content-Type", imageType);
+
+            generatePresignedUrlRequest.addRequestParameter(
+                    Headers.S3_CANNED_ACL,
+                    CannedAccessControlList.Private.toString()
+            );
+
+            return amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // 업로드 presinged Url
+    public List<String> getPresignedUrlAndKey(String imageType, Long userId) {
+        List<String> urlList = new ArrayList<>();
+        Uuid savedUuid = createAndSaveUuid();
+
+        String keyName = generateDiaryKeyName(savedUuid,userId);
+        String presignedUrl = generatePresignedUrl(keyName, imageType);
+
+        urlList.add(presignedUrl);
+        urlList.add(keyName);
+        return urlList;
+    }
+
+    // 수정용 presigned url
+    public String getPresignedUrl(Long diaryId, String imageType) {
+        String keyName = diaryPhotosRepository.findByDiaries_Id(diaryId).getImageUrl();
+        return generatePresignedUrl(keyName, imageType);
+    }
+
+    // 만료 시간 설정
+    public Date getExpirationTime(int minutes) {
+        Date expiration = new Date();
+        expiration.setTime(expiration.getTime() + (1000L * 60 * minutes));
+        return expiration;
+    }
+
+    // Unique id 생성 및 저장
+    public Uuid createAndSaveUuid() {
+        String uuid = UUID.randomUUID().toString();
+        return uuidRepository.save(Uuid.builder().uuid(uuid).build());
+    }
+
+    // 조회 용 presigned url
+    public String generatePresignedUrlForView(String keyName) {
+        try {
+            GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                    new GeneratePresignedUrlRequest(amazonConfig.getBucket(), keyName)
+                            .withMethod(HttpMethod.GET)
+                            .withExpiration(getExpirationTime(10));
+
+            generatePresignedUrlRequest.addRequestParameter(
+                    Headers.S3_CANNED_ACL,
+                    CannedAccessControlList.Private.toString()
+            );
+
+            return amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
