@@ -140,7 +140,9 @@ public class UserCommandServiceImpl implements UserCommandService {
             String key = ExistUser.getId().toString();
             String accessToken = generateAccessToken(userSub.get().getId(), accessExpTime);
             String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
-            return UserConverter.toUserKaKaoOpenIdResultDTO(true, accessToken, refreshToken, userSub.get());
+            Boolean isRegistered = ExistUser.getStatus().equals(UserStatus.PENDING) ? false : true;
+
+            return UserConverter.toUserKaKaoOpenIdResultDTO(isRegistered, accessToken, refreshToken, userSub.get());
         }
         // sub가 잘 추출되었지만, 회원 db에 없어 임시 회원가입 처리 해야하는 부분
         else {
