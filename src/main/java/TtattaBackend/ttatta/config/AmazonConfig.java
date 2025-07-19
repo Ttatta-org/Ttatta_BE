@@ -30,7 +30,7 @@ public class AmazonConfig {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    @Value("${cloud.aws.s3,path.diary")
+    @Value("${cloud.aws.s3.path.diary}")
     private String diaryPath;
 
     @PostConstruct
