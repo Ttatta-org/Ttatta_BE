@@ -1,9 +1,7 @@
 package TtattaBackend.ttatta.aws.s3;
 
 import TtattaBackend.ttatta.config.AmazonConfig;
-import TtattaBackend.ttatta.domain.Uuid;
 import TtattaBackend.ttatta.repository.DiaryPhotosRepository;
-import TtattaBackend.ttatta.repository.UuidRepository;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.Headers;
@@ -27,8 +25,6 @@ public class AmazonS3Manager{
     private final AmazonS3 amazonS3;
 
     private final AmazonConfig amazonConfig;
-
-    private final UuidRepository uuidRepository;
 
     private final DiaryPhotosRepository diaryPhotosRepository;
 
@@ -56,27 +52,9 @@ public class AmazonS3Manager{
         }
     }
 
-    // 객체 url 생성
-    public String generateDiaryKeyName(Uuid uuid) {
-        return amazonConfig.getDiaryPath() + '/' + uuid.getUuid();
-    }
-
     // 객체 키 생성
-    public String generateDiaryKeyName(Uuid uuid, Long userId) {
-        return amazonConfig.getDiaryPath() + '/' + userId + '/' + uuid.getUuid();
-    }
-
-    /*
-    public String getUuidByUrl(String pictureUrl) {
-        return pictureUrl.substring(pictureUrl.lastIndexOf("/") + 1);
-    }
-    */
-
-    // 객체 url을 이용하여 Unique id 반환
-    public String getUuidByUrl(String pictureUrl) {
-        String keyName = pictureUrl.substring(pictureUrl.lastIndexOf("/") + 1);
-        String withoutExtension = keyName.substring(0, keyName.lastIndexOf("."));
-        return withoutExtension.substring(withoutExtension.lastIndexOf(".") + 1);
+    public String generateDiaryKeyName(String uuid, Long userId) {
+        return amazonConfig.getDiaryPath() + '/' + userId + '/' + uuid;
     }
 
     // presigned url 생성
@@ -105,7 +83,7 @@ public class AmazonS3Manager{
     // 업로드 presinged Url
     public List<String> getPresignedUrlAndKey(String imageType, Long userId) {
         List<String> urlList = new ArrayList<>();
-        Uuid savedUuid = createAndSaveUuid();
+        String savedUuid = createUuid();
 
         String keyName = generateDiaryKeyName(savedUuid,userId);
         String presignedUrl = generatePresignedUrl(keyName, imageType);
@@ -128,10 +106,9 @@ public class AmazonS3Manager{
         return expiration;
     }
 
-    // Unique id 생성 및 저장
-    public Uuid createAndSaveUuid() {
-        String uuid = UUID.randomUUID().toString();
-        return uuidRepository.save(Uuid.builder().uuid(uuid).build());
+    // Unique id 생성
+    public String createUuid() {
+        return UUID.randomUUID().toString();
     }
 
     // 조회 용 presigned url

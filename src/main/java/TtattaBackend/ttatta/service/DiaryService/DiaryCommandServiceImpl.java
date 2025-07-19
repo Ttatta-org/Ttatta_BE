@@ -11,10 +11,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_NOT_FOUND;
 
@@ -29,8 +27,6 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
     private final DiaryCategoryRepository diaryCategoryRepository;
 
     private final AmazonS3Manager s3Manager;
-
-    private final UuidRepository uuidRepository;
 
     private final DiaryPhotosRepository diaryPhotosRepository;
 
@@ -84,12 +80,7 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
     // s3에서 객체 삭제
     @Override
     public void deletePhoto(DiaryPhotos diaryPhoto) {
-        String savedUuid = s3Manager.getUuidByUrl(diaryPhoto.getImageUrl());
-
-        Uuid uuid = uuidRepository.findByUuid(savedUuid);
-        uuidRepository.delete(uuid);
-
-        s3Manager.deleteFile(s3Manager.generateDiaryKeyName(uuid));
+        s3Manager.deleteFile(diaryPhoto.getImageUrl());
 
         // db에서 삭제
         diaryPhotosRepository.delete(diaryPhoto);
