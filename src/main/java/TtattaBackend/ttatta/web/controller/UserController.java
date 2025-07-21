@@ -269,4 +269,38 @@ public class UserController {
         userCommandService.deleteUserByAdmin(userId);
         return ApiResponse.onSuccess("");
     }
+
+
+    @Operation(summary = "암호 (핀번호) 설정", description =
+        "# 암호 (핀번호) 설정 API입니다. 4자리 숫자를 입력해주세요."
+    )
+    @PostMapping("/pin")
+    public ApiResponse<UserResponseDTO.SetPinResultDTO> setPin(
+            @RequestBody UserRequestDTO.SetPinRequestDTO request
+    ) {
+        UserResponseDTO.SetPinResultDTO result = userCommandService.setPin(request);
+        return ApiResponse.onSuccess(result);
+    }
+
+    @Operation(summary = "암호 (핀번호) 변경", description =
+            "# 암호 (핀번호) 변경 API입니다. 새 암호를 입력해주세요."
+    )
+    @PatchMapping("/pin")
+    public ApiResponse<UserResponseDTO.ChangePinResultDTO> changePin(
+            @RequestBody UserRequestDTO.ChangePinRequestDTO request
+    ) {
+        UserResponseDTO.ChangePinResultDTO result = userCommandService.changePin(request);
+        return ApiResponse.onSuccess(result);
+    }
+
+    @Operation(summary = "암호 (핀번호) 불러오기", description =
+            "# 암호 (핀번호) 불러오기 API입니다. 현재 설정된 핀을 불러옵니다.\n" +
+                    "BCrypt로 암호화된 핀을 반환하므로 (복호화 불가), BCrypt 라이브러리를 사용해 비교해주세요."
+    )
+    @GetMapping("/pin")
+    public ApiResponse<UserResponseDTO.GetPinResultDTO> getPin() {
+        UserResponseDTO.GetPinResultDTO result = userCommandService.getPin();
+        return ApiResponse.onSuccess(result);
+    }
+
 }

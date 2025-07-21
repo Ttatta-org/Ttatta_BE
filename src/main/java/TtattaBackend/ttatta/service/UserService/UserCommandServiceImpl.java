@@ -461,5 +461,57 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         userRepository.delete(user);
     }
+
+    @Override
+    public UserResponseDTO.SetPinResultDTO setPin(UserRequestDTO.SetPinRequestDTO request) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        String hashedPin = passwordEncoder.encode(request.getPin());
+        user.updatePinHash(hashedPin);
+
+        userRepository.save(user);
+
+        return UserResponseDTO.SetPinResultDTO.builder()
+                .pinHash(user.getPinHash())
+                .build();
+    }
+
+    @Override
+    public UserResponseDTO.ChangePinResultDTO changePin(UserRequestDTO.ChangePinRequestDTO request) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        if(user.getPinHash() == null || user.getPinHash().isEmpty()) {
+            throw new ExceptionHandler(PIN_HASH_NOT_FOUND);
+        }
+
+        // 새 핀으로 업데이트
+        String hashedNewPin = passwordEncoder.encode(request.getNewPin());
+        user.updatePinHash(hashedNewPin);
+
+        userRepository.save(user);
+
+        return UserResponseDTO.ChangePinResultDTO.builder()
+                .newPinHash(user.getPinHash())
+                .build();
+    }
+
+    @Override
+    public UserResponseDTO.GetPinResultDTO getPin() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        if(user.getPinHash() == null || user.getPinHash().isEmpty()) {
+            throw new ExceptionHandler(PIN_HASH_NOT_FOUND);
+        }
+
+        return UserResponseDTO.GetPinResultDTO.builder()
+                .pinHash(user.getPinHash())
+                .build();
+    }
 }
 

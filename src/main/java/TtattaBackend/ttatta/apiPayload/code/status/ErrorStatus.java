@@ -26,6 +26,7 @@ public enum ErrorStatus implements BaseErrorCode {
     ID_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER_1007", "해당하는 ID가 존재하지 않습니다."),
     ID_NOT_EQUAL(HttpStatus.BAD_REQUEST, "USER_1008", "ID가 일치하지 않습니다."),
     SAME_PASSWORD(HttpStatus.BAD_REQUEST, "USER_1009", "이전 비밀번호와 동일합니다."),
+    PIN_HASH_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER_1010", "핀 해시가 존재하지 않습니다."),
 
     // 일기 관련 응답 2000
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY_2001", "해당하는 일기가 존재하지 않습니다."),
