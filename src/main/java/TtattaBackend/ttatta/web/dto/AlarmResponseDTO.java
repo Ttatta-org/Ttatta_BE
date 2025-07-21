@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class AlarmResponseDTO {
     @Getter
@@ -13,6 +14,6 @@ public class AlarmResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class WrittingDiaryAlarmOnResponseDTO {
-        LocalDateTime alarmTime;
+        LocalTime alarmTime;
     }
 }

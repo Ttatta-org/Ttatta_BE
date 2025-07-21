@@ -10,14 +10,15 @@ import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.repository.WritingDiaryAlarmRepository;
 import TtattaBackend.ttatta.web.dto.AlarmRequestDTO;
 import TtattaBackend.ttatta.web.dto.AlarmResponseDTO;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +33,8 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
     private final TaskScheduler taskScheduler;
     private final Map<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
     private final FcmPushSender fcmPushSender;
-    private static final LocalDateTime DEFAULT_ALARM_TIME = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 22, 0);
+    private static final LocalTime DEFAULT_ALARM_TIME = LocalTime.of(22, 0);
+    private static final LocalTime STANDARD_SETTING_ALARM_TIME = LocalTime.of(3, 0); // 새벽 3시에 모든 알림 예약
 
     @Override
     @Transactional
@@ -49,12 +51,11 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser);
 
         if (getUser.getFcmToken() == null || getUser.getFcmToken().isEmpty()) {
             throw new ExceptionHandler(ErrorStatus.ALARM_FCM_TOKEN_NOT_FOUND);
         }
-
-        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser);
         if (writingDiaryAlarmRepository.findByUsers(getUser) == null) {
             getWrittingDiaryAlarm = writingDiaryAlarmRepository.save(
                     WrittingDiaryAlarm.builder()
@@ -64,26 +65,56 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                             .build()
             );
         } else {
-            getWrittingDiaryAlarm.setIsActive(IsActive.ON);
+            getWrittingDiaryAlarm.updateIsActive(IsActive.ON);
         }
-
-        if (LocalDateTime.now().isAfter(getWrittingDiaryAlarm.getAlaramTime())) {
-            // 이미 지난 시간인 경우 시간 예약을 하지 않음
-            return AlarmResponseDTO.WrittingDiaryAlarmOnResponseDTO.builder()
-                    .alarmTime(getWrittingDiaryAlarm.getAlaramTime())
-                    .build();
-        }
-
-        // 예약 알림 설정
-        ScheduledFuture<?> future = taskScheduler.schedule(() -> {
-                    fcmPushSender.sendPushNotification(getUser.getFcmToken());
-                },
-                getWrittingDiaryAlarm.getAlaramTime().toInstant(KST_OFFSET)
-        );
-        scheduledTasks.put(userId, future); // 이후에 ScheduledFuture를 이용한 task 업데이트를 위해 userId를 key로 ScheduledFuture를 Map에 value로 저장
+        LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getWrittingDiaryAlarm.getAlaramTime());
+        reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.WRITE_DIARY);
 
         return AlarmResponseDTO.WrittingDiaryAlarmOnResponseDTO.builder()
                 .alarmTime(getWrittingDiaryAlarm.getAlaramTime())
                 .build();
     }
+
+    // 매일 새벽 3시 on 알림들 예약하는 메소드 실행
+    @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")
+    public void scheduleDailyAlarm() {
+        for (WrittingDiaryAlarm writtingDiaryAlarm : writingDiaryAlarmRepository.findAllByIsActiveUsingFetchJoin(IsActive.ON)) {
+            System.out.println("Alarm Time: " + writtingDiaryAlarm.getAlaramTime());
+            LocalDateTime alarmTime = getAlarmLocalDateTime(writtingDiaryAlarm.getAlaramTime());
+            reserveSendPushNotificationByFcm(alarmTime, writtingDiaryAlarm.getUsers(), AlaramType.WRITE_DIARY);
+        }
+    }
+
+    private LocalDateTime getAlarmLocalDateTime(LocalTime alarmTime) {
+        if (alarmTime.isAfter(STANDARD_SETTING_ALARM_TIME)) {
+            // 새벽 3시 이후 알림인 경우
+            return LocalDateTime.of(
+                    LocalDate.now(),
+                    alarmTime
+            );
+        } else {
+            // 새벽 3시 이전 알림인 경우
+            return LocalDateTime.of(
+                    LocalDate.now().plusDays(1),
+                    alarmTime
+            );
+        }
+    }
+
+    private void reserveSendPushNotificationByFcm(LocalDateTime alarmTime, Users user, AlaramType alaramType) {
+        ScheduledFuture<?> future = taskScheduler.schedule(() -> {
+            try {
+                if (scheduledTasks.containsKey(user.getId())) {
+                    // 이미 예약된 알림이 있는 경우, 기존 예약 취소
+                    scheduledTasks.get(user.getId()).cancel(false);
+                    scheduledTasks.remove(user.getId());
+                }
+                fcmPushSender.sendPushNotification(user.getFcmToken(), alaramType);
+            } finally {
+                scheduledTasks.remove(user.getId()); // 실행 후 Map에서 예약 알림 제거
+            }
+        }, alarmTime.toInstant(KST_OFFSET));
+        scheduledTasks.put(user.getId(), future); // 이후에 ScheduledFuture를 이용한 task 업데이트를 위해 userId를 key로 ScheduledFuture를 Map에 value로 저장
+    }
+
 }

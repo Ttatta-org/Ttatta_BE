@@ -5,8 +5,7 @@ import TtattaBackend.ttatta.domain.enums.IsActive;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Time;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -29,7 +28,7 @@ public class WrittingDiaryAlarm extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(10)")
     private IsActive isActive;
 
-    private LocalDateTime alaramTime;
+    private LocalTime alaramTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -49,7 +48,7 @@ public class WrittingDiaryAlarm extends BaseEntity {
         }
     }
 
-    public void setIsActive(IsActive isActive) {
+    public void updateIsActive(IsActive isActive) {
         this.isActive = isActive;
     }
 }
