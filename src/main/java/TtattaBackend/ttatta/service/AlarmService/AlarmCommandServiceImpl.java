@@ -67,8 +67,11 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         } else {
             getWrittingDiaryAlarm.updateIsActive(IsActive.ON);
         }
-        LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getWrittingDiaryAlarm.getAlaramTime());
-        reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.WRITE_DIARY);
+        if (getWrittingDiaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
+            System.out.println("저장된 알림 시간: " + getWrittingDiaryAlarm.getAlaramTime());
+            LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getWrittingDiaryAlarm.getAlaramTime());
+            reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.WRITE_DIARY);
+        }
 
         return AlarmResponseDTO.WrittingDiaryAlarmOnResponseDTO.builder()
                 .alarmTime(getWrittingDiaryAlarm.getAlaramTime())
@@ -125,6 +128,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
         WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser);
+        System.out.println("저장된 알림 시간: " + getWrittingDiaryAlarm.getAlaramTime());
 
         if (getWrittingDiaryAlarm == null) {
             throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
@@ -145,4 +149,23 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         }
     }
 
+    @Override
+    public void deleteWrittingDiaryAlarm() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users getUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser);
+
+        if (getWrittingDiaryAlarm == null) {
+            throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
+        }
+        // 알림 비활성화
+        getWrittingDiaryAlarm.updateIsActive(IsActive.OFF);
+        writingDiaryAlarmRepository.save(getWrittingDiaryAlarm);
+        // 기존 예약된 알림 취소
+        if (scheduledTasks.containsKey(getUser.getId())) {
+            scheduledTasks.get(getUser.getId()).cancel(false);
+            scheduledTasks.remove(getUser.getId());
+        }
+    }
 }
