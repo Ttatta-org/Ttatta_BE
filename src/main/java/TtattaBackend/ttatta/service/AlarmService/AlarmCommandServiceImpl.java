@@ -80,8 +80,10 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
     public void scheduleDailyAlarm() {
         for (WrittingDiaryAlarm writtingDiaryAlarm : writingDiaryAlarmRepository.findAllByIsActiveUsingFetchJoin(IsActive.ON)) {
             System.out.println("Alarm Time: " + writtingDiaryAlarm.getAlaramTime());
-            LocalDateTime alarmTime = getAlarmLocalDateTime(writtingDiaryAlarm.getAlaramTime());
-            reserveSendPushNotificationByFcm(alarmTime, writtingDiaryAlarm.getUsers(), AlaramType.WRITE_DIARY);
+            if (writtingDiaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
+                LocalDateTime alarmTime = getAlarmLocalDateTime(writtingDiaryAlarm.getAlaramTime());
+                reserveSendPushNotificationByFcm(alarmTime, writtingDiaryAlarm.getUsers(), AlaramType.WRITE_DIARY);
+            }
         }
     }
 
@@ -115,6 +117,32 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
             }
         }, alarmTime.toInstant(KST_OFFSET));
         scheduledTasks.put(user.getId(), future); // 이후에 ScheduledFuture를 이용한 task 업데이트를 위해 userId를 key로 ScheduledFuture를 Map에 value로 저장
+    }
+
+    @Override
+    public void updateWrittingDiaryAlarm(AlarmRequestDTO.UpdateWritingAlarmRequestDTO request) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users getUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser);
+
+        if (getWrittingDiaryAlarm == null) {
+            throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
+        }
+        // 알림 시간 업데이트
+        getWrittingDiaryAlarm.updateAlarmTime(request.getAlarmTime());
+        writingDiaryAlarmRepository.save(getWrittingDiaryAlarm);
+        // 기존 예약된 알림 취소
+        if (scheduledTasks.containsKey(getUser.getId())) {
+            // 이미 예약된 알림이 있는 경우, 기존 예약 취소
+            scheduledTasks.get(getUser.getId()).cancel(false);
+            scheduledTasks.remove(getUser.getId());
+        }
+        // 새 알림 예약
+        if (request.getAlarmTime().isAfter(LocalTime.now())) {
+            LocalDateTime alarmTime = getAlarmLocalDateTime(getWrittingDiaryAlarm.getAlaramTime());
+            reserveSendPushNotificationByFcm(alarmTime, getUser, AlaramType.WRITE_DIARY);
+        }
     }
 
 }

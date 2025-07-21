@@ -51,4 +51,8 @@ public class WrittingDiaryAlarm extends BaseEntity {
     public void updateIsActive(IsActive isActive) {
         this.isActive = isActive;
     }
+
+    public void updateAlarmTime(LocalTime alarmTime) {
+        this.alaramTime = alarmTime;
+    }
 }

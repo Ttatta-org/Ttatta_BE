@@ -29,4 +29,13 @@ public class AlarmController {
                 alarmCommandService.sendPushNotificationByFcm()
         );
     }
+
+    // 일기 작성 알림 on (일기 작성 알림 시간 설정 및 변경 가능)
+    @PatchMapping("/write/diary/on")
+    public ApiResponse<?> updateWriteDiaryAlarm(
+            @RequestBody AlarmRequestDTO.UpdateWritingAlarmRequestDTO request
+    ) {
+        alarmCommandService.updateWrittingDiaryAlarm(request);
+        return ApiResponse.onSuccess("");
+    }
 }

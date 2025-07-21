@@ -62,7 +62,8 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 알람 관련 응답 7000
     ALARM_FCM_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "ALARM_7001", "FCM토큰이 설정되지 않았습니다."),
-    ALARM_FCM_SEND_FAIL(HttpStatus.BAD_REQUEST, "ALARM_7002", "FCM 푸시 알림 전송에 실패했습니다.");
+    ALARM_FCM_SEND_FAIL(HttpStatus.BAD_REQUEST, "ALARM_7002", "FCM 푸시 알림 전송에 실패했습니다."),
+    ALARM_NOT_FOUND(HttpStatus.BAD_REQUEST, "ALARM_7003", "설정된 알림 시간이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
