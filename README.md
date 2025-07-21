@@ -1,8 +1,7 @@
 # 따따 : 당신의 발자취 일기
-<img width="1200" height="1381" alt="image" src="https://github.com/user-attachments/assets/e474e6b5-3d7b-4d21-9124-6bac16b21ede" />
+<img width="2048" height="1381" alt="image" src="https://github.com/user-attachments/assets/28ccabee-2d62-4fc8-8761-00abdca9b045" />
 <br/><br/>
-<img width="800" height="1152" alt="image" src="https://github.com/user-attachments/assets/f84a82d4-7465-473c-b05d-a4824348a4b9" />
-<img width="800" height="1280" alt="image" src="https://github.com/user-attachments/assets/13ce1f2d-6dfd-47e4-97a1-b87b201a3526" />
+<img width="2048" height="1280" alt="image" src="https://github.com/user-attachments/assets/35b426ee-7f95-4d8e-a552-10173f08b947" />
 
 
 ## Introduction
@@ -19,14 +18,10 @@
 
 → **기존 여러 서비스의 불편함**
 
-<p>
-  <img src="https://github.com/user-attachments/assets/505aaa9b-3419-4cc6-833d-8c5f1611ef20" width="480"/>
-  <img src="https://github.com/user-attachments/assets/1c04edf2-e2ed-42cc-8c96-1df0af9ff243" width="480"/>
-</p>
-
 
 ## Solution (MVP)
 <img width="2048" height="1312" alt="image" src="https://github.com/user-attachments/assets/24c00605-6253-4cc6-9fdf-51ab32b3993b" />
+<br/><br/>
 
 **<기존의 SNS성격을 유지하되 타인을 빼버린 위치 기반 개인 맞춤 기록 공간>**
 
@@ -49,11 +44,6 @@
 - 다른 서비스: 위치 검색 → 저장하기 → 카테고리 설정 등 복잡한 과정 필요.
 - 따따 : 카메라로 찍기 → 사진과 위치가 자동으로 저장되어 간단한 사용 경험 제공.
 
-## IA & Design
-<p>
-  <img src="https://github.com/user-attachments/assets/81a98cd5-cd18-49c1-9832-c4b885610aa8" width="480"/>
-  <img src="https://github.com/user-attachments/assets/1fb0c779-5a13-4989-a3b2-b9f3e5dd8063" width="480"/>
-</p>
 
 ## Feature
 <img width="2048" height="2381" alt="image" src="https://github.com/user-attachments/assets/09391387-21ab-44b4-9a21-00be1a942fe7" />
