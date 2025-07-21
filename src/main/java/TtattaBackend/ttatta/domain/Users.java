@@ -5,6 +5,7 @@ import TtattaBackend.ttatta.domain.enums.Gender;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
 import TtattaBackend.ttatta.domain.mapping.OwnedItems;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -31,7 +32,7 @@ public class Users extends BaseEntity {
     @Column
     private String name;
 
-    @Column(nullable = false, length = 8)
+    @Column(length = 8, nullable = true)
     private String nickname;
 
     @Column(length = 15)
@@ -88,6 +89,9 @@ public class Users extends BaseEntity {
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<ChallengeRemindAlarm> challengeRemindAlarmList = new ArrayList<>();
+  
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<SummaryDiary> summaryDiaryList = new ArrayList<>();
 
     public void encodePassword(String password) {
         this.password = password;
@@ -107,4 +111,5 @@ public class Users extends BaseEntity {
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
     }
+    public void updateStatus(UserStatus status) {this.status = status;}
 }

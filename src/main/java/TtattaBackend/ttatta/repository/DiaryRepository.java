@@ -21,6 +21,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     Integer countDiariesByUsersId(Long userId);
     List<Diaries> findAllByDiaryCategories(DiaryCategories diaryCategories);
 
+    Diaries findByIdAndUsers(Long diaryId, Users user);
     Page<Diaries> findAllByUsersOrderByDateDesc(Users user, PageRequest pageRequest);
 
     @Query("SELECT d FROM Diaries d WHERE d.users = :user AND FUNCTION('DATE', d.date) = FUNCTION('DATE', :date) ORDER BY d.date DESC")
@@ -75,4 +76,9 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     // 유저별 일기 개수 조회
     @Query("SELECT COUNT(d) FROM Diaries d WHERE d.users = :user")
     long countByUsers(@Param("user") Users user);
+
+    @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.date BETWEEN :start AND :end")
+    List<Diaries> findAllByUserIdAndDate(@Param("user") Users user,
+                                            @Param("start") LocalDateTime start,
+                                            @Param("end") LocalDateTime end);
 }

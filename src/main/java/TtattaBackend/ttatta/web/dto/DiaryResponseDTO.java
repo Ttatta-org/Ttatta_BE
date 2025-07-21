@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.web.dto;
 
 
+import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -80,6 +81,7 @@ public class DiaryResponseDTO {
         LocalDateTime date;
         String content;
         String image;
+        CategoryColor color;
         boolean firstDiary;
         boolean lastDiary;
     }
@@ -119,5 +121,22 @@ public class DiaryResponseDTO {
     @AllArgsConstructor
     public static class DiaryDateDTO {
         LocalDate date;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PresignedResultDTO {
+        String presignedUrl;
+        String objectKey;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EditPresignedResultDTO {
+        String presignedUrl;
     }
 }

@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.repository;
 
 import TtattaBackend.ttatta.domain.DiaryPhotos;
+import TtattaBackend.ttatta.domain.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

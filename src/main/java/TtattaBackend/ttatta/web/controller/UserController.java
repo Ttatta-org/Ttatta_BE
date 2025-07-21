@@ -3,7 +3,6 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.Users;
-import TtattaBackend.ttatta.oidc.*;
 import TtattaBackend.ttatta.service.UserService.UserCommandService;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
@@ -97,35 +96,40 @@ public class UserController {
         return ApiResponse.onSuccess("");
     }
 
-    // 미구현
-    @Operation(summary = "카카오 회원가입", description =
-            "# 카카오 회원가입 API 입니다. header에 'OpenId: {ID token}'형식으로 ID token을 입력하고 request body에 닉네임을 입력해주세요."
+    @Operation(summary = "사용자가 PENDING 상태인지 확인하는 API", description =
+            "# 사용자의 상태 검증 API 입니다."
     )
-    @PostMapping("/signup/kakao")
-    public ApiResponse<UserResponseDTO.UserKaKaoSignUpResultDTO> signUpKakao(
-            @RequestHeader("OpenId") String openId,
-            @RequestBody UserRequestDTO.SignUpKakaoRequestDTO request
+    @GetMapping("/status")
+    public ApiResponse<UserResponseDTO.IsPendingResultDTO> checkIsPending(
     ) {
         return ApiResponse.onSuccess(
-                userCommandService.signUpKakao(openId, request)
+                userCommandService.checkIsPending()
         );
     }
 
-    // 미구현
-//    @Operation(summary = "카카오 로그인", description =
-//            "# 카카오 로그인 API 입니다."
-//    )
-//    @PostMapping("/signin/kakao")
-//    public ApiResponse<UserResponseDTO.UserSignInResultDTO> signInKakao(
-//            @RequestBody UserRequestDTO.SignInKakaoRequestDTO request
-//    ) {
-//        Users user = userCommandService.signInKakao(request);
-//        return ApiResponse.onSuccess(
-//                UserConverter.toUserSignInResultDTO(
-//                        user, null, null
-//                )
-//        );
-//    }
+    @Operation(summary = "카카오 openId 검증 API", description =
+            "# 카카오 openId 검증 API 입니다. header에 'OpenId: {ID token}'형식으로 ID token을 입력해주세요."
+    )
+    @PostMapping("/signup/kakao")
+    public ApiResponse<UserResponseDTO.UserKaKaoOpenIdResultDTO> openIdKakao(
+            @RequestHeader("OpenId") String openId
+    ) {
+        return ApiResponse.onSuccess(
+                userCommandService.openIdKakao(openId)
+        );
+    }
+
+    @Operation(summary = "카카오 회원가입 API", description =
+            "# 카카오 회원가입 API 입니다. request body에 닉네임을 입력해주세요."
+    )
+    @PostMapping("/kakao/signup/nickname")
+    public ApiResponse<UserResponseDTO.KaKaoFinalSignUpResultDTO> signUpNickname(
+            @RequestBody UserRequestDTO.SignUpKakaoRequestDTO request
+    ) {
+        return ApiResponse.onSuccess(
+                userCommandService.kakaoSignUp(request)
+        );
+    }
 
     @Operation(summary = "회원 정보 조회", description =
             "# 회원 정보 조회 API 입니다."
@@ -240,20 +244,20 @@ public class UserController {
         return ApiResponse.onSuccess("");
     }
 
-    @Operation(summary = "카카오 로그인 시 회원가입인지 로그인인지 확인하는 API", description =
-                    "header에 'OpenId: {ID token}'형식으로 ID token을 입력해주세요.\n" +
-                    "1. 페이로드 검증 및 서명 검증을 진행합니다.\n" +
-                    "2. 이미 가입한 회원인지 확인합니다.\n\n" +
-                    "회원가입이라면 isRegistered로 false를 반환하고 로그인이라면 isRegistered로 true를 반환함과 동시에 access token과 refresh token을 반환합니다."
-    )
-    @PostMapping("/verificate/kakao")
-    public ApiResponse<UserResponseDTO.TokenValidationResultDTO> validKakaoToken(
-            @RequestHeader("OpenId") String openId
-    ) {
-        return ApiResponse.onSuccess(
-                userCommandService.validateToken(openId)
-        );
-    }
+//    @Operation(summary = "카카오 로그인 시 회원가입인지 로그인인지 확인하는 API", description =
+//                    "header에 'OpenId: {ID token}'형식으로 ID token을 입력해주세요.\n" +
+//                    "1. 페이로드 검증 및 서명 검증을 진행합니다.\n" +
+//                    "2. 이미 가입한 회원인지 확인합니다.\n\n" +
+//                    "회원가입이라면 isRegistered로 false를 반환하고 로그인이라면 isRegistered로 true를 반환함과 동시에 access token과 refresh token을 반환합니다."
+//    )
+//    @PostMapping("/verificate/kakao")
+//    public ApiResponse<UserResponseDTO.TokenValidationResultDTO> validKakaoToken(
+//            @RequestHeader("OpenId") String openId
+//    ) {
+//        return ApiResponse.onSuccess(
+//                userCommandService.validateToken(openId)
+//        );
+//    }
 
     @Operation(summary = "[관리자용] 회원 삭제", description =
             "# 관리자용 API입니다. 삭제할 회원의 ID를 입력해주세요. (사용 주의)"
