@@ -30,4 +30,8 @@ public interface UserCommandService {
 //    UserResponseDTO.TokenValidationResultDTO validateToken(String openId);
     Long getUserPoint();
     void deleteUserByAdmin(Long userId);
+
+    UserResponseDTO.SetPinResultDTO setPin(UserRequestDTO.SetPinRequestDTO request);
+    UserResponseDTO.ChangePinResultDTO changePin(UserRequestDTO.ChangePinRequestDTO request);
+    UserResponseDTO.GetPinResultDTO getPin();
 }

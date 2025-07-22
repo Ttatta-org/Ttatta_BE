@@ -138,4 +138,28 @@ public class UserResponseDTO {
     public static class IsPendingResultDTO {
         boolean isPending;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SetPinResultDTO {
+        String pinHash;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChangePinResultDTO {
+        String newPinHash;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GetPinResultDTO {
+        String pinHash;
+    }
 }

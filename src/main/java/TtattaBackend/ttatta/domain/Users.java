@@ -5,7 +5,6 @@ import TtattaBackend.ttatta.domain.enums.Gender;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
 import TtattaBackend.ttatta.domain.mapping.OwnedItems;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -32,7 +31,7 @@ public class Users extends BaseEntity {
     @Column
     private String name;
 
-    @Column(length = 8, nullable = true)
+    @Column(length = 8)
     private String nickname;
 
     @Column(length = 15)
@@ -40,6 +39,9 @@ public class Users extends BaseEntity {
 
     @Column(length = 100)
     private String password;
+
+    @Column(length = 60)
+    private String pinHash;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -100,4 +102,5 @@ public class Users extends BaseEntity {
     }
     public void updatePoint(Long point) {this.point = point;}
     public void updateStatus(UserStatus status) {this.status = status;}
+    public void updatePinHash(String pinHash) {this.pinHash = pinHash;}
 }
