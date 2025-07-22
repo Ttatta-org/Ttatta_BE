@@ -96,7 +96,7 @@ jobs:
     # jsdaniell/create-json@v1.2.2 액션을 사용하여 Firebase Admin SDK JSON 파일을 생성합니다.
     - name: create-json
       id: create-json
-      uses: jsdaniell/create-json@v1.2.3
+      uses: jsdaniell/create-json@v1.2.2
       with:
         name: "firebase.json"
         json: ${{ secrets.FIREBASE_JSON }}
