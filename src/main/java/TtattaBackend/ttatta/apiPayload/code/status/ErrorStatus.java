@@ -66,7 +66,12 @@ public enum ErrorStatus implements BaseErrorCode {
     DIARY_PHOTO_NOT_FOUND(HttpStatus.NOT_FOUND, "PHOTO_7001", "일기 사진이 없습니다."),
 
     // 일기 요약 관련 응답 8000
-    SUMMARY_DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "SUMMARY_8001","일기 요약이 없습니다.");
+    SUMMARY_DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "SUMMARY_8001","일기 요약이 없습니다."),
+
+    // 알람 관련 응답 9000
+    ALARM_FCM_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "ALARM_9001", "FCM토큰이 설정되지 않았습니다."),
+    ALARM_FCM_SEND_FAIL(HttpStatus.BAD_REQUEST, "ALARM_9002", "FCM 푸시 알림 전송에 실패했습니다."),
+    ALARM_NOT_FOUND(HttpStatus.BAD_REQUEST, "ALARM_9003", "설정된 알림 시간이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

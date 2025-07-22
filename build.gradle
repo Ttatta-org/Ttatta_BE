@@ -81,9 +81,13 @@ dependencies {
 	// spring cache
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 
+	// firebase
+	implementation 'com.google.firebase:firebase-admin:9.5.0'
+
 	// OPENAI
 	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4'
 	implementation 'org.springframework.boot:spring-boot-starter-tomcat'
+
 }
 
 tasks.named('test') {
