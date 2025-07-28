@@ -8,12 +8,14 @@ import TtattaBackend.ttatta.converter.DiaryCategoryConverter;
 import TtattaBackend.ttatta.converter.UserConverter;
 import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.domain.UsersWithdrawals;
 import TtattaBackend.ttatta.domain.enums.*;
 import TtattaBackend.ttatta.jwt.JwtUtils;
 import TtattaBackend.ttatta.oidc.*;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.DiaryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
+import TtattaBackend.ttatta.repository.UserWithdrawalRepository;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
@@ -34,7 +36,9 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -63,6 +67,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryCategoryRepository diaryCategoryRepository;
+    private final UserWithdrawalRepository userWithdrawalRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtils jwtUtils;
@@ -287,11 +292,36 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public void deleteUser() {
+    @Transactional
+    public UserResponseDTO.UserDeleteResultDTO deleteUser(UserRequestDTO.DeleteRequestDTO request) {
         Users user = userRepository.findById(SecurityUtil.getCurrentUserId())
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
 
+        LocalDateTime withdrawnAt = LocalDateTime.now();    // 탈퇴일시
+        Integer totalDiary = Math.toIntExact(diaryRepository.countByUsers(user));   // 전체 일기 수
+
+        // 가입일 - 탈퇴일 활동일수 (일수로)
+        LocalDate joined = user.getCreatedAt().toLocalDate();
+        int activeDays = (int) ChronoUnit.DAYS.between(joined, withdrawnAt.toLocalDate()) + 1;
+
+        // 탈퇴 정보 저장
+        UsersWithdrawals withdrawal = UsersWithdrawals.builder()
+                .reason(request.getReason())
+                .withdrawnAt(withdrawnAt)
+                .activeDays(activeDays)
+                .totalDiary(totalDiary)
+                .build();
+        UsersWithdrawals savedWithdrawal = userWithdrawalRepository.save(withdrawal);
+
         userRepository.delete(user);
+
+        return UserResponseDTO.UserDeleteResultDTO.builder()
+                .id(savedWithdrawal.getId())
+                .reason(savedWithdrawal.getReason())
+                .withdrawnAt(savedWithdrawal.getWithdrawnAt())
+                .activeDays(savedWithdrawal.getActiveDays())
+                .totalDiary(savedWithdrawal.getTotalDiary())
+                .build();
     }
 
     @Override

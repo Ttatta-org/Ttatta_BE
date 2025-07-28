@@ -18,7 +18,7 @@ public interface UserCommandService {
 //    Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
     UserResponseDTO.UserInfoResultDTO getUserInfo();
     Users editUserInfo(UserRequestDTO.EditRequestDTO request);
-    void deleteUser();
+    UserResponseDTO.UserDeleteResultDTO deleteUser(UserRequestDTO.DeleteRequestDTO request);
     void sendMail(String email);
     void sendVerificationMailSignUp(UserRequestDTO.SendVerificationMailSignUpRequestDTO request);
     void checkVerificationCode(UserRequestDTO.CheckVerificationCodeRequestDTO request);

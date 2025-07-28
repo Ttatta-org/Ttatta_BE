@@ -90,6 +90,18 @@ public class UserResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class UserDeleteResultDTO {
+        Long id;
+        String reason;
+        LocalDateTime withdrawnAt;
+        Integer activeDays;
+        Integer totalDiary;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class FindIdResultDTO {
         String name;
         String id;

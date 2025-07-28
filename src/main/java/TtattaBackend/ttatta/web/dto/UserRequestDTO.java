@@ -77,6 +77,15 @@ public class UserRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class DeleteRequestDTO {
+        @NotBlank(message = "탈퇴 사유는 빈값일 수 없습니다.")
+        private String reason;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class SendVerificationMailSignUpRequestDTO {
         @NotBlank(message = "이메일은 빈값일 수 없습니다.")
         private String email;
