@@ -99,6 +99,12 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Override
     @Transactional // ???
     public Users signUp(UserRequestDTO.SignUpRequestDTO request) {
+        // 아이디 중복 확인
+        IsAvailable usernameAvailable = verifyUsernameOverlap(request.getUsername());
+        if (usernameAvailable.equals(IsAvailable.UNAVAILABLE)) {
+            throw new ExceptionHandler(ErrorStatus.USERNAME_ALREADY_EXIST);
+        }
+
         Users newUser = UserConverter.toUsers(request);
         newUser.encodePassword(passwordEncoder.encode(request.getPassword()));
         // 일상 카테고리 생성
