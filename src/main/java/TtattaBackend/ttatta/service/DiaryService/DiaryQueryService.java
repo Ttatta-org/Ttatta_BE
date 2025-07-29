@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.service.DiaryService;
 
 import TtattaBackend.ttatta.domain.Diaries;
+import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 
 import java.time.LocalDateTime;
@@ -14,4 +15,5 @@ public interface DiaryQueryService {
     List<LocalDateTime> getDiaryDateList();
     List<String> getPresignedForPost(String imageType);
     String getPresignedUrlForEdit(Long diaryId, String imageType);
+    DiaryResponseDTO.ViewOnMapResultDTO getMapDiaryList(DiaryRequestDTO.ViewOnMapDTO request);
 }

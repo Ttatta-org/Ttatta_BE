@@ -13,6 +13,7 @@ import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.DiaryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
+import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -167,4 +168,49 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         return s3Manager.getPresignedUrl(diaryId, imageType);
     }
 
+    @Override
+    public DiaryResponseDTO.ViewOnMapResultDTO getMapDiaryList(DiaryRequestDTO.ViewOnMapDTO request) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+
+        // ▶▶ WKT 문자열 생성 (위도(lat) 먼저, 경도(lng) 나중)
+        String wkt = String.format(
+                "POLYGON((%f %f, %f %f, %f %f, %f %f, %f %f))",
+                request.getLat1(), request.getLng1(),  // NE
+                request.getLat2(), request.getLng2(),  // SE
+                request.getLat3(), request.getLng3(),  // SW
+                request.getLat4(), request.getLng4(),  // NW
+                request.getLat1(), request.getLng1()   // 닫기 (NE)
+        );
+        log.info("▶▶ Passing WKT to repo = {}", wkt);
+
+
+        long start = System.currentTimeMillis();
+        // 쿼리 파라미터로 바로 넘깁니다
+        List<Diaries> viewOnMapDiaries = diaryRepository.findAllByUserIdAndCoordinates(
+                wkt, user.getId()
+        );
+
+        long end = System.currentTimeMillis();
+        System.out.println("쿼리 실행 시간: " + (end - start) + "ms");
+
+
+
+        List<DiaryResponseDTO.MapResultDTO> resultList = viewOnMapDiaries.stream()
+                .map(diary -> {
+                    String presignedUrl = null;
+                    List<DiaryPhotos> photoList = diary.getDiaryPhotosList();
+                    if (photoList != null && !photoList.isEmpty()) {
+                        String objectKey = photoList.get(0).getImageUrl();
+                        presignedUrl = s3Manager.generatePresignedUrlForView(objectKey);
+                    }
+                    return DiaryConverter.toMapResultDTO(diary, presignedUrl);
+                })
+                .toList();
+
+        return DiaryResponseDTO.ViewOnMapResultDTO.builder()
+                .viewOnMapList(resultList)
+                .build();
+    }
 }
