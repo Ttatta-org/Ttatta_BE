@@ -160,9 +160,11 @@ public class UserController {
             "# 회원 탈퇴 API 입니다."
     )
     @DeleteMapping("")
-    public ApiResponse<Object> deleteUser() {
-        userCommandService.deleteUser();
-        return ApiResponse.onSuccess("");
+    public ApiResponse<UserResponseDTO.UserDeleteResultDTO> deleteUser(
+            @RequestBody UserRequestDTO.DeleteRequestDTO request
+    ) {
+        UserResponseDTO.UserDeleteResultDTO result = userCommandService.deleteUser(request);
+        return ApiResponse.onSuccess(result);
     }
 
 
