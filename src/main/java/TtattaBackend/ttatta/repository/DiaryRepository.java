@@ -81,4 +81,17 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     List<Diaries> findAllByUserIdAndDate(@Param("user") Users user,
                                             @Param("start") LocalDateTime start,
                                             @Param("end") LocalDateTime end);
+
+    // clusterId 개수 조회
+    @Query("SELECT d.clusterId, COUNT(d) " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "GROUP BY d.clusterId")
+    List<Object[]> countDiariesGroupByClusterId(@Param("user") Users user);
+
+    @Query("SELECT d.clusterId, COUNT(d) " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user AND d.diaryCategories = :category " +
+            "GROUP BY d.clusterId")
+    List<Object[]> countDiariesGroupByClusterIdAndCategory(@Param("user") Users user, @Param("category") DiaryCategories category);
 }

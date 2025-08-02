@@ -39,6 +39,7 @@ public class DiaryResponseDTO {
         double latitude;
         double longitude;
         Long clusterId;
+        Boolean isSingle;
     }
 
     @Getter

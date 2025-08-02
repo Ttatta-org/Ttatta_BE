@@ -78,10 +78,8 @@ public class DiaryController {
     )
     @GetMapping("/footprint")
     public ApiResponse<DiaryResponseDTO.FootprintDiaryListDTO> getFootprintDiaryList(@RequestParam(required = false) Long diaryCategoryId) {
-        List<Diaries> diariesList = diaryQueryService.getFootprintDiaryList(diaryCategoryId);
-
         return ApiResponse.onSuccess(
-                DiaryConverter.toFootprintDiaryListDTO(diariesList)
+                diaryQueryService.getFootprintDiaryList(diaryCategoryId)
         );
     }
 

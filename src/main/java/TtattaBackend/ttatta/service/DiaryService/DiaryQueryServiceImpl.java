@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,21 +40,30 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
 
 
     @Override
-    public List<Diaries> getFootprintDiaryList(Long diaryCategoryId){
+    public DiaryResponseDTO.FootprintDiaryListDTO getFootprintDiaryList(Long diaryCategoryId){
         Long userId = SecurityUtil.getCurrentUserId();
 
         Users user =  userRepository.findById(userId).get();
 
         List<Diaries> diariesList;
+        List<Object[]> countList;
 
         if(diaryCategoryId == null) {
             diariesList = diaryRepository.findAllByUsers(user);
+            countList = diaryRepository.countDiariesGroupByClusterId(user);
         } else {
             DiaryCategories diaryCategories = diaryCategoryRepository.findById(diaryCategoryId).get();
             diariesList = diaryRepository.findDiariesByUsersAndCategories(user, diaryCategories);
+            countList = diaryRepository.countDiariesGroupByClusterIdAndCategory(user, diaryCategories);
         }
 
-        return diariesList;
+        Map<Long, Long> countMap = countList.stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
+
+        return DiaryConverter.toFootprintDiaryListDTO(diariesList, countMap);
 
     }
 
