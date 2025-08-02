@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -45,7 +46,10 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries) {
+    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries, Map<Long, Long> count) {
+        Long clusterId = diaries.getClusterId();
+        Long clusterCount = count.getOrDefault(clusterId, 1L);
+
         return DiaryResponseDTO.FootprintDiaryDTO.builder()
                 .diaryId(diaries.getId())
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
@@ -53,12 +57,14 @@ public class DiaryConverter {
                 .latitude(diaries.getLatitude())
                 .longitude(diaries.getLongitude())
                 .clusterId(diaries.getClusterId())
+                .isSingle(clusterCount == 1)
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList) {
+    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList, Map<Long,Long> count) {
         List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
-                .map(DiaryConverter::toFootprintDiaryDTO).collect(Collectors.toList());
+                .map(diary -> toFootprintDiaryDTO(diary, count))
+                .collect(Collectors.toList());
 
         return DiaryResponseDTO.FootprintDiaryListDTO.builder()
                 .footprintList(footprintDiaryDTOList)

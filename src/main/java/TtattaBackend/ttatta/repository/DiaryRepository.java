@@ -81,6 +81,19 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
                                             @Param("start") LocalDateTime start,
                                             @Param("end") LocalDateTime end);
 
+    // clusterId 개수 조회
+    @Query("SELECT d.clusterId, COUNT(d) " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "GROUP BY d.clusterId")
+    List<Object[]> countDiariesGroupByClusterId(@Param("user") Users user);
+
+    @Query("SELECT d.clusterId, COUNT(d) " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user AND d.diaryCategories = :category " +
+            "GROUP BY d.clusterId")
+    List<Object[]> countDiariesGroupByClusterIdAndCategory(@Param("user") Users user, @Param("category") DiaryCategories category);
+
     /**
      * 회전된 뷰포트 네 모서리 좌표를 받아
      * SQL 내부에서 POLYGON WKT를 만들어 ST_Contains로 필터링합니다.
