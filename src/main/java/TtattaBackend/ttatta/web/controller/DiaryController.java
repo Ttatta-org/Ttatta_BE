@@ -77,9 +77,10 @@ public class DiaryController {
                     """
     )
     @GetMapping("/footprint")
-    public ApiResponse<DiaryResponseDTO.FootprintDiaryListDTO> getFootprintDiaryList(@RequestParam(required = false) Long diaryCategoryId) {
+    public ApiResponse<DiaryResponseDTO.FootprintDiaryListDTO> getFootprintDiaryList(@RequestParam(required = false) Long diaryCategoryId,
+                                                                                     @ModelAttribute DiaryRequestDTO.ViewOnMapDTO request) {
         return ApiResponse.onSuccess(
-                diaryQueryService.getFootprintDiaryList(diaryCategoryId)
+                diaryQueryService.getFootprintDiaryList(diaryCategoryId, request)
         );
     }
 
@@ -178,19 +179,19 @@ public class DiaryController {
         );
     }
 
-    @Operation(summary = "사용자의 지도화면에 보이는 부분만 다이어리를 조회하는 API 입니다.",
-            description = """
-                    다음과 같은 쿼리 파라미터를 입력해 주세요:
-                    lng1 lat1 : NE
-                    lng2 lat2 : SE
-                    lng3 lat3 : SW
-                    lng4 lat4 : NW
-               """
-    )
-    @GetMapping(value = "/map/diaries")
-    public ApiResponse<DiaryResponseDTO.ViewOnMapResultDTO> getMapDiaries (
-            @ModelAttribute DiaryRequestDTO.ViewOnMapDTO request
-    ) {
-        return ApiResponse.onSuccess(diaryQueryService.getMapDiaryList(request));
-    }
+//    @Operation(summary = "사용자의 지도화면에 보이는 부분만 다이어리를 조회하는 API 입니다.",
+//            description = """
+//                    다음과 같은 쿼리 파라미터를 입력해 주세요:
+//                    lng1 lat1 : NE
+//                    lng2 lat2 : SE
+//                    lng3 lat3 : SW
+//                    lng4 lat4 : NW
+//               """
+//    )
+//    @GetMapping(value = "/map/diaries")
+//    public ApiResponse<DiaryResponseDTO.ViewOnMapResultDTO> getMapDiaries (
+//            @ModelAttribute DiaryRequestDTO.ViewOnMapDTO request
+//    ) {
+//        return ApiResponse.onSuccess(diaryQueryService.getMapDiaryList(request));
+//    }
 }
