@@ -20,12 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.locationtech.jts.geom.Point;
 
 @Slf4j
 @Service
@@ -207,11 +207,11 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         // ▶▶ WKT 문자열 생성 (경도(lng) 먼저, 위도(lat) 나중)
         String wkt = String.format(
                 "POLYGON((%f %f, %f %f, %f %f, %f %f, %f %f))",
-                request.getLng1(), request.getLat1(),  // NE
-                request.getLng2(), request.getLat2(),  // SE
-                request.getLng3(), request.getLat3(),  // SW
-                request.getLng4(), request.getLat4(),  // NW
-                request.getLng1(), request.getLat1()   // 닫기 (NE)
+                request.getLat1(), request.getLng1(),  // NE
+                request.getLat2(), request.getLng2(),  // SE
+                request.getLat3(), request.getLng3(),  // SW
+                request.getLat4(), request.getLng4(),  // NW
+                request.getLat1(), request.getLng1()   // 닫기 (NE)
         );
         log.info("▶▶ Passing WKT to repo = {}", wkt);
 
@@ -222,21 +222,11 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
                 wkt, user.getId()
         );
 
+        Point getLocation = viewOnMapDiaries.get(0).getLocation();
+        log.info("▶▶ Passing location Point : " + getLocation.toString());
+
         long end = System.currentTimeMillis();
 //        System.out.println("쿼리 실행 시간: " + (end - start) + "ms");
-
-
-//        List<DiaryResponseDTO.MapResultDTO> resultList = viewOnMapDiaries.stream()
-//                .map(diary -> {
-//                    String presignedUrl = null;
-//                    List<DiaryPhotos> photoList = diary.getDiaryPhotosList();
-//                    if (photoList != null && !photoList.isEmpty()) {
-//                        String objectKey = photoList.get(0).getImageUrl();
-//                        presignedUrl = s3Manager.generatePresignedUrlForView(objectKey);
-//                    }
-//                    return DiaryConverter.toMapResultDTO(diary, presignedUrl);
-//                })
-//                .toList();
 
         return viewOnMapDiaries;
     }

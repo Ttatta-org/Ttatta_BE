@@ -50,9 +50,9 @@ public class Diaries extends BaseEntity {
     private List<DiaryPhotos> diaryPhotosList = new ArrayList<>();
 
 
-        // POINT(경도 위도), SRID 4326 적용
-        @Column(columnDefinition = "POINT SRID 4326") //nullable = false 추가 필요
-        private Point location;
+    // POINT(경도 위도), SRID 4326 적용
+    @Column(columnDefinition = "POINT SRID 4326") //nullable = false 추가 필요
+    private Point location;
 
 
     private Long clusterId;
