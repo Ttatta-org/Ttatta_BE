@@ -10,6 +10,9 @@ import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -31,14 +34,19 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
     private final DiaryPhotosRepository diaryPhotosRepository;
 
     @Override
-    public Diaries save(DiaryRequestDTO.PostDTO request) {
+    public Diaries save(DiaryRequestDTO.PostDTO request, GeometryFactory geometryFactory) {
         Long userId = SecurityUtil.getCurrentUserId();
 
         Users user = userRepository.findById(userId).get();
         DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId()).get();
 
+        Point pt = geometryFactory.createPoint(
+                new Coordinate(request.getLongitude(),request.getLatitude()));
+
+        pt.setSRID(4326);
+
         // 일기
-        Diaries diaries = DiaryConverter.toDiaries(request);
+        Diaries diaries = DiaryConverter.toDiaries(request, pt);
 
         diaries.setUsers(user);
         diaries.setDiaryCategories(diaryCategories);

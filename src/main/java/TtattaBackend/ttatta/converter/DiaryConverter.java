@@ -4,6 +4,7 @@ import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.domain.DiaryPhotos;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
@@ -22,12 +23,13 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static Diaries toDiaries(DiaryRequestDTO.PostDTO request) {
+    public static Diaries toDiaries(DiaryRequestDTO.PostDTO request, Point pt) {
         return Diaries.builder()
                 .content(request.getContent())
                 .date(request.getDate())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
+                .location(pt)
                 .locationName(request.getLocationName())
                 .diaryPhotosList(new ArrayList<>()) // 여기서 diaryPhotosList명시적으로 초기화!
                 .build();
