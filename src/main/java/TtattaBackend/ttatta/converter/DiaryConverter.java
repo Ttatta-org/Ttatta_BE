@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class DiaryConverter {
 
@@ -199,6 +200,28 @@ public class DiaryConverter {
     public static DiaryResponseDTO.EditPresignedResultDTO toPresignedUrlResultDTO(String url) {
         return DiaryResponseDTO.EditPresignedResultDTO.builder()
                 .presignedUrl(url)
+                .build();
+    }
+
+    public static DiaryResponseDTO.MapResultDTO toMapResultDTO(Diaries diary, String presignedUrl) {
+        return DiaryResponseDTO.MapResultDTO.builder()
+                .diaryId(diary.getId())
+                .diaryCategoryId(diary.getDiaryCategories().getId())
+                .date(diary.getDate())
+                .content(diary.getContent())
+                .image(presignedUrl)
+                .firstDiary(false) // 사용 안 하거나 false 고정
+                .lastDiary(false)
+                .build();
+    }
+
+    public static DiaryResponseDTO.ViewOnMapResultDTO toViewOnMapResultDTO(List<Diaries> diaryList, List<String> presignedUrlList) {
+        List<DiaryResponseDTO.MapResultDTO> resultList = IntStream.range(0, diaryList.size())
+                .mapToObj(i -> DiaryConverter.toMapResultDTO(diaryList.get(i), presignedUrlList.get(i)))
+                .toList();
+
+        return DiaryResponseDTO.ViewOnMapResultDTO.builder()
+                .viewOnMapList(resultList)
                 .build();
     }
 }

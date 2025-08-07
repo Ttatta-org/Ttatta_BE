@@ -117,8 +117,8 @@ public class DiaryCategoryRepositoryTest {
         DiaryCategories savedDiaryCategory2 = diaryCategoryRepository.save(diaryCategory2);
 
 
-        Diaries diary1 = new Diaries(null,"즐거운 하루", LocalDateTime.now(),0L,0L,"숭실대학교",savedUser,savedDiaryCategory,null,null);
-        Diaries diary2 = new Diaries(null,"재밌는 하루", LocalDateTime.now(),0L,0L,"정보과학관",savedUser,savedDiaryCategory,null,null);
+        Diaries diary1 = new Diaries(null,"즐거운 하루", LocalDateTime.now(),0L,0L,"숭실대학교",savedUser,savedDiaryCategory,null,null,null);
+        Diaries diary2 = new Diaries(null,"재밌는 하루", LocalDateTime.now(),0L,0L,"정보과학관",savedUser,savedDiaryCategory,null,null,null);
 
         diaryRepository.save(diary1);
         diaryRepository.save(diary2);

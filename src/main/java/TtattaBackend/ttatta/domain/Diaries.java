@@ -5,12 +5,13 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import software.amazon.ion.Decimal;
 
+import java.awt.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.locationtech.jts.geom.Point;
 
 @Entity
 @Getter
@@ -47,6 +48,12 @@ public class Diaries extends BaseEntity {
 
     @OneToMany(mappedBy = "diaries", cascade = CascadeType.ALL)
     private List<DiaryPhotos> diaryPhotosList = new ArrayList<>();
+
+
+        // POINT(경도 위도), SRID 4326 적용
+        @Column(columnDefinition = "POINT SRID 4326") //nullable = false 추가 필요
+        private Point location;
+
 
     private Long clusterId;
 

@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -94,4 +93,23 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             "WHERE d.users = :user AND d.diaryCategories = :category " +
             "GROUP BY d.clusterId")
     List<Object[]> countDiariesGroupByClusterIdAndCategory(@Param("user") Users user, @Param("category") DiaryCategories category);
+
+    /**
+     * 회전된 뷰포트 네 모서리 좌표를 받아
+     * SQL 내부에서 POLYGON WKT를 만들어 ST_Contains로 필터링합니다.
+     */
+    @Query(value = """
+        SELECT *
+        FROM diaries d
+        WHERE ST_Contains(
+          ST_GeomFromText(:wkt, 4326),
+          d.location
+        )
+        AND d.user_id = :userId
+        """, nativeQuery = true)
+    List<Diaries> findAllByUserIdAndCoordinates(
+            @Param("wkt") String wkt,
+            @Param("userId") Long userId
+    );
+
 }

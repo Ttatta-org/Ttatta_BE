@@ -140,4 +140,12 @@ public class DiaryResponseDTO {
     public static class EditPresignedResultDTO {
         String presignedUrl;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ViewOnMapResultDTO {
+        List<MapResultDTO> viewOnMapList;
+    }
 }
