@@ -35,7 +35,6 @@ public class DiaryController {
                     저장된 일기의 ID와 사진 찍은 날짜가 반환됩니다.
                     """
     )
-
     @PostMapping(value = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ApiResponse<DiaryResponseDTO.PostResultDTO> diarySave(@Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
                                                                  @RequestPart @Valid DiaryRequestDTO.PostDTO request,
@@ -164,6 +163,22 @@ public class DiaryController {
         return ApiResponse.onSuccess(
                 DiaryConverter.toDairyDateListResultDTO(diaryDateList)
         );
+    }
+
+    @Operation(summary = "위치 기반 일기 리마인드",
+            description = """
+                    현재 위치를 기준으로 100m 이내에 있는 가장 가까운 일기 기록을 반환합니다.\n
+                    가까운 위치에 여러 기록이 있는 경우 가장 최신 기록을 반환합니다.\n
+                    request로 현재 위치 값을 (위도, 경도) 형태로 작성해주세요.
+                    """
+    )
+    @PostMapping("/remind")
+    public ApiResponse<DiaryResponseDTO.RemindResultDTO> findRemindDiary(
+            @RequestBody @Valid DiaryRequestDTO.RemindDTO request
+    ) {
+        DiaryResponseDTO.RemindResultDTO result = diaryQueryService.findRemindDiary(request);
+
+        return ApiResponse.onSuccess(result);
     }
 
 }
