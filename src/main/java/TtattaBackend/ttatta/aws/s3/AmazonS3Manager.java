@@ -2,7 +2,9 @@ package TtattaBackend.ttatta.aws.s3;
 
 import TtattaBackend.ttatta.config.AmazonConfig;
 import TtattaBackend.ttatta.repository.DiaryPhotosRepository;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.*;
@@ -130,4 +132,45 @@ public class AmazonS3Manager{
             return null;
         }
     }
+
+    // 회원 탈퇴 시 폴더 전체 삭제
+    public void deletePrefix(Long userId) {
+        final int BATCH = 1000;
+
+        String bucket = amazonConfig.getBucket();
+        String prefix = amazonConfig.getDiaryPath() + "/" + userId + "/";
+
+        try {
+            ListObjectsV2Request listReq = new ListObjectsV2Request()
+                    .withBucketName(bucket)
+                    .withPrefix(prefix);
+
+            ListObjectsV2Result listRes;
+            do {
+                listRes = amazonS3.listObjectsV2(listReq);
+
+                List<DeleteObjectsRequest.KeyVersion> batch = new ArrayList<>(BATCH);
+                for (S3ObjectSummary s : listRes.getObjectSummaries()) {
+                    batch.add(new DeleteObjectsRequest.KeyVersion(s.getKey()));
+                    if (batch.size() == BATCH) {
+                        amazonS3.deleteObjects(new DeleteObjectsRequest(bucket).withKeys(batch));
+                        batch.clear();
+                    }
+                }
+                if (!batch.isEmpty()) {
+                    amazonS3.deleteObjects(new DeleteObjectsRequest(bucket).withKeys(batch));
+                }
+
+                listReq.setContinuationToken(listRes.getNextContinuationToken());
+            } while (listRes.isTruncated());
+
+            try {
+                amazonS3.deleteObject(bucket, prefix);
+            } catch (AmazonServiceException ignore) {}
+
+        } catch (SdkClientException e) {
+            throw new RuntimeException("Failed to delete prefix for user " + userId, e);
+        }
+    }
+
 }
