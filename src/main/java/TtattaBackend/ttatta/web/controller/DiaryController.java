@@ -9,6 +9,7 @@ import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -31,7 +32,8 @@ public class DiaryController {
 
     @PostMapping(value = "/post")
     public ApiResponse<DiaryResponseDTO.PostResultDTO> diarySave(@RequestBody DiaryRequestDTO.PostDTO request){
-        Diaries diaries = diaryCommandService.save(request);
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Diaries diaries = diaryCommandService.save(request, geometryFactory);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toPostResultDTO(diaries)
