@@ -222,8 +222,8 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
                 wkt, user.getId()
         );
 
-        Point getLocation = viewOnMapDiaries.get(0).getLocation();
-        log.info("▶▶ Passing location Point : " + getLocation.toString());
+//        Point getLocation = viewOnMapDiaries.get(0).getLocation();
+//        log.info("▶▶ Passing location Point : " + getLocation.toString());
 
         long end = System.currentTimeMillis();
 //        System.out.println("쿼리 실행 시간: " + (end - start) + "ms");
