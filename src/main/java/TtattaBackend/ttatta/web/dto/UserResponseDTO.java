@@ -90,6 +90,18 @@ public class UserResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class UserDeleteResultDTO {
+        Long id;
+        String reason;
+        LocalDateTime withdrawnAt;
+        Integer activeDays;
+        Integer totalDiary;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class FindIdResultDTO {
         String name;
         String id;
@@ -109,12 +121,57 @@ public class UserResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UserKaKaoSignUpResultDTO {
+    public static class UserKaKaoOpenIdResultDTO {
+        Boolean isRegistered;
+        String accessToken;
+        String refreshToken;
+        Long userId;
+        LoginType loginType;
+        LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class KaKaoFinalSignUpResultDTO {
         String accessToken;
         String refreshToken;
         Long userId;
         String nickname;
         LoginType loginType;
         LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IsPendingResultDTO {
+        boolean isPending;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SetPinResultDTO {
+        String pinHash;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChangePinResultDTO {
+        String newPinHash;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GetPinResultDTO {
+        String pinHash;
     }
 }

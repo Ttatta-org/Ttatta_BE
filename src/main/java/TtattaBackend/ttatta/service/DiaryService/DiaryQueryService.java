@@ -9,10 +9,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DiaryQueryService {
-    List<Diaries> getFootprintDiaryList(Long diaryCategoryId);
-    Page<Diaries> getDiaryList(LocalDateTime date, int requestNum);
-    Page<Diaries> getSearchDiaryList(String content, int requestNum);
-    Page<Diaries> getMapDiaryList(Long clusterId, Long diaryCategoryId, int requestNum);
+    DiaryResponseDTO.FootprintDiaryListDTO getFootprintDiaryList(Long diaryCategoryId, DiaryRequestDTO.ViewOnMapDTO request);
+    DiaryResponseDTO.KeepDiaryListDTO getDiaryList(LocalDateTime date, int requestNum);
+    DiaryResponseDTO.SearchDiaryListDTO getSearchDiaryList(String content, int requestNum);
+    DiaryResponseDTO.MapResultDTO getMapDiaryList(Long clusterId, Long diaryCategoryId, int requestNum);
     List<LocalDateTime> getDiaryDateList();
     DiaryResponseDTO.RemindResultDTO findRemindDiary(DiaryRequestDTO.RemindDTO request);
+    List<String> getPresignedForPost(String imageType);
+    String getPresignedUrlForEdit(Long diaryId, String imageType);
 }

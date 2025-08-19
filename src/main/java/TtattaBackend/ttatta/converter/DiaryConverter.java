@@ -4,13 +4,15 @@ import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.domain.DiaryPhotos;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Page;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class DiaryConverter {
 
@@ -21,12 +23,13 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static Diaries toDiaries(DiaryRequestDTO.PostDTO request) {
+    public static Diaries toDiaries(DiaryRequestDTO.PostDTO request, Point pt) {
         return Diaries.builder()
                 .content(request.getContent())
                 .date(request.getDate())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
+                .location(pt)
                 .locationName(request.getLocationName())
                 .diaryPhotosList(new ArrayList<>()) // 여기서 diaryPhotosList명시적으로 초기화!
                 .build();
@@ -45,7 +48,10 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries) {
+    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries, Map<Long, Long> count) {
+        Long clusterId = diaries.getClusterId();
+        Long clusterCount = count.getOrDefault(clusterId, 1L);
+
         return DiaryResponseDTO.FootprintDiaryDTO.builder()
                 .diaryId(diaries.getId())
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
@@ -53,20 +59,22 @@ public class DiaryConverter {
                 .latitude(diaries.getLatitude())
                 .longitude(diaries.getLongitude())
                 .clusterId(diaries.getClusterId())
+                .isSingle(clusterCount == 1)
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList) {
-       List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
-               .map(DiaryConverter::toFootprintDiaryDTO).collect(Collectors.toList());
+    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList, Map<Long,Long> count) {
+        List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
+                .map(diary -> toFootprintDiaryDTO(diary, count))
+                .collect(Collectors.toList());
 
-       return DiaryResponseDTO.FootprintDiaryListDTO.builder()
-               .footprintList(footprintDiaryDTOList)
-               .build();
+        return DiaryResponseDTO.FootprintDiaryListDTO.builder()
+                .footprintList(footprintDiaryDTOList)
+                .build();
     }
 
     public static DiaryResponseDTO.KeepDiaryDTO toKeepDiaryDTO(Diaries diaries) {
-        String imageUrl = diaries.getDiaryPhotosList().stream()
+        String presignedUrl = diaries.getDiaryPhotosList().stream()
                 .map(DiaryPhotos::getImageUrl).collect(Collectors.toList()).get(0);
 
         return DiaryResponseDTO.KeepDiaryDTO.builder()
@@ -74,7 +82,18 @@ public class DiaryConverter {
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .date(diaries.getDate())
                 .content(diaries.getContent())
-                .image(imageUrl)
+                .image(presignedUrl)
+                .locationName(diaries.getLocationName())
+                .build();
+    }
+
+    public static DiaryResponseDTO.KeepDiaryDTO toKeepDiaryDTO(Diaries diaries, String presignedUrl) {
+        return DiaryResponseDTO.KeepDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .date(diaries.getDate())
+                .content(diaries.getContent())
+                .image(presignedUrl)
                 .locationName(diaries.getLocationName())
                 .build();
     }
@@ -100,11 +119,39 @@ public class DiaryConverter {
                 .date(diaries.getDate())
                 .content(diaries.getContent())
                 .image(imageUrl)
+                .color(diaries.getDiaryCategories().getColor())
                 .firstDiary(diaryList.isFirst())
                 .lastDiary(diaryList.isLast())
                 .build();
 
     }
+
+    public static DiaryResponseDTO.MapResultDTO toMapDiaryDTO(Page<Diaries> diaryList, String presignedUrl) {
+        Diaries diaries = diaryList.getContent().stream().findFirst().get();
+
+        return DiaryResponseDTO.MapResultDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .date(diaries.getDate())
+                .content(diaries.getContent())
+                .image(presignedUrl)
+                .firstDiary(diaryList.isFirst())
+                .lastDiary(diaryList.isLast())
+                .build();
+
+    }
+
+    public static DiaryResponseDTO.SearchDiaryDTO toSearchDiaryDTO(Diaries diaries, String presignedUrl) {
+        return DiaryResponseDTO.SearchDiaryDTO.builder()
+                .diaryId(diaries.getId())
+                .diaryCategoryId(diaries.getDiaryCategories().getId())
+                .content(diaries.getContent())
+                .date(diaries.getDate())
+                .image(presignedUrl)
+                .locationName(diaries.getLocationName())
+                .build();
+    }
+
 
     public static DiaryResponseDTO.SearchDiaryDTO toSearchDiaryDTO(Diaries diaries) {
         String imageUrl = diaries.getDiaryPhotosList().stream()
@@ -142,6 +189,41 @@ public class DiaryConverter {
 
         return DiaryResponseDTO.DairyDateListResultDTO.builder()
                 .diaryDateList(dairyDateListResultDTOList)
+                .build();
+    }
+
+    public static DiaryResponseDTO.PresignedResultDTO toPresignedUrlResultDTO(List<String> urlList) {
+        return DiaryResponseDTO.PresignedResultDTO.builder()
+                .presignedUrl(urlList.get(0))
+                .objectKey(urlList.get(1))
+                .build();
+    }
+
+    public static DiaryResponseDTO.EditPresignedResultDTO toPresignedUrlResultDTO(String url) {
+        return DiaryResponseDTO.EditPresignedResultDTO.builder()
+                .presignedUrl(url)
+                .build();
+    }
+
+    public static DiaryResponseDTO.MapResultDTO toMapResultDTO(Diaries diary, String presignedUrl) {
+        return DiaryResponseDTO.MapResultDTO.builder()
+                .diaryId(diary.getId())
+                .diaryCategoryId(diary.getDiaryCategories().getId())
+                .date(diary.getDate())
+                .content(diary.getContent())
+                .image(presignedUrl)
+                .firstDiary(false) // 사용 안 하거나 false 고정
+                .lastDiary(false)
+                .build();
+    }
+
+    public static DiaryResponseDTO.ViewOnMapResultDTO toViewOnMapResultDTO(List<Diaries> diaryList, List<String> presignedUrlList) {
+        List<DiaryResponseDTO.MapResultDTO> resultList = IntStream.range(0, diaryList.size())
+                .mapToObj(i -> DiaryConverter.toMapResultDTO(diaryList.get(i), presignedUrlList.get(i)))
+                .toList();
+
+        return DiaryResponseDTO.ViewOnMapResultDTO.builder()
+                .viewOnMapList(resultList)
                 .build();
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +20,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     Integer countDiariesByUsersId(Long userId);
     List<Diaries> findAllByDiaryCategories(DiaryCategories diaryCategories);
 
+    Diaries findByIdAndUsers(Long diaryId, Users user);
     Page<Diaries> findAllByUsersOrderByDateDesc(Users user, PageRequest pageRequest);
 
     @Query("SELECT d FROM Diaries d WHERE d.users = :user AND FUNCTION('DATE', d.date) = FUNCTION('DATE', :date) ORDER BY d.date DESC")
@@ -96,6 +96,41 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,
             @Param("radius") int radius
+      
+    @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.date BETWEEN :start AND :end")
+    List<Diaries> findAllByUserIdAndDate(@Param("user") Users user,
+                                            @Param("start") LocalDateTime start,
+                                            @Param("end") LocalDateTime end);
+
+    // clusterId 개수 조회
+    @Query("SELECT d.clusterId, COUNT(d) " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "GROUP BY d.clusterId")
+    List<Object[]> countDiariesGroupByClusterId(@Param("user") Users user);
+
+    @Query("SELECT d.clusterId, COUNT(d) " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user AND d.diaryCategories = :category " +
+            "GROUP BY d.clusterId")
+    List<Object[]> countDiariesGroupByClusterIdAndCategory(@Param("user") Users user, @Param("category") DiaryCategories category);
+
+    /**
+     * 회전된 뷰포트 네 모서리 좌표를 받아
+     * SQL 내부에서 POLYGON WKT를 만들어 ST_Contains로 필터링합니다.
+     */
+    @Query(value = """
+        SELECT *
+        FROM diaries d
+        WHERE ST_Contains(
+          ST_GeomFromText(:wkt, 4326),
+          d.location
+        )
+        AND d.user_id = :userId
+        """, nativeQuery = true)
+    List<Diaries> findAllByUserIdAndCoordinates(
+            @Param("wkt") String wkt,
+            @Param("userId") Long userId
     );
 
 }

@@ -6,7 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -21,6 +24,8 @@ public class DiaryRequestDTO {
         private double latitude;
         private double longitude;
         private String locationName;
+
+        private String objectKey;
 
     }
 
@@ -45,4 +50,18 @@ public class DiaryRequestDTO {
         @DecimalMax(value = "180.0", message = "경도는 180 이하여야 합니다.")
         private Double longitude;
     }
+
+    @Setter
+    @NoArgsConstructor
+    public static class ViewOnMapDTO {
+        private double lng1;
+        private double lat1;
+        private double lng2;
+        private double lat2;
+        private double lng3;
+        private double lat3;
+        private double lng4;
+        private double lat4;
+    }
+
 }

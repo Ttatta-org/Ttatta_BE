@@ -31,7 +31,7 @@ public class Users extends BaseEntity {
     @Column
     private String name;
 
-    @Column(nullable = false, length = 8)
+    @Column(length = 8)
     private String nickname;
 
     @Column(length = 15)
@@ -39,6 +39,9 @@ public class Users extends BaseEntity {
 
     @Column(length = 100)
     private String password;
+
+    @Column(length = 60)
+    private String pinHash;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -65,6 +68,9 @@ public class Users extends BaseEntity {
 
     private String providerId;
 
+    @Column(length = 100)
+    private String fcmToken;
+
     // 로그인 관련
 //    private LocalDateTime lastLogin;
 
@@ -79,6 +85,15 @@ public class Users extends BaseEntity {
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Challenges> challengesList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<WrittingDiaryAlarm> writtingDiaryAlarmList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<ChallengeRemindAlarm> challengeRemindAlarmList = new ArrayList<>();
+  
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<SummaryDiary> summaryDiaryList = new ArrayList<>();
 
     public void encodePassword(String password) {
         this.password = password;
@@ -95,4 +110,9 @@ public class Users extends BaseEntity {
         this.profileImage = profileImage;
     }
     public void updatePoint(Long point) {this.point = point;}
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+    public void updateStatus(UserStatus status) {this.status = status;}
+    public void updatePinHash(String pinHash) {this.pinHash = pinHash;}
 }

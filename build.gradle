@@ -35,6 +35,10 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	// test code
+	testImplementation 'org.junit.jupiter:junit-jupiter' // JUnit 5 기본 라이브러리
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine' // JUnit 5 실행 엔진
+
 	// mysql
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
@@ -76,6 +80,19 @@ dependencies {
 
 	// spring cache
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+	// firebase
+	implementation 'com.google.firebase:firebase-admin:9.5.0'
+
+	// OPENAI
+	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4'
+	implementation 'org.springframework.boot:spring-boot-starter-tomcat'
+
+
+    // 공간 데이터 처리 필수
+    implementation("org.hibernate.orm:hibernate-spatial")
+    implementation("org.locationtech.jts:jts-core:1.19.0")
+
 }
 
 tasks.named('test') {
@@ -84,4 +101,8 @@ tasks.named('test') {
 
 jar {
 	enabled = false
+}
+
+test {
+	useJUnitPlatform()
 }

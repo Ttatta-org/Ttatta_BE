@@ -1,7 +1,7 @@
 package TtattaBackend.ttatta.web.dto;
 
-import TtattaBackend.ttatta.validation.annotation.ExistUser;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -77,6 +77,15 @@ public class UserRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class DeleteRequestDTO {
+        @NotBlank(message = "탈퇴 사유는 빈값일 수 없습니다.")
+        private String reason;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class SendVerificationMailSignUpRequestDTO {
         @NotBlank(message = "이메일은 빈값일 수 없습니다.")
         private String email;
@@ -126,5 +135,25 @@ public class UserRequestDTO {
         private String email;
         @NotBlank(message = "비밀번호는 빈값일 수 없습니다.")
         private String password;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SetPinRequestDTO {
+        @NotBlank(message = "핀은 빈값일 수 없습니다.")
+        @Pattern(regexp = "^[0-9]{4}$", message = "핀은 4자리 숫자여야 합니다.")
+        private String pin;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChangePinRequestDTO {
+        @NotBlank(message = "핀은 빈값일 수 없습니다.")
+        @Pattern(regexp = "^[0-9]{4}$", message = "핀은 4자리 숫자여야 합니다.")
+        private String newPin;
     }
 }

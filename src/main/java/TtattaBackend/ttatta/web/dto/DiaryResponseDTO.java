@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.web.dto;
 
 
+import TtattaBackend.ttatta.domain.enums.CategoryColor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +39,7 @@ public class DiaryResponseDTO {
         double latitude;
         double longitude;
         Long clusterId;
+        Boolean isSingle;
     }
 
     @Getter
@@ -80,6 +82,7 @@ public class DiaryResponseDTO {
         LocalDateTime date;
         String content;
         String image;
+        CategoryColor color;
         boolean firstDiary;
         boolean lastDiary;
     }
@@ -129,5 +132,26 @@ public class DiaryResponseDTO {
         Boolean isRemind;   // 반경내에 일기가 있는지 여부
         MapResultDTO diary;
         String message;     // 결과 메시지
+    }
+
+    public static class PresignedResultDTO {
+        String presignedUrl;
+        String objectKey;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EditPresignedResultDTO {
+        String presignedUrl;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ViewOnMapResultDTO {
+        List<MapResultDTO> viewOnMapList;
     }
 }

@@ -12,11 +12,13 @@ public interface UserCommandService {
     void logout(String accessToken);
     UserResponseDTO.UserSignInResultDTO signIn(UserRequestDTO.SignInRequestDTO request);
     UserResponseDTO.RefreshResultDTO refresh(String refreshToken);
-    UserResponseDTO.UserKaKaoSignUpResultDTO signUpKakao(String openId, UserRequestDTO.SignUpKakaoRequestDTO request);
+    UserResponseDTO.UserKaKaoOpenIdResultDTO openIdKakao(String openId);
+    UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(UserRequestDTO.SignUpKakaoRequestDTO request);
+    UserResponseDTO.IsPendingResultDTO checkIsPending();
 //    Users signInKakao(UserRequestDTO.SignInKakaoRequestDTO request);    // 미구현
     UserResponseDTO.UserInfoResultDTO getUserInfo();
     Users editUserInfo(UserRequestDTO.EditRequestDTO request);
-    void deleteUser();
+    UserResponseDTO.UserDeleteResultDTO deleteUser(UserRequestDTO.DeleteRequestDTO request);
     void sendMail(String email);
     void sendVerificationMailSignUp(UserRequestDTO.SendVerificationMailSignUpRequestDTO request);
     void checkVerificationCode(UserRequestDTO.CheckVerificationCodeRequestDTO request);
@@ -25,7 +27,11 @@ public interface UserCommandService {
     void verifyUsername(String username);
     void sendVerificationMailFindPw(UserRequestDTO.SendVerificationMailFindPwRequestDTO request);
     void findPw(UserRequestDTO.FindPwRequestDTO request);
-    UserResponseDTO.TokenValidationResultDTO validateToken(String openId);
+//    UserResponseDTO.TokenValidationResultDTO validateToken(String openId);
     Long getUserPoint();
     void deleteUserByAdmin(Long userId);
+
+    UserResponseDTO.SetPinResultDTO setPin(UserRequestDTO.SetPinRequestDTO request);
+    UserResponseDTO.ChangePinResultDTO changePin(UserRequestDTO.ChangePinRequestDTO request);
+    UserResponseDTO.GetPinResultDTO getPin();
 }

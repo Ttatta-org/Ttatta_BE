@@ -26,6 +26,8 @@ public enum ErrorStatus implements BaseErrorCode {
     ID_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER_1007", "해당하는 ID가 존재하지 않습니다."),
     ID_NOT_EQUAL(HttpStatus.BAD_REQUEST, "USER_1008", "ID가 일치하지 않습니다."),
     SAME_PASSWORD(HttpStatus.BAD_REQUEST, "USER_1009", "이전 비밀번호와 동일합니다."),
+    PIN_HASH_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER_1010", "핀 해시가 존재하지 않습니다."),
+    USERNAME_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER_1011", "이미 존재하는 아이디입니다."),
 
     // 일기 관련 응답 2000
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY_2001", "해당하는 일기가 존재하지 않습니다."),
@@ -48,6 +50,7 @@ public enum ErrorStatus implements BaseErrorCode {
     REFRESHTOKEN_NOT_EQUAL(HttpStatus.NOT_FOUND, "TOKEN_4004", "refresh token이 일치하지 않습니다."),
     TOKEN_EXPIRED(HttpStatus.BAD_REQUEST,"TOKEN_4005","토큰이 만료되었습니다."),
     INVALID_TOKEN(HttpStatus.BAD_REQUEST,"TOKEN_4006","유효하지 않은 토큰입니다."),
+    INVALID_OPEN_ID(HttpStatus.BAD_REQUEST,"TOKEN_4007","유효하지 않은 open id 입니다"),
 
     // 아이템 관련 응답 5000
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND,"ITEM_5001","아이템이 없습니다."),
@@ -58,7 +61,18 @@ public enum ErrorStatus implements BaseErrorCode {
     ITEM_NOT_BUY(HttpStatus.BAD_REQUEST,"ITEM_5006","구매한 아이템이 아닙니다."),
 
     // 챌린지 관련 응답 6000
-    CHALLENGE_FULL(HttpStatus.BAD_REQUEST,"CHANLLENGE_6001","챌린지 3개가 이미 생성되어 있어 새로운 챌린지를 생성할 수 없습니다.");
+    CHALLENGE_FULL(HttpStatus.BAD_REQUEST,"CHANLLENGE_6001","챌린지 3개가 이미 생성되어 있어 새로운 챌린지를 생성할 수 없습니다."),
+
+    // 일기 사진 관련 응답 7000
+    DIARY_PHOTO_NOT_FOUND(HttpStatus.NOT_FOUND, "PHOTO_7001", "일기 사진이 없습니다."),
+
+    // 일기 요약 관련 응답 8000
+    SUMMARY_DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "SUMMARY_8001","일기 요약이 없습니다."),
+
+    // 알람 관련 응답 9000
+    ALARM_FCM_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "ALARM_9001", "FCM토큰이 설정되지 않았습니다."),
+    ALARM_FCM_SEND_FAIL(HttpStatus.BAD_REQUEST, "ALARM_9002", "FCM 푸시 알림 전송에 실패했습니다."),
+    ALARM_NOT_FOUND(HttpStatus.BAD_REQUEST, "ALARM_9003", "설정된 알림 시간이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
