@@ -51,6 +51,7 @@ public class DiaryRequestDTO {
         private Double longitude;
     }
 
+    @Getter
     @Setter
     @NoArgsConstructor
     public static class ViewOnMapDTO {
