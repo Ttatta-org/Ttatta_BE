@@ -96,6 +96,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,
             @Param("radius") int radius
+    );
       
     @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.date BETWEEN :start AND :end")
     List<Diaries> findAllByUserIdAndDate(@Param("user") Users user,
