@@ -228,7 +228,8 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
                 .message(timeMessage)
                 .build();
     }
-  
+
+    @Override
     public List<String> getPresignedForPost(String imageType) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
