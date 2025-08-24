@@ -134,6 +134,10 @@ public class DiaryResponseDTO {
         String message;     // 결과 메시지
     }
 
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PresignedResultDTO {
         String presignedUrl;
         String objectKey;
