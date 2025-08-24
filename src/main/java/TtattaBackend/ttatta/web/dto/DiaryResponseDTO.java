@@ -128,6 +128,16 @@ public class DiaryResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class RemindResultDTO {
+        Boolean isRemind;   // 반경내에 일기가 있는지 여부
+        MapResultDTO diary;
+        String message;     // 결과 메시지
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PresignedResultDTO {
         String presignedUrl;
         String objectKey;

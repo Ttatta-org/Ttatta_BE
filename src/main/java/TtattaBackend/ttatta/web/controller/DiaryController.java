@@ -8,6 +8,7 @@ import TtattaBackend.ttatta.service.DiaryService.DiaryQueryService;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.web.bind.annotation.*;
@@ -148,6 +149,22 @@ public class DiaryController {
         return ApiResponse.onSuccess(
                 DiaryConverter.toDairyDateListResultDTO(diaryDateList)
         );
+    }
+
+    @Operation(summary = "위치 기반 일기 리마인드",
+            description = """
+                    현재 위치를 기준으로 100m 이내에 있는 가장 가까운 일기 기록을 반환합니다.\n
+                    가까운 위치에 여러 기록이 있는 경우 가장 최신 기록을 반환합니다.\n
+                    request로 현재 위치 값을 (위도, 경도) 형태로 작성해주세요.
+                    """
+    )
+    @PostMapping("/remind")
+    public ApiResponse<DiaryResponseDTO.RemindResultDTO> findRemindDiary(
+            @RequestBody @Valid DiaryRequestDTO.RemindDTO request
+    ) {
+        DiaryResponseDTO.RemindResultDTO result = diaryQueryService.findRemindDiary(request);
+
+        return ApiResponse.onSuccess(result);
     }
 
     @Operation(summary = "업로드용 Presigned Url",

@@ -76,6 +76,28 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     @Query("SELECT COUNT(d) FROM Diaries d WHERE d.users = :user")
     long countByUsers(@Param("user") Users user);
 
+    // 위치 기반 일기 조회
+    @Query(value = """
+    SELECT d.* FROM diaries d 
+    WHERE d.user_id = :#{#user.id}
+    AND (6371000 * acos(
+        cos(radians(:latitude)) * cos(radians(d.latitude)) * 
+        cos(radians(d.longitude) - radians(:longitude)) + 
+        sin(radians(:latitude)) * sin(radians(d.latitude))
+    )) <= :radius
+    ORDER BY (6371000 * acos(
+        cos(radians(:latitude)) * cos(radians(d.latitude)) * 
+        cos(radians(d.longitude) - radians(:longitude)) + 
+        sin(radians(:latitude)) * sin(radians(d.latitude))
+    )) ASC, d.date DESC
+    """, nativeQuery = true)
+    List<Diaries> findNearByDiaries(
+            @Param("user") Users user,
+            @Param("latitude") double latitude,
+            @Param("longitude") double longitude,
+            @Param("radius") int radius
+    );
+      
     @Query("SELECT d FROM Diaries d WHERE d.users = :user AND d.date BETWEEN :start AND :end")
     List<Diaries> findAllByUserIdAndDate(@Param("user") Users user,
                                             @Param("start") LocalDateTime start,
