@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_NOT_FOUND;
+import static java.lang.Math.round;
 
 @Slf4j
 @Service
@@ -40,8 +41,10 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         Users user = userRepository.findById(userId).get();
         DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId()).get();
 
+
+        // 저정밀한 위도 경도 값을 POINT 형으로 저장하기
         Point pt = geometryFactory.createPoint(
-                new Coordinate(request.getLongitude(),request.getLatitude()));
+                new Coordinate(round(request.getLongitude(),3) ,round(request.getLatitude(),3)));
 
         pt.setSRID(4326);
 
@@ -128,5 +131,10 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
                 diaries.setClusterId(0L);
             }
         }
+    }
+
+    private double round(double value, int places) {
+        double scale = Math.pow(10, places);
+        return Math.round(value * scale) / scale;
     }
 }
