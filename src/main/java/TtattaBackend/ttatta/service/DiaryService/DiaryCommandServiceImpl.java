@@ -6,6 +6,8 @@ import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryConverter;
 import TtattaBackend.ttatta.domain.*;
 import TtattaBackend.ttatta.repository.*;
+import TtattaBackend.ttatta.security.EncryptedLocation;
+import TtattaBackend.ttatta.security.EnvelopeCryptoService;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.DIARY_NOT_FOUND;
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 import static java.lang.Math.round;
 
 @Slf4j
@@ -34,22 +36,37 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
     private final DiaryPhotosRepository diaryPhotosRepository;
 
+    // 암호화 저장용
+    private final EnvelopeCryptoService envelopeCryptoService;
+
     @Override
+    @Transactional
     public Diaries save(DiaryRequestDTO.PostDTO request, GeometryFactory geometryFactory) {
         Long userId = SecurityUtil.getCurrentUserId();
 
-        Users user = userRepository.findById(userId).get();
-        DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId()).get();
+        // 원래는 .get()이었음. 잘 안되면 여기 수정!!!
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        DiaryCategories diaryCategories = diaryCategoryRepository.findById(request.getDiaryCategoryId())
+                .orElseThrow(() -> new ExceptionHandler(DIARY_CATEGORY_NOT_FOUND));
 
 
         // 저정밀한 위도 경도 값을 POINT 형으로 저장하기
+        // 소수점 3자리까지 나타냄. (약 100m의 오차)
         Point pt = geometryFactory.createPoint(
                 new Coordinate(round(request.getLongitude(),3) ,round(request.getLatitude(),3)));
 
         pt.setSRID(4326);
 
+        // 암호화 (AAD로 userId 등 고정 식별자를 얹음?? -> 확인 필요)
+        EncryptedLocation enc = envelopeCryptoService.encryptLatLng(
+                request.getLatitude(),request.getLongitude(),user.getId()
+        );
+
+
         // 일기
-        Diaries diaries = DiaryConverter.toDiaries(request, pt);
+        Diaries diaries = DiaryConverter.toDiaries(request, pt, enc);
 
         diaries.setUsers(user);
         diaries.setDiaryCategories(diaryCategories);
