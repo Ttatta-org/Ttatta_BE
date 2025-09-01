@@ -34,7 +34,7 @@ public class AlarmController {
     @PostMapping("/write/diary/on")
     public ApiResponse<AlarmResponseDTO.WrittingDiaryAlarmOnResponseDTO> writeDiaryAlarmOn() {
         return ApiResponse.onSuccess(
-                alarmCommandService.sendPushNotificationByFcm()
+                alarmCommandService.sendWritingDiaryPushAlarmNotificationByFcm()
         );
     }
 
@@ -72,4 +72,36 @@ public class AlarmController {
         return ApiResponse.onSuccess("");
     }
 
+    // 챌린지 리마인드 알림 on (챌린지 리마인드 알림 시간 설정 및 변경 가능)
+    @Operation(summary = "챌린지 리마인드 알림 on (챌린지 리마인드 알림 시간 설정 및 변경 가능) api",
+            description = "챌린지 리마인드 알림을 on으로 바꿀 시에 요청하는 api입니다. 사용자가 설정했던 시간에 알림을 예약합니다. 첫 알림 on이라면 default로 2시간전으로 알림이 예약됩니다. \n"
+                    + "header에 access token을 넣어주세요.")
+    @PostMapping("/challenge/remind/on")
+    public ApiResponse<AlarmResponseDTO.ChallengeRemindAlarmOnResponseDTO> challengeRemindAlarmOn() {
+        return ApiResponse.onSuccess(
+                alarmCommandService.sendChallengeRemindPushAlarmNotificationByFcm()
+        );
+    }
+
+    // 챌린지 리마인드 알림 on (챌린지 리마인드 알림 시간 설정 및 변경 가능)
+    @Operation(summary = "챌린지 리마인드 알림 시간 변경 (챌린지 리마인드 알림이 on일때) api",
+            description = "챌린지 리마인드 알림 시간 변경 (챌린지 리마인드 알림이 on일때) api입니다. \n"
+                    + "header에 access token을 넣어주세요.")
+    @PatchMapping("/challenge/remind/on")
+    public ApiResponse<?> updateChallengeRemindlarm(
+            @RequestBody AlarmRequestDTO.UpdateChallengeRemindAlarmRequestDTO request
+    ) {
+        alarmCommandService.updateChallengeRemindAlarm(request);
+        return ApiResponse.onSuccess("");
+    }
+
+    // 일기 작성 알림 on (일기 작성 알림 시간 설정 및 변경 가능)
+    @Operation(summary = "챌린지 리마인드 알림 off api",
+            description = "챌린지 리마인드 알림 off api api입니다. \n"
+                    + "header에 access token을 넣어주세요.")
+    @PatchMapping("/challenge/remind/off")
+    public ApiResponse<?> deleteChallengeRemindAlarm() {
+        alarmCommandService.deleteChallengeRemindAlarm();
+        return ApiResponse.onSuccess("");
+        }
 }

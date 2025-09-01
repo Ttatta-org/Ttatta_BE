@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Time;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -18,17 +19,11 @@ public class ChallengeRemindAlarm extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Column(columnDefinition = "VARCHAR(50)")
-//    private String title;
-//
-//    @Column(columnDefinition = "TEXT")
-//    private String body;
-
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(10)")
     private IsActive isActive;
 
-    private int aFewHoursAgo;
+    private LocalTime alaramTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -46,5 +41,13 @@ public class ChallengeRemindAlarm extends BaseEntity {
         if (users != null) {
             users.getChallengeRemindAlarmList().add(this);
         }
+    }
+
+    public void updateIsActive(IsActive isActive) {
+        this.isActive = isActive;
+    }
+
+    public void updateAlarmTime(LocalTime alarmTime) {
+        this.alaramTime = alarmTime;
     }
 }

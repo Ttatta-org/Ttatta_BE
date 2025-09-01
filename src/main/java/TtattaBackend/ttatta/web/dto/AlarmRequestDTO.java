@@ -24,4 +24,10 @@ public class AlarmRequestDTO {
         @JsonFormat(pattern = "HH:mm:ss")
         private LocalTime alarmTime;
     }
+
+    @Builder
+    @Getter
+    public static class UpdateChallengeRemindAlarmRequestDTO {
+        private String hoursAgo;
+    }
 }

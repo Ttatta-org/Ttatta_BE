@@ -18,12 +18,6 @@ public class MemoryDiaryAlarm extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "VARCHAR(50)")
-    private String title;
-
-    @Column(columnDefinition = "TEXT")
-    private String body;
-
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(10)")
     private IsActive isActive;
