@@ -131,7 +131,9 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
     @Override
     public void setClusterId(Users user, DiaryRequestDTO.PostDTO request, Diaries diaries) {
-        Optional<Long> existClusterId = diaryRepository.findFirstClusterIdByUsersAndLatitudeAndLongitude(user, request.getLatitude(), request.getLongitude());
+        // 임시 방편
+        String wkt = String.format("POINT(%f %f)", round(request.getLatitude(), 3), round(request.getLongitude(), 3));
+        Optional<Long> existClusterId = diaryRepository.findFirstClusterIdByUserAndLocation(user, wkt);
 
         if(existClusterId.isPresent()) {
             // 장소 같은 경우

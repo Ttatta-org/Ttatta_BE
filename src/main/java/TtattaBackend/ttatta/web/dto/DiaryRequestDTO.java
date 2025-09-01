@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -26,6 +27,9 @@ public class DiaryRequestDTO {
         private String locationName;
 
         private String objectKey;
+
+        // 임시 추가
+        private Point location;
 
     }
 

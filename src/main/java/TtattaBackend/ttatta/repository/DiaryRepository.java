@@ -60,6 +60,17 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             "AND FLOOR(d.longitude * 100000.0) = FLOOR(:longitude * 100000.0)")
     Optional<Long> findFirstClusterIdByUsersAndLatitudeAndLongitude(@Param("user") Users user, @Param("latitude") double latitude, @Param("longitude") double longitude);
 
+
+    @Query("SELECT d.clusterId " +
+            "FROM Diaries d " +
+            "WHERE d.users = :user " +
+            "AND d.location = function('ST_GeomFromText', :wkt, 4326)")
+    Optional<Long> findFirstClusterIdByUserAndLocation(
+            @Param("user") Users user,
+            @Param("wkt") String wkt
+    );
+
+
     Optional<Diaries> findTop1ClusterIdByUsersOrderByClusterIdDesc(@Param("user") Users user);
 
 
