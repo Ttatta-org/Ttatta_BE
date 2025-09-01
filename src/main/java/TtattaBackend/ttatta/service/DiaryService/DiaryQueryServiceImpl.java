@@ -6,13 +6,14 @@ import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.aws.s3.AmazonS3Manager;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryConverter;
-import TtattaBackend.ttatta.domain.Diaries;
-import TtattaBackend.ttatta.domain.DiaryCategories;
-import TtattaBackend.ttatta.domain.DiaryPhotos;
-import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.domain.*;
+import TtattaBackend.ttatta.domain.enums.IsActive;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.DiaryRepository;
+import TtattaBackend.ttatta.repository.MemoryDiaryAlarmRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
+import TtattaBackend.ttatta.service.AlarmService.AlaramType;
+import TtattaBackend.ttatta.service.AlarmService.AlarmCommandService;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.locationtech.jts.geom.Point;
 
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,8 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     private final UserRepository userRepository;
     private final DiaryCategoryRepository diaryCategoryRepository;
     private final AmazonS3Manager s3Manager;
+    private final AlarmCommandService alarmCommandService;
+    private final MemoryDiaryAlarmRepository memoryDiaryAlarmRepository;
 
     private static final int SEARCH_RANGE = 100;    // 검색 범위 설정 (100m)
 
@@ -185,19 +190,23 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     }
 
     @Override
-    public DiaryResponseDTO.RemindResultDTO findRemindDiary(DiaryRequestDTO.RemindDTO request) {
+    public void findRemindDiary(DiaryRequestDTO.RemindDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElseThrow(
                 () -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+
+        // 위치 기반 추억 회상 알림이 꺼져있는 경우
+        MemoryDiaryAlarm memoryDiaryAlarm = memoryDiaryAlarmRepository.findByUsers(user)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.MEMORY_DIARY_ALARM_NOT_FOUND));
+        if (memoryDiaryAlarm.getIsActive() == IsActive.OFF) {
+            return;
+        }
 
         // 검색 범위 내 일기 검색
         List<Diaries> nearDiaries = diaryRepository.findNearByDiaries(user, request.getLatitude(), request.getLongitude(), SEARCH_RANGE);
 
         if (nearDiaries.isEmpty()) {    // 검색 범위 내에 일기가 없는 경우
-            return DiaryResponseDTO.RemindResultDTO.builder()
-                    .isRemind(false)
-                    .message(SEARCH_RANGE + "m 이내에 일기가 없습니다.")
-                    .build();
+            return;
         }
 
         // 가장 가까운 일기 선택
@@ -210,23 +219,20 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         long days = ChronoUnit.DAYS.between(nearestDiary.getDate().toLocalDate(), LocalDate.now());
         String timeMessage;
         if (days < 7) {
-            timeMessage = days + "일 전 이곳을 방문해 기록을 남겼어요";
+            timeMessage = days + "일";
         } else if (days < 30) {
             long weeks = days / 7;
-            timeMessage = weeks + "주 전 이곳을 방문해 기록을 남겼어요";
+            timeMessage = weeks + "주";
         } else if (days < 365) {
             long months = days / 30;
-            timeMessage = months + "개월 전 이곳을 방문해 기록을 남겼어요";
+            timeMessage = months + "개월";
         } else {
             long years = days / 365;
-            timeMessage = years + "년 전 이곳을 방문해 기록을 남겼어요";
+            timeMessage = years + "년";
         }
 
-        return DiaryResponseDTO.RemindResultDTO.builder()
-                .isRemind(true)
-                .diary(DiaryConverter.toMapDiaryDTO(diaryPage))
-                .message(timeMessage)
-                .build();
+        // 알림 보내기
+        alarmCommandService.sendMemoryDiaryAlarm(user, timeMessage, nearestDiary.getId());
     }
 
     @Override

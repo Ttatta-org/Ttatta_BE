@@ -1,6 +1,7 @@
 package TtattaBackend.ttatta.web.controller;
 
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
+import TtattaBackend.ttatta.domain.enums.MemoryDiaryAlarmStatus;
 import TtattaBackend.ttatta.service.AlarmService.AlarmCommandService;
 import TtattaBackend.ttatta.web.dto.AlarmRequestDTO;
 import TtattaBackend.ttatta.web.dto.AlarmResponseDTO;
@@ -58,4 +59,17 @@ public class AlarmController {
         alarmCommandService.deleteWrittingDiaryAlarm();
         return ApiResponse.onSuccess("");
     }
+
+    // 위치 기반 추억 회상 알림 on (위치 기반 추억 회상 알림 시간 설정 및 변경 가능)
+    @Operation(summary = "위치 기반 추억 회상 알림 on/off (위치 기반 추억 회상 알림 시간 설정) api",
+            description = "위치 기반 추억 회상 알림을 on으로 바꿀 시 'ON'을 off로 바꿀 시 'OFF'를 Query String에 넣어주세요. \n"
+                    + "header에 access token을 넣어주세요.")
+    @PostMapping("/memory/diary/on/off")
+    public ApiResponse<?> challengeRemindDiaryAlarmOn(
+            @RequestParam("memoryDiaryAlarmStatus") MemoryDiaryAlarmStatus memoryDiaryAlarmStatus
+    ) {
+        alarmCommandService.setMemoryDiaryAlarmStatus(memoryDiaryAlarmStatus);
+        return ApiResponse.onSuccess("");
+    }
+
 }
