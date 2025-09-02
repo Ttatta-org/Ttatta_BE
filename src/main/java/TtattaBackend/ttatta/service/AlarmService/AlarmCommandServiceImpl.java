@@ -3,11 +3,13 @@ package TtattaBackend.ttatta.service.AlarmService;
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
+import TtattaBackend.ttatta.domain.ChallengeRemindAlarm;
+import TtattaBackend.ttatta.domain.MemoryDiaryAlarm;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.WrittingDiaryAlarm;
+import TtattaBackend.ttatta.domain.enums.MemoryDiaryAlarmStatus;
 import TtattaBackend.ttatta.domain.enums.IsActive;
-import TtattaBackend.ttatta.repository.UserRepository;
-import TtattaBackend.ttatta.repository.WritingDiaryAlarmRepository;
+import TtattaBackend.ttatta.repository.*;
 import TtattaBackend.ttatta.web.dto.AlarmRequestDTO;
 import TtattaBackend.ttatta.web.dto.AlarmResponseDTO;
 import jakarta.transaction.Transactional;
@@ -21,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
@@ -31,10 +34,16 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
     private final WritingDiaryAlarmRepository writingDiaryAlarmRepository;
     private static final ZoneOffset KST_OFFSET = ZoneOffset.ofHours(9);
     private final TaskScheduler taskScheduler;
-    private final Map<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+    private final Map<Long, ScheduledFuture<?>> writingDiaryAlarmScheduledTasks = new ConcurrentHashMap<>();
+    private final Map<Long, ScheduledFuture<?>> memoryDiaryAlarmScheduledTasks = new ConcurrentHashMap<>();
+    private final Map<Long, ScheduledFuture<?>> challengeRemindAlarmScheduledTasks = new ConcurrentHashMap<>();
+    private final Map<Long, ScheduledFuture<?>> diarySummaryAlarmScheduledTasks = new ConcurrentHashMap<>();
     private final FcmPushSender fcmPushSender;
     private static final LocalTime DEFAULT_ALARM_TIME = LocalTime.of(22, 0);
     private static final LocalTime STANDARD_SETTING_ALARM_TIME = LocalTime.of(3, 0); // 새벽 3시에 모든 알림 예약
+    private final MemoryDiaryAlarmRepository memoryDiaryAlarmRepository;
+    private final ChallengeRemindAlarmRepository challengeRemindAlarmRepository;
+    private final ChallengeRepository challengeRepository;
 
     @Override
     @Transactional
@@ -47,7 +56,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
 
     @Override
     @Transactional
-    public AlarmResponseDTO.WrittingDiaryAlarmOnResponseDTO sendPushNotificationByFcm() {
+    public AlarmResponseDTO.WrittingDiaryAlarmOnResponseDTO sendWritingDiaryPushAlarmNotificationByFcm() {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
@@ -68,9 +77,9 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
             getWrittingDiaryAlarm.updateIsActive(IsActive.ON);
         }
         if (getWrittingDiaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
-            System.out.println("저장된 알림 시간: " + getWrittingDiaryAlarm.getAlaramTime());
+//            System.out.println("저장된 알림 시간: " + getWrittingDiaryAlarm.getAlaramTime());
             LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getWrittingDiaryAlarm.getAlaramTime());
-            reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.WRITE_DIARY);
+            reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.WRITE_DIARY, writingDiaryAlarmScheduledTasks);
         }
 
         return AlarmResponseDTO.WrittingDiaryAlarmOnResponseDTO.builder()
@@ -85,7 +94,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
             System.out.println("Alarm Time: " + writtingDiaryAlarm.getAlaramTime());
             if (writtingDiaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
                 LocalDateTime alarmTime = getAlarmLocalDateTime(writtingDiaryAlarm.getAlaramTime());
-                reserveSendPushNotificationByFcm(alarmTime, writtingDiaryAlarm.getUsers(), AlaramType.WRITE_DIARY);
+                reserveSendPushNotificationByFcm(alarmTime, writtingDiaryAlarm.getUsers(), AlaramType.WRITE_DIARY, writingDiaryAlarmScheduledTasks);
             }
         }
     }
@@ -106,7 +115,11 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         }
     }
 
-    private void reserveSendPushNotificationByFcm(LocalDateTime alarmTime, Users user, AlaramType alaramType) {
+    private void reserveSendPushNotificationByFcm(LocalDateTime alarmTime, Users user, AlaramType alaramType, Map<Long, ScheduledFuture<?>> scheduledTasks) {
+        reserveSendPushNotificationByFcm(alarmTime, user, alaramType, scheduledTasks, null, null);
+    }
+
+    private void reserveSendPushNotificationByFcm(LocalDateTime alarmTime, Users user, AlaramType alaramType, Map<Long, ScheduledFuture<?>> scheduledTasks, String memoryDiaryAlarmDaysAgo, Long diaryId) {
         ScheduledFuture<?> future = taskScheduler.schedule(() -> {
             try {
                 if (scheduledTasks.containsKey(user.getId())) {
@@ -114,7 +127,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                     scheduledTasks.get(user.getId()).cancel(false);
                     scheduledTasks.remove(user.getId());
                 }
-                fcmPushSender.sendPushNotification(user.getFcmToken(), alaramType);
+                fcmPushSender.sendPushNotification(user.getFcmToken(), alaramType, memoryDiaryAlarmDaysAgo, diaryId);
             } finally {
                 scheduledTasks.remove(user.getId()); // 실행 후 Map에서 예약 알림 제거
             }
@@ -137,15 +150,15 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         getWrittingDiaryAlarm.updateAlarmTime(request.getAlarmTime());
         writingDiaryAlarmRepository.save(getWrittingDiaryAlarm);
         // 기존 예약된 알림 취소
-        if (scheduledTasks.containsKey(getUser.getId())) {
+        if (writingDiaryAlarmScheduledTasks.containsKey(getUser.getId())) {
             // 이미 예약된 알림이 있는 경우, 기존 예약 취소
-            scheduledTasks.get(getUser.getId()).cancel(false);
-            scheduledTasks.remove(getUser.getId());
+            writingDiaryAlarmScheduledTasks.get(getUser.getId()).cancel(false);
+            writingDiaryAlarmScheduledTasks.remove(getUser.getId());
         }
         // 새 알림 예약
         if (request.getAlarmTime().isAfter(LocalTime.now())) {
             LocalDateTime alarmTime = getAlarmLocalDateTime(getWrittingDiaryAlarm.getAlaramTime());
-            reserveSendPushNotificationByFcm(alarmTime, getUser, AlaramType.WRITE_DIARY);
+            reserveSendPushNotificationByFcm(alarmTime, getUser, AlaramType.WRITE_DIARY, writingDiaryAlarmScheduledTasks);
         }
     }
 
@@ -163,9 +176,125 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         getWrittingDiaryAlarm.updateIsActive(IsActive.OFF);
         writingDiaryAlarmRepository.save(getWrittingDiaryAlarm);
         // 기존 예약된 알림 취소
-        if (scheduledTasks.containsKey(getUser.getId())) {
-            scheduledTasks.get(getUser.getId()).cancel(false);
-            scheduledTasks.remove(getUser.getId());
+        if (writingDiaryAlarmScheduledTasks.containsKey(getUser.getId())) {
+            writingDiaryAlarmScheduledTasks.get(getUser.getId()).cancel(false);
+            writingDiaryAlarmScheduledTasks.remove(getUser.getId());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void setMemoryDiaryAlarmStatus(MemoryDiaryAlarmStatus memoryDiaryAlarmStatus) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users getUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        MemoryDiaryAlarm getMemoryDiaryAlarm = memoryDiaryAlarmRepository.findByUsers(getUser)
+                .orElseGet(() -> memoryDiaryAlarmRepository.save(
+                        MemoryDiaryAlarm.builder()
+                                .users(getUser)
+                                .isActive(IsActive.OFF) // 기본값 OFF
+                                .build()
+                )); // orElseGet은 Optional이 비어 있을 때에만 생성/저장 수행
+        if (memoryDiaryAlarmStatus == MemoryDiaryAlarmStatus.ON) {
+            // 현재 상태가 OFF 상태인지 확인하는 로직이 필요할까
+            getMemoryDiaryAlarm.updateIsActive(IsActive.ON);
+        } else if (memoryDiaryAlarmStatus == MemoryDiaryAlarmStatus.OFF) {
+            // 현재상태가 ON 상태인지 확인하는 로직이 필요할까
+            getMemoryDiaryAlarm.updateIsActive(IsActive.OFF);
+        }
+    }
+
+    @Override
+    public void sendMemoryDiaryAlarm(Users user, String memoryDiaryAlarmDaysAgo, Long diaryId) {
+        reserveSendPushNotificationByFcm(LocalDateTime.now(), user, AlaramType.MEMORY_DIARY, memoryDiaryAlarmScheduledTasks, memoryDiaryAlarmDaysAgo, diaryId);
+    }
+
+    @Override
+    @Transactional
+    public AlarmResponseDTO.ChallengeRemindAlarmOnResponseDTO sendChallengeRemindPushAlarmNotificationByFcm() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users getUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser);
+
+        if (getUser.getFcmToken() == null || getUser.getFcmToken().isEmpty()) {
+            throw new ExceptionHandler(ErrorStatus.ALARM_FCM_TOKEN_NOT_FOUND);
+        }
+        if (getChallengeRemindAlarm == null) { // on을 처음한다면 10시로 기본시간 설정
+            getChallengeRemindAlarm = challengeRemindAlarmRepository.save(
+                    ChallengeRemindAlarm.builder()
+                            .users(getUser)
+                            .alaramTime(DEFAULT_ALARM_TIME)
+                            .isActive(IsActive.ON)
+                            .build()
+            );
+        } else {
+            getChallengeRemindAlarm.updateIsActive(IsActive.ON);
+        }
+        if (getChallengeRemindAlarm.getAlaramTime().isAfter(LocalTime.now()) && challengeRepository.findByUsers(getUser) != null) { // 현재 시간보다 이전 알림 시간은 예약하지 않음, 챌린지가 없으면 알림 예약 x
+            LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getChallengeRemindAlarm.getAlaramTime());
+            reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.WRITE_DIARY, writingDiaryAlarmScheduledTasks);
+        }
+
+        return AlarmResponseDTO.ChallengeRemindAlarmOnResponseDTO.builder()
+                .hoursAgo(toHoursAgoString(getChallengeRemindAlarm.getAlaramTime()))
+                .build();
+    }
+
+    @Override
+    public void updateChallengeRemindAlarm(AlarmRequestDTO.UpdateChallengeRemindAlarmRequestDTO request) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users getUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser);
+
+        if (getChallengeRemindAlarm == null) {
+            throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
+        }
+        LocalTime requestAlarmTime = toLocalTime(request.getHoursAgo());
+        // 알림 시간 업데이트
+        getChallengeRemindAlarm.updateAlarmTime(requestAlarmTime);
+        challengeRemindAlarmRepository.save(getChallengeRemindAlarm);
+        // 기존 예약된 알림 취소
+        if (challengeRemindAlarmScheduledTasks.containsKey(getUser.getId())) {
+            // 이미 예약된 알림이 있는 경우, 기존 예약 취소
+            challengeRemindAlarmScheduledTasks.get(getUser.getId()).cancel(false);
+            challengeRemindAlarmScheduledTasks.remove(getUser.getId());
+        }
+        // 새 알림 예약
+        if (requestAlarmTime.isAfter(LocalTime.now()) && challengeRepository.findByUsers(getUser) != null) { // 챌린지가 없으면 알림 예약 x
+            LocalDateTime alarmTime = getAlarmLocalDateTime(getChallengeRemindAlarm.getAlaramTime());
+            reserveSendPushNotificationByFcm(alarmTime, getUser, AlaramType.CHALLENGE_REMIND, challengeRemindAlarmScheduledTasks);
+        }
+    }
+
+    private String toHoursAgoString(LocalTime time) {
+        // 몇시간전인지 계산하고 시간을 String으로 반환
+        return String.valueOf(time.getHour());
+    }
+
+    private LocalTime toLocalTime(String hoursAgoString) {
+        // hoursAgoString을 LocalTime으로 변환
+        return LocalTime.of(Integer.parseInt(hoursAgoString), 0);
+    }
+
+    @Override
+    public void deleteChallengeRemindAlarm() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users getUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser);
+
+        if (getChallengeRemindAlarm == null) {
+            throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
+        }
+        // 알림 비활성화
+        getChallengeRemindAlarm.updateIsActive(IsActive.OFF);
+        challengeRemindAlarmRepository.save(getChallengeRemindAlarm);
+        // 기존 예약된 알림 취소
+        if (challengeRemindAlarmScheduledTasks.containsKey(getUser.getId())) {
+            challengeRemindAlarmScheduledTasks.get(getUser.getId()).cancel(false);
+            challengeRemindAlarmScheduledTasks.remove(getUser.getId());
         }
     }
 }
