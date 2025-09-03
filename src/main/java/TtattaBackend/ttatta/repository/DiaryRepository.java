@@ -61,16 +61,6 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     Optional<Long> findFirstClusterIdByUsersAndLatitudeAndLongitude(@Param("user") Users user, @Param("latitude") double latitude, @Param("longitude") double longitude);
 
 
-    @Query("SELECT d.clusterId " +
-            "FROM Diaries d " +
-            "WHERE d.users = :user " +
-            "AND d.location = function('ST_GeomFromText', :wkt, 4326)")
-    Optional<Long> findFirstClusterIdByUserAndLocation(
-            @Param("user") Users user,
-            @Param("wkt") String wkt
-    );
-
-
     Optional<Diaries> findTop1ClusterIdByUsersOrderByClusterIdDesc(@Param("user") Users user);
 
 
@@ -145,4 +135,27 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             @Param("userId") Long userId
     );
 
+
+    @Query(value = """
+        SELECT d
+        FROM Diaries d
+        WHERE d.users = :user
+        AND d.clusterId IN (
+            SELECT d2.clusterId
+            FROM Diaries d2
+            WHERE d2.users = :user
+            GROUP BY d2.clusterId
+            HAVING count(d2) = 1
+        )
+        AND d.createdAt = (
+            SELECT max(d3.createdAt)
+            FROM Diaries d3
+            WHERE d3.users = :user
+                AND d3.clusterId = d.clusterId
+        )
+        ORDER BY d.createdAt DESC 
+""")
+    List<Diaries> findLatestUniqueClusterIdDiary(
+            @Param("user") Users user
+    );
 }

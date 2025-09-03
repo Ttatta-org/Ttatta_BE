@@ -29,7 +29,6 @@ public class DiaryRequestDTO {
         private String objectKey;
 
         // 임시 추가
-        private Point location;
 
     }
 
