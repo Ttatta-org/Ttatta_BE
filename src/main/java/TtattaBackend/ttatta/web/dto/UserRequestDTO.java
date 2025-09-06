@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.web.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -27,6 +28,10 @@ public class UserRequestDTO {
         @Size(min = 6, max = 15, message = "아이디는 6 ~ 15자이어야 합니다.")
         private String username;
         @NotBlank(message = "비밀번호는 빈값일 수 없습니다.")
+        @Schema(example = "string123!#")
+        @Size(min = 8)
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
+                message = "비밀번호는 영문자, 숫자, 특수문자를 각각 1자 이상 포함해야 합니다.")
         private String password;
     }
 
