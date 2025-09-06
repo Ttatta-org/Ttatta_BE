@@ -33,30 +33,43 @@ public class CustomUserDetailsService implements CustomDetailsService {
 
         if (user.isLockedNow()) {
             Duration remain = Duration.between(LocalDateTime.now(), user.getLockUntil());
-            long remainMin = Math.max(1, remain.toMinutes());
-            throw new LockedException("계정이 잠겨있습니다. 약 " + remainMin + "분 후에 다시 시도해주세요.");
-        }
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            user.updateFailedAttempts(user.getFailedAttempts() + 1);
-            userRepository.save(user);
+            long remainHours = remain.toHours();
+            long remainMinutes = remain.toMinutes();
 
-            Users refreshed = userRepository.findByUsername(username).orElse(user);
-            int attempts = refreshed.getFailedAttempts();
-
-            if (attempts >= MAX_ATTEMPTS) {
-                refreshed.lockFor(LOCK_DURATION);
-                userRepository.save(refreshed);
-                throw new LockedException("비밀번호 " + MAX_ATTEMPTS + "회 오류로 계정 잠긴 상태입니다. ");
+            String message;
+            if (remainHours >= 1) {
+                message = "비밀번호 " + MAX_ATTEMPTS + "회 오류로 계정 잠긴 상태입니다. 약 " + (remainHours + 1) + "시간 후에 다시 시도해주세요.";
+            } else {
+                long remainMin = Math.max(1, remainMinutes);
+                message = "비밀번호 " + MAX_ATTEMPTS + "회 오류로 계정 잠긴 상태입니다. 약 " + remainMin + "분 후에 다시 시도해주세요.";
             }
 
-            throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.");
+            throw new LockedException(message);
         }
 
         if (user.getFailedAttempts() != 0 || user.getLockUntil() != null) {
             user.resetLock();
             userRepository.save(user);
         }
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            Users refreshed = userRepository.findByUsername(username).orElse(user);
+            int attempts = refreshed.getFailedAttempts();
+            int currentAttempts = attempts + 1;
+
+            if (currentAttempts >= MAX_ATTEMPTS) {
+                refreshed.lockFor(LOCK_DURATION);
+                userRepository.save(refreshed);
+                throw new LockedException("비밀번호 " + MAX_ATTEMPTS + "회 오류로 계정 잠긴 상태입니다.");
+            }
+
+            user.updateFailedAttempts(currentAttempts);
+            userRepository.save(user);
+
+            throw new BadCredentialsException("아이디 또는 비밀번호가 올바르지 않습니다. (남은 시도: " + (MAX_ATTEMPTS - currentAttempts) + "회)");
+        }
+
 
         User securityUser = new User(
                 user.getUsername(),
