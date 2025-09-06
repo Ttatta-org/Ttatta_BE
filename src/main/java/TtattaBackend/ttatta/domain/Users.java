@@ -11,6 +11,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,11 @@ public class Users extends BaseEntity {
     @Column(length = 100)
     private String fcmToken;
 
+    @Column(nullable = false)
+    private int failedAttempts;
+
+    private LocalDateTime lockUntil;
+
     // 로그인 관련
 //    private LocalDateTime lastLogin;
 
@@ -115,4 +121,20 @@ public class Users extends BaseEntity {
     }
     public void updateStatus(UserStatus status) {this.status = status;}
     public void updatePinHash(String pinHash) {this.pinHash = pinHash;}
+
+    public void updateFailedAttempts(int failedAttempts) {
+        this.failedAttempts = failedAttempts;
+    }
+
+    public boolean isLockedNow() {
+        return lockUntil != null && LocalDateTime.now().isBefore(lockUntil);
+    }
+    public void resetLock() {
+        this.failedAttempts = 0;
+        this.lockUntil = null;
+    }
+
+    public void lockFor(Duration duration) {
+        this.lockUntil = LocalDateTime.now().plus(duration);
+    }
 }
