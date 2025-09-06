@@ -46,9 +46,7 @@ public class CustomUserDetailsService implements CustomDetailsService {
             }
 
             throw new LockedException(message);
-        }
-
-        if (user.getFailedAttempts() != 0 || user.getLockUntil() != null) {
+        } else if (user.getLockUntil() != null) {
             user.resetLock();
             userRepository.save(user);
         }
@@ -70,6 +68,10 @@ public class CustomUserDetailsService implements CustomDetailsService {
             throw new BadCredentialsException("아이디 또는 비밀번호가 올바르지 않습니다. (남은 시도: " + (MAX_ATTEMPTS - currentAttempts) + "회)");
         }
 
+        if (user.getFailedAttempts() != 0 || user.getLockUntil() != null) {
+            user.resetLock();
+            userRepository.save(user);
+        }
 
         User securityUser = new User(
                 user.getUsername(),
