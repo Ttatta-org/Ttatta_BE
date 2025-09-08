@@ -551,5 +551,23 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .pinHash(user.getPinHash())
                 .build();
     }
+
+    @Override
+    public UserResponseDTO.DeletePinResultDTO deletePin() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+
+        if(user.getPinHash() == null || user.getPinHash().isEmpty()) {
+            throw new ExceptionHandler(PIN_HASH_NOT_FOUND);
+        }
+
+        user.updatePinHash(null);
+        userRepository.save(user);
+
+        return UserResponseDTO.DeletePinResultDTO.builder()
+                .isDeleted(true)
+                .build();
+    }
 }
 
