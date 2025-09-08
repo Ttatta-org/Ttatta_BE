@@ -90,10 +90,21 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
     @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")
     public void scheduleDailyAlarm() {
         for (WrittingDiaryAlarm writtingDiaryAlarm : writingDiaryAlarmRepository.findAllByIsActiveUsingFetchJoin(IsActive.ON)) {
-            System.out.println("Alarm Time: " + writtingDiaryAlarm.getAlaramTime());
             if (writtingDiaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
                 LocalDateTime alarmTime = getAlarmLocalDateTime(writtingDiaryAlarm.getAlaramTime());
                 reserveSendPushNotificationByFcm(alarmTime, writtingDiaryAlarm.getUsers(), AlaramType.WRITE_DIARY, writingDiaryAlarmScheduledTasks);
+            }
+        }
+        for (ChallengeRemindAlarm challengeRemindAlarm : challengeRemindAlarmRepository.findAllByIsActiveUsingFetchJoin(IsActive.ON)) {
+            if (challengeRemindAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
+                LocalDateTime alarmTime = getAlarmLocalDateTime(challengeRemindAlarm.getAlaramTime());
+                reserveSendPushNotificationByFcm(alarmTime, challengeRemindAlarm.getUsers(), AlaramType.CHALLENGE_REMIND, challengeRemindAlarmScheduledTasks);
+            }
+        }
+        for (DailySummaryAlarm dailySummaryAlarm : dailySummaryAlarmRepository.findAllByIsActiveUsingFetchJoin(IsActive.ON)) {
+            if (dailySummaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
+                LocalDateTime alarmTime = getAlarmLocalDateTime(dailySummaryAlarm.getAlaramTime());
+                reserveSendPushNotificationByFcm(alarmTime, dailySummaryAlarm.getUsers(), AlaramType.DAILY_SUMMARY, dailySummaryAlarmScheduledTasks);
             }
         }
     }
