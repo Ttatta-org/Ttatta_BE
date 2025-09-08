@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -157,5 +158,19 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
 """)
     List<Diaries> findLatestUniqueClusterIdDiary(
             @Param("user") Users user
+    );
+
+    @Query(value = """
+        SELECT d.*
+        FROM diaries d
+        WHERE ST_Contains(
+          ST_GeomFromText(:wkt, 4326),
+          d.location
+        )
+        AND d.user_id = :userId
+        """, nativeQuery = true)
+    List<Diaries> findNearDiariesCandidates(
+            @Param("wkt") String wkt,
+            @Param("userId") Long userId
     );
 }

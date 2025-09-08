@@ -24,13 +24,14 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -46,6 +47,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     private final DiaryCategoryRepository diaryCategoryRepository;
     private final AmazonS3Manager s3Manager;
 
+    static final double M_PER_DEG_LAT = 111_320.0; // 검색 범위 설정
     private static final int SEARCH_RANGE = 100;    // 검색 범위 설정 (100m)
     private final GeometryFactory geometryFactory;
     private final EnvelopeCryptoService envelopeCryptoService;
@@ -214,24 +216,47 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         Users user = userRepository.findById(userId).orElseThrow(
                 () -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
 
-        // 검색 범위 내 일기 검색
-        List<Diaries> nearDiaries = diaryRepository.findNearByDiaries(user, request.getLatitude(), request.getLongitude(), SEARCH_RANGE);
+        // 범위 내 좌표들을 얻어서 POINT를 사용하여 정사각형 내 후보 일기들을 뽑는다.
+        double currentLatitude = request.getLatitude();
+        double currentLongitude = request.getLongitude();
+        double sideMeters = 200.0;
 
-        if (nearDiaries.isEmpty()) {    // 검색 범위 내에 일기가 없는 경우
+        List<Pt> square = buildRotatedSquare(currentLatitude, currentLongitude, sideMeters, request.getAngleDeg());
+        String wkt = toPolygonWKT(square);
+        List<Diaries> nearDiariesCandidates = diaryRepository.findNearDiariesCandidates(wkt, user.getId());
+        for (Diaries diary : nearDiariesCandidates) {
+            System.out.println("nearDiariesCandidates id: " + diary.getId());
+        }
+
+
+        // 검색 범위(정사각형) 내 복호화를 진행하고, 실제로 일기 위도 경도에서 100m 원 안에 있는 일기 중 가장 최신 일기 반환
+        // 영 이상하면 getDate -> getCreatedAt으로 수정 (마지막줄)
+        DateTimeFormatter F = DateTimeFormatter.ofPattern("yyyy-M-d[ HH:mm[:ss]]");
+        Optional<Diaries> nearestDiary = nearDiariesCandidates
+                .parallelStream()
+                .map(d -> tryDecode(d, user.getId()))   // Decoded(diaries, lat, lng, ok)
+                .filter(Decoded::ok)
+                .filter(dd -> haversineMeters(currentLatitude, currentLongitude, dd.lat(), dd.lng()) <= SEARCH_RANGE)
+                .map(Decoded::diary)
+                .max(Comparator.comparing(Diaries::getDate, Comparator.nullsLast(Comparator.naturalOrder())
+                ));
+
+
+        System.out.println("nearestDiariesCandidates: " + nearestDiary.get().getId());
+        if (nearestDiary.isEmpty()) {    // 검색 범위 내에 일기가 없는 경우
             return DiaryResponseDTO.RemindResultDTO.builder()
                     .isRemind(false)
                     .message(SEARCH_RANGE + "m 이내에 일기가 없습니다.")
                     .build();
         }
 
-        // 가장 가까운 일기 선택
-        Diaries nearestDiary = nearDiaries.get(0);
 
         // 페이징 정보 계산
-        Page<Diaries> diaryPage = diaryRepository.findAllByUsersAndClusterId(user, nearestDiary.getClusterId(), PageRequest.of(0, 1));
+        // 영 이상하면 date -> createdAt으로 수정
+        Page<Diaries> diaryPage = diaryRepository.findAllByUsersAndClusterId(user, nearestDiary.get().getClusterId(), PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "date")));
 
         // 시간 계산
-        long days = ChronoUnit.DAYS.between(nearestDiary.getDate().toLocalDate(), LocalDate.now());
+        long days = ChronoUnit.DAYS.between(nearestDiary.get().getDate().toLocalDate(), LocalDate.now());
         String timeMessage;
         if (days < 7) {
             timeMessage = days + "일 전 이곳을 방문해 기록을 남겼어요";
@@ -339,5 +364,59 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         }
     }
 
+    // 복호화를 위함
     private record Decoded(Diaries diary, double lat, double lng, boolean ok) {}
+
+    record Pt(double lat, double lng) {}
+
+    static List<Pt> buildRotatedSquare(double centerLat, double centerLng, double sideMeters, double angleDeg) {
+        double half = sideMeters / 2.0;            // 100m
+        double cornerR = half * Math.sqrt(2.0);    // 100*sqrt(2) m
+        double rad = Math.toRadians(angleDeg);
+        double cos = Math.cos(rad), sin = Math.sin(rad);
+        double metersPerDegLng = M_PER_DEG_LAT * Math.cos(Math.toRadians(centerLat));
+
+        // 회전 0° 기준 꼭짓점 (x 동, y 북)
+        double[][] base = new double[][]{
+                { +cornerR, +cornerR }, // NE
+                { -cornerR, +cornerR }, // NW
+                { -cornerR, -cornerR }, // SW
+                { +cornerR, -cornerR }  // SE
+        };
+
+        List<Pt> pts = new ArrayList<>(5);
+        for (double[] b : base) {
+            double x = b[0], y = b[1];
+            // 회전 적용
+            double xr =  x * cos - y * sin;
+            double yr =  x * sin + y * cos;
+
+            // 미터 → 도 변환
+            double dLat = yr / M_PER_DEG_LAT;
+            double dLng = xr / metersPerDegLng;
+
+            pts.add(new Pt(centerLat + dLat, centerLng + dLng));
+        }
+        // 폴리곤 닫기
+        pts.add(pts.get(0));
+        return pts;
+    }
+
+    static String toPolygonWKT(List<Pt> pts) {
+        // ⚠️ WKT: "lng lat" 순서
+        String coords = pts.stream()
+                .map(p -> p.lat + " " + p.lng)
+                .collect(java.util.stream.Collectors.joining(", "));
+        return "POLYGON((" + coords + "))";
+    }
+
+    static double haversineMeters(double lat1, double lng1, double lat2, double lng2) {
+        final double R = 6_371_000; // 지구 반지름 (m)
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLng/2) * Math.sin(dLng/2);
+        return 2 * R * Math.asin(Math.sqrt(a));
+    }
 }
