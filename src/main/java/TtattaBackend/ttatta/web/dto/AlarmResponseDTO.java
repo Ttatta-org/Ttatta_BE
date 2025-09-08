@@ -24,4 +24,12 @@ public class AlarmResponseDTO {
     public static class ChallengeRemindAlarmOnResponseDTO {
         String hoursAgo;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DailySummaryAlarmOnResponseDTO {
+        LocalTime alarmTime;
+    }
 }
