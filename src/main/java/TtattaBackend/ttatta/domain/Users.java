@@ -87,13 +87,16 @@ public class Users extends BaseEntity {
     private List<Challenges> challengesList = new ArrayList<>();
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
-    private List<WrittingDiaryAlarm> writtingDiaryAlarmList = new ArrayList<>();
+    private List<WrittingDiaryAlarm> writingDiaryAlarmList = new ArrayList<>();
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<MemoryDiaryAlarm> memoryDiaryAlarmList = new ArrayList<>();
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<ChallengeRemindAlarm> challengeRemindAlarmList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<DailySummaryAlarm> dailySummaryAlarmList = new ArrayList<>();
   
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<SummaryDiary> summaryDiaryList = new ArrayList<>();

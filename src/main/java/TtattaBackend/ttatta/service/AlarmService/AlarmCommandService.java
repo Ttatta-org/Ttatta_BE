@@ -15,4 +15,7 @@ public interface AlarmCommandService {
     AlarmResponseDTO.ChallengeRemindAlarmOnResponseDTO sendChallengeRemindPushAlarmNotificationByFcm();
     void updateChallengeRemindAlarm(AlarmRequestDTO.UpdateChallengeRemindAlarmRequestDTO request);
     void deleteChallengeRemindAlarm();
+    AlarmResponseDTO.DailySummaryAlarmOnResponseDTO sendDailySummaryPushAlarmNotificationByFcm();
+    void updateDailySummaryAlarm(AlarmRequestDTO.UpdateDailySummaryAlarmRequestDTO request);
+    void deleteDailySummaryAlarm();
 }

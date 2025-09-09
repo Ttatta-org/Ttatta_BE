@@ -31,14 +31,14 @@ public class WrittingDiaryAlarm extends BaseEntity {
     public void setUsers(Users users) {
         // 기존에 이미 등록되어 있던 관계를 제거
         if (this.users != null) {
-            this.users.getWrittingDiaryAlarmList().remove(this);
+            this.users.getWritingDiaryAlarmList().remove(this);
         }
 
         this.users = users;
 
         // 양방향 관계를 설정
         if (users != null) {
-            users.getWrittingDiaryAlarmList().add(this);
+            users.getWritingDiaryAlarmList().add(this);
         }
     }
 
