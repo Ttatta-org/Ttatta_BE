@@ -9,10 +9,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface WritingDiaryAlarmRepository extends JpaRepository<WrittingDiaryAlarm, Long> {
-    WrittingDiaryAlarm findByUsers(Users users);
+    Optional<WrittingDiaryAlarm> findByUsers(Users users);
     List<WrittingDiaryAlarm> findAllByIsActive(IsActive isActive);
     @Query("SELECT a FROM WrittingDiaryAlarm a JOIN FETCH a.users WHERE a.isActive = :isActive")
     List<WrittingDiaryAlarm> findAllByIsActiveUsingFetchJoin(@Param("isActive") IsActive isActive);

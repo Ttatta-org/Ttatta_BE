@@ -10,10 +10,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ChallengeRemindAlarmRepository extends JpaRepository<ChallengeRemindAlarm, Long> {
-    ChallengeRemindAlarm findByUsers(Users getUser);
+    Optional<ChallengeRemindAlarm> findByUsers(Users getUser);
     @Query("SELECT a FROM ChallengeRemindAlarm a JOIN FETCH a.users WHERE a.isActive = :isActive")
     List<ChallengeRemindAlarm> findAllByIsActiveUsingFetchJoin(@Param("isActive")IsActive isActive);
 }

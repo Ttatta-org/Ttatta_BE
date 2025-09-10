@@ -18,4 +18,5 @@ public interface AlarmCommandService {
     AlarmResponseDTO.DailySummaryAlarmOnResponseDTO sendDailySummaryPushAlarmNotificationByFcm();
     void updateDailySummaryAlarm(AlarmRequestDTO.UpdateDailySummaryAlarmRequestDTO request);
     void deleteDailySummaryAlarm();
+    AlarmResponseDTO.GetAllAlarmsResponseDTO getAllAlarms();
 }

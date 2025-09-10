@@ -122,11 +122,21 @@ public class AlarmController {
     }
 
     @Operation(summary = "하루 요약 알림 off api",
-            description = "하루 요약 알림 off api api입니다. \n"
+            description = "하루 요약 알림 off api입니다. \n"
                     + "header에 access token을 넣어주세요.")
     @PatchMapping("/summary/diary/off")
     public ApiResponse<?> deleteDailySummaryAlarm() {
         alarmCommandService.deleteDailySummaryAlarm();
         return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "전체 알림 조회 api",
+            description = "전체 알림 조회 api입니다. \n"
+                    + "header에 access token을 넣어주세요.")
+    @GetMapping("")
+    public ApiResponse<AlarmResponseDTO.GetAllAlarmsResponseDTO> getAllAlarms() {
+        return ApiResponse.onSuccess(
+                alarmCommandService.getAllAlarms()
+        );
     }
 }
