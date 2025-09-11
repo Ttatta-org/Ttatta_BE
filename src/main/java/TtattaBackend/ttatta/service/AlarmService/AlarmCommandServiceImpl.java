@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.service.AlarmService;
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
+import TtattaBackend.ttatta.converter.AlarmConverter;
 import TtattaBackend.ttatta.domain.*;
 import TtattaBackend.ttatta.domain.enums.MemoryDiaryAlarmStatus;
 import TtattaBackend.ttatta.domain.enums.IsActive;
@@ -26,23 +27,23 @@ import java.util.concurrent.ScheduledFuture;
 @Service
 @RequiredArgsConstructor
 public class AlarmCommandServiceImpl implements AlarmCommandService {
+    private static final LocalTime DEFAULT_ALARM_TIME = LocalTime.of(22, 0);
+    private static final LocalTime STANDARD_SETTING_ALARM_TIME = LocalTime.of(3, 0); // 새벽 3시에 모든 알림 예약
     private final UserRepository userRepository;
-    private final WritingDiaryAlarmRepository writingDiaryAlarmRepository;
+    private final ChallengeRepository challengeRepository;
+    private final DiaryRepository diaryRepository;
     private static final ZoneOffset KST_OFFSET = ZoneOffset.ofHours(9);
     private final TaskScheduler taskScheduler;
+    private final FcmPushSender fcmPushSender;
     private final Map<Long, ScheduledFuture<?>> writingDiaryAlarmScheduledTasks = new ConcurrentHashMap<>();
     private final Map<Long, ScheduledFuture<?>> memoryDiaryAlarmScheduledTasks = new ConcurrentHashMap<>();
     private final Map<Long, ScheduledFuture<?>> challengeRemindAlarmScheduledTasks = new ConcurrentHashMap<>();
     private final Map<Long, ScheduledFuture<?>> dailySummaryAlarmScheduledTasks = new ConcurrentHashMap<>();
-    private final FcmPushSender fcmPushSender;
-    private static final LocalTime DEFAULT_ALARM_TIME = LocalTime.of(22, 0);
-    private static final LocalTime STANDARD_SETTING_ALARM_TIME = LocalTime.of(3, 0); // 새벽 3시에 모든 알림 예약
+    private final SummaryCommandService summaryCommandService;
+    private final WritingDiaryAlarmRepository writingDiaryAlarmRepository;
     private final MemoryDiaryAlarmRepository memoryDiaryAlarmRepository;
     private final ChallengeRemindAlarmRepository challengeRemindAlarmRepository;
-    private final ChallengeRepository challengeRepository;
     private final DailySummaryAlarmRepository dailySummaryAlarmRepository;
-    private final DiaryRepository diaryRepository;
-    private final SummaryCommandService summaryCommandService;
 
     @Override
     @Transactional
@@ -50,6 +51,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+
         getUser.updateFcmToken(request.getFcmToken());
     }
 
@@ -59,12 +61,12 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser);
+        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser).orElse(null);
 
         if (getUser.getFcmToken() == null || getUser.getFcmToken().isEmpty()) {
             throw new ExceptionHandler(ErrorStatus.ALARM_FCM_TOKEN_NOT_FOUND);
         }
-        if (writingDiaryAlarmRepository.findByUsers(getUser) == null) {
+        if (getWrittingDiaryAlarm == null) {
             getWrittingDiaryAlarm = writingDiaryAlarmRepository.save(
                     WrittingDiaryAlarm.builder()
                             .users(getUser)
@@ -76,7 +78,6 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
             getWrittingDiaryAlarm.updateIsActive(IsActive.ON);
         }
         if (getWrittingDiaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
-//            System.out.println("저장된 알림 시간: " + getWrittingDiaryAlarm.getAlaramTime());
             LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getWrittingDiaryAlarm.getAlaramTime());
             reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.WRITE_DIARY, writingDiaryAlarmScheduledTasks);
         }
@@ -138,6 +139,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                         today.atStartOfDay(),                  // 오늘 00:00:00
                         today.plusDays(1).atStartOfDay()       // 내일 00:00:00
                 );
+
                 if (scheduledTasks.containsKey(user.getId())) {
                     // 이미 예약된 알림이 있는 경우, 기존 예약 취소
                     scheduledTasks.get(user.getId()).cancel(false);
@@ -164,12 +166,9 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser);
-        System.out.println("저장된 알림 시간: " + getWrittingDiaryAlarm.getAlaramTime());
+        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND));
 
-        if (getWrittingDiaryAlarm == null) {
-            throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
-        }
         // 알림 시간 업데이트
         getWrittingDiaryAlarm.updateAlarmTime(request.getAlarmTime());
         writingDiaryAlarmRepository.save(getWrittingDiaryAlarm);
@@ -191,11 +190,9 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser);
+        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND));
 
-        if (getWrittingDiaryAlarm == null) {
-            throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
-        }
         // 알림 비활성화
         getWrittingDiaryAlarm.updateIsActive(IsActive.OFF);
         writingDiaryAlarmRepository.save(getWrittingDiaryAlarm);
@@ -216,9 +213,10 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                 .orElseGet(() -> memoryDiaryAlarmRepository.save(
                         MemoryDiaryAlarm.builder()
                                 .users(getUser)
-                                .isActive(IsActive.OFF) // 기본값 OFF
+                                .isActive(IsActive.ON) // 기본값 ON
                                 .build()
                 )); // orElseGet은 Optional이 비어 있을 때에만 생성/저장 수행
+
         if (memoryDiaryAlarmStatus == MemoryDiaryAlarmStatus.ON) {
             // 현재 상태가 OFF 상태인지 확인하는 로직이 필요할까
             getMemoryDiaryAlarm.updateIsActive(IsActive.ON);
@@ -239,7 +237,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser);
+        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser).orElse(null);
 
         if (getUser.getFcmToken() == null || getUser.getFcmToken().isEmpty()) {
             throw new ExceptionHandler(ErrorStatus.ALARM_FCM_TOKEN_NOT_FOUND);
@@ -270,12 +268,10 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser);
-
-        if (getChallengeRemindAlarm == null) {
-            throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
-        }
+        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND));
         LocalTime requestAlarmTime = toLocalTime(request.getHoursAgo());
+
         // 알림 시간 업데이트
         getChallengeRemindAlarm.updateAlarmTime(requestAlarmTime);
         challengeRemindAlarmRepository.save(getChallengeRemindAlarm);
@@ -294,12 +290,12 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
 
     private String toHoursAgoString(LocalTime time) {
         // 몇시간전인지 계산하고 시간을 String으로 반환
-        return String.valueOf(time.getHour());
+        return String.valueOf(24 - time.getHour());
     }
 
     private LocalTime toLocalTime(String hoursAgoString) {
         // hoursAgoString을 LocalTime으로 변환
-        return LocalTime.of(Integer.parseInt(hoursAgoString), 0);
+        return LocalTime.of(24 - Integer.parseInt(hoursAgoString), 0);
     }
 
     @Override
@@ -307,11 +303,9 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
-        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser);
+        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND));
 
-        if (getChallengeRemindAlarm == null) {
-            throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
-        }
         // 알림 비활성화
         getChallengeRemindAlarm.updateIsActive(IsActive.OFF);
         challengeRemindAlarmRepository.save(getChallengeRemindAlarm);
@@ -340,7 +334,6 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                                 .isActive(IsActive.ON)
                                 .build()
                 )); // orElseGet은 비었을 때만 실행되어 불필요한 save 방지
-
         // 상태를 ON으로(이미 ON이면 변경 없음)
         if (getDailySummaryAlarm.getIsActive() != IsActive.ON) {
             getDailySummaryAlarm.updateIsActive(IsActive.ON);
@@ -362,6 +355,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
         DailySummaryAlarm getDailySummaryAlarm = dailySummaryAlarmRepository.findByUsers(getUser)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND));
+
         // 알림 시간 업데이트
         getDailySummaryAlarm.updateAlarmTime(request.getAlarmTime());
         dailySummaryAlarmRepository.save(getDailySummaryAlarm);
@@ -385,9 +379,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
         DailySummaryAlarm getDailySummaryAlarm = dailySummaryAlarmRepository.findByUsers(getUser)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND));
-        if (getDailySummaryAlarm == null) {
-            throw new ExceptionHandler(ErrorStatus.ALARM_NOT_FOUND);
-        }
+
         // 알림 비활성화
         getDailySummaryAlarm.updateIsActive(IsActive.OFF);
         dailySummaryAlarmRepository.save(getDailySummaryAlarm);
@@ -396,5 +388,24 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
             dailySummaryAlarmScheduledTasks.get(getUser.getId()).cancel(false);
             dailySummaryAlarmScheduledTasks.remove(getUser.getId());
         }
+    }
+
+    @Override
+    public AlarmResponseDTO.GetAllAlarmsResponseDTO getAllAlarms() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Users getUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        WrittingDiaryAlarm getWrittingDiaryAlarm = writingDiaryAlarmRepository.findByUsers(getUser).orElse(null);
+        MemoryDiaryAlarm getMemoryDiaryAlarm = memoryDiaryAlarmRepository.findByUsers(getUser).orElse(null);
+        ChallengeRemindAlarm getChallengeRemindAlarm = challengeRemindAlarmRepository.findByUsers(getUser).orElse(null);
+        DailySummaryAlarm getDailySummaryAlarm = dailySummaryAlarmRepository.findByUsers(getUser).orElse(null);
+
+        return AlarmConverter.toGetAllAlarmsResponseDTO(
+                getWrittingDiaryAlarm,
+                getMemoryDiaryAlarm,
+                getChallengeRemindAlarm,
+                getChallengeRemindAlarm != null ? toHoursAgoString(getChallengeRemindAlarm.getAlaramTime()) : null,
+                getDailySummaryAlarm
+        );
     }
 }
