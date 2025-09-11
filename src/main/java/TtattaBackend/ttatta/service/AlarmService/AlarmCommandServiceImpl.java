@@ -317,6 +317,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
     }
 
     @Override
+    @Transactional
     public AlarmResponseDTO.DailySummaryAlarmOnResponseDTO sendDailySummaryPushAlarmNotificationByFcm() {
         Long userId = SecurityUtil.getCurrentUserId();
         Users getUser = userRepository.findById(userId)
