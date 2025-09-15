@@ -309,9 +309,9 @@ public class UserController {
             "# 암호 (핀번호) 삭제 API입니다."
     )
     @DeleteMapping("/pin")
-    public ApiResponse<UserResponseDTO.DeletePinResultDTO> deletePin() {
-        UserResponseDTO.DeletePinResultDTO result = userCommandService.deletePin();
-        return ApiResponse.onSuccess(result);
+    public ApiResponse<?> deletePin() {
+        userCommandService.deletePin();
+        return ApiResponse.onSuccess("");
     }
 
 }
