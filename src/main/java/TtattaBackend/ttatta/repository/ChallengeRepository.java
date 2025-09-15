@@ -24,6 +24,6 @@ public interface ChallengeRepository extends JpaRepository<Challenges, Long> {
             "ORDER BY c.createdAt DESC " +
             "LIMIT 5")
     List<Challenges> findTop5ByUserAndIsCompletedFalseExcludeTodayOrderByCreatedAtDesc(@Param("user") Users user);
-
     Challenges findByUsers(Users getUser);
+    boolean existsByUsersAndIsCompletedFalseAndCreatedAtBetween(Users users, LocalDateTime start, LocalDateTime end);
 }

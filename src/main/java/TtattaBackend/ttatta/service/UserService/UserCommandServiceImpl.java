@@ -553,7 +553,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public UserResponseDTO.DeletePinResultDTO deletePin() {
+    public void deletePin() {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
@@ -564,9 +564,6 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         user.updatePinHash(null);
         userRepository.save(user);
-
-        return UserResponseDTO.DeletePinResultDTO.builder()
-                .build();
     }
 }
 

@@ -34,5 +34,5 @@ public interface UserCommandService {
     UserResponseDTO.SetPinResultDTO setPin(UserRequestDTO.SetPinRequestDTO request);
     UserResponseDTO.ChangePinResultDTO changePin(UserRequestDTO.ChangePinRequestDTO request);
     UserResponseDTO.GetPinResultDTO getPin();
-    UserResponseDTO.DeletePinResultDTO deletePin();
+    void deletePin();
 }

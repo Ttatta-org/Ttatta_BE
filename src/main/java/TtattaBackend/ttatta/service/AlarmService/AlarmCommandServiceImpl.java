@@ -253,7 +253,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         } else {
             getChallengeRemindAlarm.updateIsActive(IsActive.ON);
         }
-        if (getChallengeRemindAlarm.getAlaramTime().isAfter(LocalTime.now()) && challengeRepository.findByUsers(getUser) != null) { // 현재 시간보다 이전 알림 시간은 예약하지 않음, 챌린지가 없으면 알림 예약 x
+        if (getChallengeRemindAlarm.getAlaramTime().isAfter(LocalTime.now()) && challengeRepository.existsByUsersAndIsCompletedFalseAndCreatedAtBetween(getUser, LocalDate.now().atStartOfDay(), LocalDate.now().plusDays(1).atStartOfDay())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음, 챌린지가 없으면 알림 예약 x
             LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getChallengeRemindAlarm.getAlaramTime());
             reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.CHALLENGE_REMIND, challengeRemindAlarmScheduledTasks);
         }
