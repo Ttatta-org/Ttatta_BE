@@ -178,6 +178,5 @@ public class UserResponseDTO {
     @Getter
     @Builder
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class DeletePinResultDTO { }
 }
