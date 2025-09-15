@@ -174,4 +174,10 @@ public class UserResponseDTO {
     public static class GetPinResultDTO {
         String pinHash;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeletePinResultDTO { }
 }
