@@ -179,7 +179,5 @@ public class UserResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class DeletePinResultDTO {
-        boolean isDeleted;
-    }
+    public static class DeletePinResultDTO { }
 }

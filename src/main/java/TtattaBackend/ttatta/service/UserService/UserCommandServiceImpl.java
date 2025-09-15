@@ -566,7 +566,6 @@ public class UserCommandServiceImpl implements UserCommandService {
         userRepository.save(user);
 
         return UserResponseDTO.DeletePinResultDTO.builder()
-                .isDeleted(true)
                 .build();
     }
 }
