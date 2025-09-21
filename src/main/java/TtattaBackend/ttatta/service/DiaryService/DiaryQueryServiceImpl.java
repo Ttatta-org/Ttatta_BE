@@ -221,7 +221,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         double currentLongitude = request.getLongitude();
         double sideMeters = 200.0;
 
-        List<Pt> square = buildRotatedSquare(currentLatitude, currentLongitude, sideMeters, request.getAngleDeg());
+        List<Pt> square = buildSquare(currentLatitude, currentLongitude, sideMeters);
         String wkt = toPolygonWKT(square);
         List<Diaries> nearDiariesCandidates = diaryRepository.findNearDiariesCandidates(wkt, user.getId());
         for (Diaries diary : nearDiariesCandidates) {
@@ -369,36 +369,20 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
 
     record Pt(double lat, double lng) {}
 
-    static List<Pt> buildRotatedSquare(double centerLat, double centerLng, double sideMeters, double angleDeg) {
-        double half = sideMeters / 2.0;            // 100m
-        double cornerR = half * Math.sqrt(2.0);    // 100*sqrt(2) m
-        double rad = Math.toRadians(angleDeg);
-        double cos = Math.cos(rad), sin = Math.sin(rad);
+    static List<Pt> buildSquare(double centerLat, double centerLng, double sideMeters) {
+        double half = sideMeters / 2.0; // 100m
         double metersPerDegLng = M_PER_DEG_LAT * Math.cos(Math.toRadians(centerLat));
 
-        // 회전 0° 기준 꼭짓점 (x 동, y 북)
-        double[][] base = new double[][]{
-                { +cornerR, +cornerR }, // NE
-                { -cornerR, +cornerR }, // NW
-                { -cornerR, -cornerR }, // SW
-                { +cornerR, -cornerR }  // SE
-        };
+        // 위도/경도 차이
+        double dLat = half / M_PER_DEG_LAT;
+        double dLng = half / metersPerDegLng;
 
         List<Pt> pts = new ArrayList<>(5);
-        for (double[] b : base) {
-            double x = b[0], y = b[1];
-            // 회전 적용
-            double xr =  x * cos - y * sin;
-            double yr =  x * sin + y * cos;
-
-            // 미터 → 도 변환
-            double dLat = yr / M_PER_DEG_LAT;
-            double dLng = xr / metersPerDegLng;
-
-            pts.add(new Pt(centerLat + dLat, centerLng + dLng));
-        }
-        // 폴리곤 닫기
-        pts.add(pts.get(0));
+        pts.add(new Pt(centerLat + dLat, centerLng + dLng)); // NE
+        pts.add(new Pt(centerLat + dLat, centerLng - dLng)); // NW
+        pts.add(new Pt(centerLat - dLat, centerLng - dLng)); // SW
+        pts.add(new Pt(centerLat - dLat, centerLng + dLng)); // SE
+        pts.add(new Pt(centerLat + dLat, centerLng + dLng)); // 다시 닫기
         return pts;
     }
 
