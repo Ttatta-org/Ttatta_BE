@@ -53,7 +53,7 @@ public class SummaryCommandServiceImpl implements SummaryCommandService {
     public String summarize(DiarySummaryRequestDTO.SummarizeDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElse(null);
-        LocalDate  day = request.getDate();
+        LocalDate day = request.getDate();
 
         LocalDateTime todayStart = day.atStartOfDay();
         LocalDateTime todayEnd = day.atTime(LocalTime.MAX);

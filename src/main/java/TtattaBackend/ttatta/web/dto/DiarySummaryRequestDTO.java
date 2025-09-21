@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.web.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 public class DiarySummaryRequestDTO {
 
     @Getter
+    @Builder
     public static class SummarizeDTO {
         private LocalDate date;
     }

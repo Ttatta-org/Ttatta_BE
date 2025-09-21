@@ -6,13 +6,14 @@ import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.aws.s3.AmazonS3Manager;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryConverter;
-import TtattaBackend.ttatta.domain.Diaries;
-import TtattaBackend.ttatta.domain.DiaryCategories;
-import TtattaBackend.ttatta.domain.DiaryPhotos;
-import TtattaBackend.ttatta.domain.Users;
+import TtattaBackend.ttatta.domain.*;
+import TtattaBackend.ttatta.domain.enums.IsActive;
 import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.DiaryRepository;
+import TtattaBackend.ttatta.repository.MemoryDiaryAlarmRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
+import TtattaBackend.ttatta.service.AlarmService.AlaramType;
+import TtattaBackend.ttatta.service.AlarmService.AlarmCommandService;
 import TtattaBackend.ttatta.security.DecryptedLocation;
 import TtattaBackend.ttatta.security.EnvelopeCryptoService;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
@@ -37,6 +38,8 @@ import java.util.stream.Collectors;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
+import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -46,6 +49,8 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     private final UserRepository userRepository;
     private final DiaryCategoryRepository diaryCategoryRepository;
     private final AmazonS3Manager s3Manager;
+    private final AlarmCommandService alarmCommandService;
+    private final MemoryDiaryAlarmRepository memoryDiaryAlarmRepository;
 
     static final double M_PER_DEG_LAT = 111_320.0; // 검색 범위 설정
     private static final int SEARCH_RANGE = 100;    // 검색 범위 설정 (100m)
@@ -211,10 +216,17 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     }
 
     @Override
-    public DiaryResponseDTO.RemindResultDTO findRemindDiary(DiaryRequestDTO.RemindDTO request) {
+    public void findRemindDiary(DiaryRequestDTO.RemindDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElseThrow(
-                () -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+                () -> new ExceptionHandler(USER_NOT_FOUND));
+
+        // 위치 기반 추억 회상 알림이 꺼져있는 경우
+        MemoryDiaryAlarm memoryDiaryAlarm = memoryDiaryAlarmRepository.findByUsers(user)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.MEMORY_DIARY_ALARM_NOT_FOUND));
+        if (memoryDiaryAlarm.getIsActive() == IsActive.OFF) {
+            return;
+        }
 
         // 범위 내 좌표들을 얻어서 POINT를 사용하여 정사각형 내 후보 일기들을 뽑는다.
         double currentLatitude = request.getLatitude();
@@ -231,7 +243,6 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
 
         // 검색 범위(정사각형) 내 복호화를 진행하고, 실제로 일기 위도 경도에서 100m 원 안에 있는 일기 중 가장 최신 일기 반환
         // 영 이상하면 getDate -> getCreatedAt으로 수정 (마지막줄)
-        DateTimeFormatter F = DateTimeFormatter.ofPattern("yyyy-M-d[ HH:mm[:ss]]");
         Optional<Diaries> nearestDiary = nearDiariesCandidates
                 .parallelStream()
                 .map(d -> tryDecode(d, user.getId()))   // Decoded(diaries, lat, lng, ok)
@@ -241,41 +252,32 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
                 .max(Comparator.comparing(Diaries::getDate, Comparator.nullsLast(Comparator.naturalOrder())
                 ));
 
+        // 검색 범위 내 일기 검색
+        List<Diaries> nearDiaries = diaryRepository.findNearByDiaries(user, request.getLatitude(), request.getLongitude(), SEARCH_RANGE);
 
-        System.out.println("nearestDiariesCandidates: " + nearestDiary.get().getId());
-        if (nearestDiary.isEmpty()) {    // 검색 범위 내에 일기가 없는 경우
-            return DiaryResponseDTO.RemindResultDTO.builder()
-                    .isRemind(false)
-                    .message(SEARCH_RANGE + "m 이내에 일기가 없습니다.")
-                    .build();
+        if (nearDiaries.isEmpty()) {    // 검색 범위 내에 일기가 없는 경우
+            return;
         }
 
-
-        // 페이징 정보 계산
-        // 영 이상하면 date -> createdAt으로 수정
-        Page<Diaries> diaryPage = diaryRepository.findAllByUsersAndClusterId(user, nearestDiary.get().getClusterId(), PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "date")));
 
         // 시간 계산
         long days = ChronoUnit.DAYS.between(nearestDiary.get().getDate().toLocalDate(), LocalDate.now());
         String timeMessage;
         if (days < 7) {
-            timeMessage = days + "일 전 이곳을 방문해 기록을 남겼어요";
+            timeMessage = days + "일";
         } else if (days < 30) {
             long weeks = days / 7;
-            timeMessage = weeks + "주 전 이곳을 방문해 기록을 남겼어요";
+            timeMessage = weeks + "주";
         } else if (days < 365) {
             long months = days / 30;
-            timeMessage = months + "개월 전 이곳을 방문해 기록을 남겼어요";
+            timeMessage = months + "개월";
         } else {
             long years = days / 365;
-            timeMessage = years + "년 전 이곳을 방문해 기록을 남겼어요";
+            timeMessage = years + "년";
         }
 
-        return DiaryResponseDTO.RemindResultDTO.builder()
-                .isRemind(true)
-                .diary(DiaryConverter.toMapDiaryDTO(diaryPage))
-                .message(timeMessage)
-                .build();
+        // 알림 보내기
+        alarmCommandService.sendMemoryDiaryAlarm(user, timeMessage, nearestDiary.get().getId());
     }
 
     @Override

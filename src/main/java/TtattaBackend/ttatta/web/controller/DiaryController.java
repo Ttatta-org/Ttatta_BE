@@ -158,12 +158,11 @@ public class DiaryController {
                     """
     )
     @PostMapping("/remind")
-    public ApiResponse<DiaryResponseDTO.RemindResultDTO> findRemindDiary(
+    public ApiResponse<?> findRemindDiary(
             @RequestBody @Valid DiaryRequestDTO.RemindDTO request
     ) {
-        DiaryResponseDTO.RemindResultDTO result = diaryQueryService.findRemindDiary(request);
-
-        return ApiResponse.onSuccess(result);
+        diaryQueryService.findRemindDiary(request);
+        return ApiResponse.onSuccess("");
     }
 
     @Operation(summary = "업로드용 Presigned Url",

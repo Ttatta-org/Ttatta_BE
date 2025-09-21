@@ -24,4 +24,18 @@ public class AlarmRequestDTO {
         @JsonFormat(pattern = "HH:mm:ss")
         private LocalTime alarmTime;
     }
+
+    @Builder
+    @Getter
+    public static class UpdateChallengeRemindAlarmRequestDTO {
+        private String hoursAgo;
+    }
+
+    @Builder
+    @Getter
+    public static class UpdateDailySummaryAlarmRequestDTO {
+        @Schema(type = "string", pattern = "HH:mm:ss", example = "09:30:00", description = "시:분:초 형식")
+        @JsonFormat(pattern = "HH:mm:ss")
+        private LocalTime alarmTime;
+    }
 }

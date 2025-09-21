@@ -1,5 +1,6 @@
 package TtattaBackend.ttatta.repository;
 
+import TtattaBackend.ttatta.domain.ChallengeRemindAlarm;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.WrittingDiaryAlarm;
 import TtattaBackend.ttatta.domain.enums.IsActive;
@@ -12,9 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface WritingDiaryAlarmRepository extends JpaRepository<WrittingDiaryAlarm, Long> {
-    Optional<WrittingDiaryAlarm> findByUsers(Users users);
-    List<WrittingDiaryAlarm> findAllByIsActive(IsActive isActive);
-    @Query("SELECT a FROM WrittingDiaryAlarm a JOIN FETCH a.users WHERE a.isActive = :isActive")
-    List<WrittingDiaryAlarm> findAllByIsActiveUsingFetchJoin(@Param("isActive") IsActive isActive);
+public interface ChallengeRemindAlarmRepository extends JpaRepository<ChallengeRemindAlarm, Long> {
+    Optional<ChallengeRemindAlarm> findByUsers(Users getUser);
+    @Query("SELECT a FROM ChallengeRemindAlarm a JOIN FETCH a.users WHERE a.isActive = :isActive")
+    List<ChallengeRemindAlarm> findAllByIsActiveUsingFetchJoin(@Param("isActive")IsActive isActive);
 }

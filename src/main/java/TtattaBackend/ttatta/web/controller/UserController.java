@@ -305,4 +305,13 @@ public class UserController {
         return ApiResponse.onSuccess(result);
     }
 
+    @Operation(summary = "암호 (핀번호) 삭제", description =
+            "# 암호 (핀번호) 삭제 API입니다."
+    )
+    @DeleteMapping("/pin")
+    public ApiResponse<?> deletePin() {
+        userCommandService.deletePin();
+        return ApiResponse.onSuccess("");
+    }
+
 }

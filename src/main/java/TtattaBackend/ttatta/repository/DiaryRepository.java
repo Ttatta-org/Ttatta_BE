@@ -173,4 +173,6 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             @Param("wkt") String wkt,
             @Param("userId") Long userId
     );
+
+    List<Diaries> findAllByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
 }

@@ -6,7 +6,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AlaramType {
-    WRITE_DIARY("writeDiary", "일기 작성 알림", "지금 일기를 작성해보세요!");
+    WRITE_DIARY("DIARY_REMINDER", "일기 작성 알림", "지금 일기를 작성해보세요!"),
+    MEMORY_DIARY("MEMORY_LOCATION", "위치 기반 추억 회상 알림", " 전 이곳을 방문해 기록을 남겼어요"),
+    CHALLENGE_REMIND("CHALLENGE_REMINDER", "챌린지 미션 알림", "챌린지 미션을 수행해보세요!"),
+    DAILY_SUMMARY("DAILY_SUMMARY", "하루 요약 알림", "오늘 작성한 일기의 요약본을 확인해보세요!");
 
     private final String type;
     private final String title;
