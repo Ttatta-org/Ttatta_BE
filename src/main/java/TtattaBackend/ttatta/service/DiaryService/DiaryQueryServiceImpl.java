@@ -12,7 +12,6 @@ import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.DiaryRepository;
 import TtattaBackend.ttatta.repository.MemoryDiaryAlarmRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
-import TtattaBackend.ttatta.service.AlarmService.AlaramType;
 import TtattaBackend.ttatta.service.AlarmService.AlarmCommandService;
 import TtattaBackend.ttatta.security.DecryptedLocation;
 import TtattaBackend.ttatta.security.EnvelopeCryptoService;
@@ -25,12 +24,9 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
@@ -241,6 +237,10 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         }
 
 
+        if (nearDiariesCandidates.isEmpty()) {    // 검색 범위 내에 일기가 없는 경우
+            return;
+        }
+
         // 검색 범위(정사각형) 내 복호화를 진행하고, 실제로 일기 위도 경도에서 100m 원 안에 있는 일기 중 가장 최신 일기 반환
         // 영 이상하면 getDate -> getCreatedAt으로 수정 (마지막줄)
         Optional<Diaries> nearestDiary = nearDiariesCandidates
@@ -251,13 +251,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
                 .map(Decoded::diary)
                 .max(Comparator.comparing(Diaries::getDate, Comparator.nullsLast(Comparator.naturalOrder())
                 ));
-
-        // 검색 범위 내 일기 검색
-        List<Diaries> nearDiaries = diaryRepository.findNearByDiaries(user, request.getLatitude(), request.getLongitude(), SEARCH_RANGE);
-
-        if (nearDiaries.isEmpty()) {    // 검색 범위 내에 일기가 없는 경우
-            return;
-        }
+        System.out.println("nearestDiaries real Candidates: " + nearestDiary.get().getId());
 
 
         // 시간 계산
