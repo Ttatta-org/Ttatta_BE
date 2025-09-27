@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.domain;
 import TtattaBackend.ttatta.domain.common.BaseEntity;
 import TtattaBackend.ttatta.domain.enums.Gender;
 import TtattaBackend.ttatta.domain.enums.LoginType;
+import TtattaBackend.ttatta.domain.enums.UserRole;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
 import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import jakarta.persistence.*;
@@ -70,6 +71,10 @@ public class Users extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String fcmToken;
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(11)")
+    private UserRole role;
 
     // 로그인 관련
 //    private LocalDateTime lastLogin;

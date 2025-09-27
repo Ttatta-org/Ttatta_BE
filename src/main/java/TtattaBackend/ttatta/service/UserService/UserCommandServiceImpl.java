@@ -40,6 +40,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -104,7 +105,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         if (usernameAvailable.equals(IsAvailable.UNAVAILABLE)) {
             throw new ExceptionHandler(ErrorStatus.USERNAME_ALREADY_EXIST);
         }
-
+        // 사용자 생성
         Users newUser = UserConverter.toUsers(request);
         newUser.encodePassword(passwordEncoder.encode(request.getPassword()));
         // 일상 카테고리 생성
@@ -149,7 +150,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         if (userSub.isPresent()) {
             Users ExistUser = userSub.get();
             String key = ExistUser.getId().toString();
-            String accessToken = generateAccessToken(userSub.get().getId(), accessExpTime);
+            String accessToken = generateAccessToken(userSub.get().getId(), userSub.get().getRole(), accessExpTime);
             String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
             Boolean isRegistered = ExistUser.getStatus().equals(UserStatus.PENDING) ? false : true;
 
@@ -165,7 +166,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
             // 액세스 토큰 및 리프레시 토큰 생성
             String key = "users:" + savedUser.getId().toString();
-            String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
+            String accessToken = generateAccessToken(savedUser.getId(), savedUser.getRole(), accessExpTime);
             String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
             return UserConverter.toUserKaKaoOpenIdResultDTO(false, accessToken, refreshToken, savedUser);
         }
@@ -190,7 +191,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // 액세스 토큰 및 리프레시 토큰 생성
         String key = "users:" + savedUser.getId().toString();
-        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
+        String accessToken = generateAccessToken(savedUser.getId(), savedUser.getRole(), accessExpTime);
         String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
         return UserConverter.toUserKaKaoFinalSignUpResultDTO(accessToken, refreshToken, savedUser);
     }
@@ -215,7 +216,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         Users getUser = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
         String key = "users:" + getUser.getId().toString();
-        String accessToken = generateAccessToken(getUser.getId(), accessExpTime);
+        String accessToken = generateAccessToken(getUser.getId(), getUser.getRole(), accessExpTime);
         String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
 
         return UserConverter.toUserSignInResultDTO(getUser, accessToken, refreshToken);
@@ -224,6 +225,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Override
     public UserResponseDTO.RefreshResultDTO refresh(String refreshToken) {
         Long userId = SecurityUtil.getCurrentUserId();
+        UserRole role = SecurityUtil.getCurrentUserRole();
         String key = "users:" + userId.toString();
         String accessToken;
         String newRefreshToken;
@@ -233,7 +235,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         System.out.println("userId: " + userId);
         System.out.println("redis에서 가져온 refreshToken: " + getRefreshTokenFromRedis);
         if (refreshToken.equals(getRefreshTokenFromRedis)) {
-            accessToken = generateAccessToken(userId, accessExpTime);
+            accessToken = generateAccessToken(userId, role, accessExpTime);
             newRefreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
         } else {
             throw new ExceptionHandler(REFRESHTOKEN_NOT_EQUAL);
@@ -477,11 +479,11 @@ public class UserCommandServiceImpl implements UserCommandService {
         return user.getPoint();
     }
 
-    private String generateAccessToken(Long userId, int accessExpTime) {
+    private String generateAccessToken(Long userId, UserRole role, int accessExpTime) {
         // 인증 완료 후 jwt토큰(accessToken) 생성
-        Map<String, Object> valueMap = Map.of(
-                "userId", userId // String으로 저장??? 그래서 SecurityUtil에서 Long으로 타입변환 해주나?
-        );
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("userId", userId); // String으로 저장??? 그래서 SecurityUtil에서 Long으로 타입변환 해주나?
+        valueMap.put("role", role);
         return jwtUtils.generateToken(valueMap, accessExpTime);
     }
 
