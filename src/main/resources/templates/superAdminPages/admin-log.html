@@ -1,0 +1,115 @@
+<!-- templates/adminPages/access-log.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>위치정보시스템 접근사실 기록 시스템</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- ▼ 위치정보 취급대장과 동일한 스타일 -->
+    <style>
+        :root {
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --accent: #3b82f6;
+            --chip: #eef2ff;
+            --radius: 12px;
+        }
+        html, body { height: 100%; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",
+            "Apple SD Gothic Neo","Malgun Gothic","Helvetica Neue",Arial,sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+        .wrap { max-width: 1200px; margin: 32px auto; padding: 0 20px; }
+        .title {
+            font-size: clamp(22px, 3.5vw, 34px);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin: 8px 0 18px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 24px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+        .card-header {
+            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+            padding: 14px 16px; border-bottom: 1px solid var(--border); background: #fbfbfd;
+        }
+        .hint { color: var(--muted); font-size: 13px; }
+        .toolbar { margin-left: auto; display: flex; gap: 8px; }
+        .btn {
+            appearance: none; border: 1px solid var(--border); background: #fff;
+            padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px;
+        }
+        .table-wrap { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        thead th {
+            position: sticky; top: 0; background: #f9fafb;
+            font-size: 12px; color: #374151; text-align: left;
+            padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap;
+        }
+        tbody td {
+            padding: 12px; border-bottom: 1px solid var(--border);
+            vertical-align: middle; font-size: 14px; background: #fff;
+        }
+        tbody tr:hover { background: #fafafa; }
+        .mono { font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; }
+        .empty { padding: 24px; color: var(--muted); text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="title">위치정보시스템 접근사실 기록 시스템</div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="toolbar">
+                <button class="btn" onclick="location.reload()">새로고침</button>
+                <button class="btn" th:if="${downloadUrl != null}"
+                        th:onclick="'location.href=\'' + ${downloadUrl} + '\';'">엑셀 다운로드</button>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width:70px;">#</th>
+                    <th>취급자</th>
+                    <th>요청자</th>
+                    <th>목적</th>
+                    <th style="width:220px;">일시</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- 데이터 행 -->
+                <tr th:each="row,iter : ${records}">
+                    <td class="mono" th:text="${iter.count}">1</td>
+                    <td th:text="${row.handler}">홍길동(관리자)</td>
+                    <td th:text="${row.requester}">내부 시스템</td>
+                    <td th:text="${row.purpose}">근처 일기 확인</td>
+                    <td class="mono" th:text="${#temporals.format(row.accessedAt, 'yyyy-MM-dd HH:mm:ss')}">
+                        2025-09-21 21:05:00
+                    </td>
+                </tr>
+
+                <!-- 비어있을 때 -->
+                <tr th:if="${records == null or #lists.isEmpty(records)}">
+                    <td colspan="5" class="empty">표시할 기록이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

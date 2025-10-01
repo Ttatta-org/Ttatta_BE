@@ -313,5 +313,4 @@ public class UserController {
         userCommandService.deletePin();
         return ApiResponse.onSuccess("");
     }
-
 }

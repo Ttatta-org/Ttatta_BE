@@ -1,0 +1,154 @@
+<!-- templates/adminPages/location-log.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>위치정보 이용,제공사실 확인자료</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --accent: #3b82f6;
+            --chip: #eef2ff;
+            --radius: 12px;
+        }
+        html, body { height: 100%; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",
+            "Apple SD Gothic Neo","Malgun Gothic","Helvetica Neue",Arial,sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+        .wrap { max-width: 1200px; margin: 32px auto; padding: 0 20px; }
+        .title {
+            font-size: clamp(22px, 3.5vw, 34px);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin: 8px 0 18px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .card-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            background: #fbfbfd;
+        }
+        .hint { color: var(--muted); font-size: 13px; }
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto; /* 모바일 가로 스크롤 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px; /* 컬럼이 많을 때 깨짐 방지 */
+        }
+        thead th {
+            position: sticky; top: 0;
+            background: #f9fafb;
+            font-size: 12px;
+            color: #374151;
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+            font-size: 14px;
+        }
+        tbody tr:hover { background: #fafafa; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 8px; border-radius: 999px;
+            background: var(--chip); color: #3730a3; font-size: 12px; font-weight: 700;
+        }
+        .mono { font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; }
+        .empty {
+            padding: 24px; color: var(--muted); text-align: center; font-size: 14px;
+        }
+        .toolbar {
+            margin-left: auto; display: flex; gap: 8px;
+        }
+        .btn {
+            appearance: none; border: 1px solid var(--border); background: #fff;
+            padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px;
+        }
+        .btn:focus { outline: 2px solid rgba(59,130,246,.35); outline-offset: 2px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="title">위치정보 이용,제공사실 확인자료</div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="toolbar">
+                <!-- (선택) 새로고침/엑셀 버튼 등 -->
+                <button class="btn" onclick="location.reload()">삭제</button>
+<!--                <button class="btn" th:if="${downloadUrl != null}" th:onclick="'location.href=\'' + ${downloadUrl} + '\';'">엑셀 다운로드</button>-->
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>대상</th>
+                    <th>취득경로</th>
+                    <th>제공 서비스</th>
+                    <th>제공받는 자</th>
+                    <th>이용일시</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- 데이터가 있을 때 -->
+                <tr th:each="log,iter : ${logs}">
+                    <td class="mono" th:text="${iter.count}">1</td>
+                    <td th:text="${log.target}">회원ID/디바이스 등</td>
+                    <td th:text="${log.acquisitionPath}">GPS/기지국/Wi-Fi</td>
+                    <td th:text="${log.provisionalService}">근처 일기 알림</td>
+                    <td th:text="${log.recipient}">—</td>
+                    <td class="mono" th:text="${#temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2025-09-21 20:12:03</td>
+                </tr>
+
+                <!-- 데이터가 없을 때 -->
+                <tr th:if="${logs == null or #lists.isEmpty(logs)}">
+                    <td colspan="7" class="empty">표시할 기록이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- (선택) 페이지네이션 예시: 컨트롤러에서 page/totalPage 전달 시 활성화
+<div class="wrap" th:if="${totalPage > 1}">
+  <nav aria-label="페이지 이동" style="display:flex; gap:6px; justify-content:center; margin-top:14px;">
+    <a class="btn" th:each="p : ${#numbers.sequence(1, totalPage)}"
+       th:href="@{|/admin/location-log?page=${p}|}"
+       th:text="${p}"
+       th:classappend="${p == page} ? ' mono' : ''">1</a>
+  </nav>
+</div>
+-->
+</body>
+</html>
