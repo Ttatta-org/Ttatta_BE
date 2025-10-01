@@ -55,7 +55,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.security:spring-security-test'
 
-	//s3
+    // spring security, thymeleaf
+    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+
+    //s3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
 	//Jwt

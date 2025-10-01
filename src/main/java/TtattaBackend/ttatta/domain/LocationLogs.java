@@ -25,7 +25,7 @@ public class LocationLogs extends BaseEntity {
     @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'Android'")
     private String acquisitionPath; // 취득 경로
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 50)
     private String provisionalService; // 제공 서비스
 
     @Column(length = 20)
