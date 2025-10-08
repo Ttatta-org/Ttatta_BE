@@ -138,12 +138,35 @@
 
     <!-- (옵션) 페이지네이션 -->
     <div class="wrap" th:if="${totalPage != null and totalPage > 1}">
-        <nav aria-label="페이지 이동" style="display:flex; gap:6px; justify-content:center; margin-top:14px;">
+        <nav aria-label="페이지 이동"
+             style="display:flex; gap:6px; justify-content:center; margin-top:14px; align-items:center;">
+
+            <!-- 이전 버튼: 첫 페이지일 땐 비활성화 -->
             <a class="btn"
-               th:each="p : ${#numbers.sequence(1, totalPage)}"
-               th:href="@{|/admin/location-log?page=${p - 1}&keyword=${keyword}&fromDate=${fromDate}&toDate=${toDate}|}"
-               th:text="${p}"
-               th:classappend="${(p - 1) == page} ? ' mono' : ''">1</a>
+               th:if="${page > 0}"
+               th:href="@{/admin/location-log(
+                   page=${page - 1},
+                   keyword=${keyword},
+                   fromDate=${fromDate},
+                   toDate=${toDate}
+               )}">&lt;</a>
+            <span th:if="${page == 0}" class="btn" style="pointer-events:none; opacity:.5;">&lt;</span>
+
+            <!-- 현재 페이지 / 전체 페이지 -->
+            <span th:text="${page + 1}"></span>
+            <span>/</span>
+            <span th:text="${totalPage}"></span>
+
+            <!-- 다음 버튼: 마지막 페이지일 땐 비활성화 -->
+            <a class="btn"
+               th:if="${page + 1 < totalPage}"
+               th:href="@{/admin/location-log(
+                   page=${page + 1},
+                   keyword=${keyword},
+                   fromDate=${fromDate},
+                   toDate=${toDate}
+               )}">&gt;</a>
+            <span th:if="${page + 1 == totalPage}" class="btn" style="pointer-events:none; opacity:.5;">&gt;</span>
         </nav>
     </div>
 </div>

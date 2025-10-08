@@ -47,7 +47,8 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 ) // 세션을 Stateless로 설정
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/admin/**").hasRole("ADMIN")    // == hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("SUPER_ADMIN", "ADMIN")    // == hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/super/admin/**").hasRole("SUPER_ADMIN")    // == hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/**").permitAll()
 //                        .requestMatchers(
 //                                "/users/signup",

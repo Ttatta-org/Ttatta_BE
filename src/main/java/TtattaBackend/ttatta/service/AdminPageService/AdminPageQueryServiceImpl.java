@@ -1,4 +1,4 @@
-package TtattaBackend.ttatta.service.AdminService;
+package TtattaBackend.ttatta.service.AdminPageService;
 
 import TtattaBackend.ttatta.domain.LocationLogs;
 import TtattaBackend.ttatta.repository.LocationLogRepository;
@@ -21,9 +21,11 @@ public class AdminPageQueryServiceImpl implements AdminPageQueryService {
     @Override
     public Page<LocationLogs> search(int page, int size, String keyword, LocalDate fromDate, LocalDate toDate) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        LocalDateTime from = fromDate != null ? fromDate.atStartOfDay() : LocalDateTime.MIN;
-        LocalDateTime toEx = toDate != null ? toDate.plusDays(1).atStartOfDay() : LocalDateTime.MAX;
-        String kw = (keyword == null) ? "" : keyword;
+        LocalDateTime safeMin = LocalDateTime.of(1000, 1, 1, 0, 0);
+        LocalDateTime safeMax = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+        LocalDateTime from = (fromDate != null) ? fromDate.atStartOfDay() : safeMin;
+        LocalDateTime toEx = (toDate != null) ? toDate.plusDays(1).atStartOfDay() : safeMax;
+        String kw = (keyword != null && !keyword.isBlank()) ? keyword.trim() : "";
 
         return locationLogRepository.searchWithKeywordAndDate(
                 pageable, from, toEx, kw

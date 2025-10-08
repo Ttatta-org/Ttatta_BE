@@ -1,8 +1,7 @@
 package TtattaBackend.ttatta.web.controller;
 
-import TtattaBackend.ttatta.domain.LocationLogs;
 import TtattaBackend.ttatta.repository.LocationLogRepository;
-import TtattaBackend.ttatta.service.AdminService.AdminPageQueryService;
+import TtattaBackend.ttatta.service.AdminPageService.AdminPageQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -33,8 +31,7 @@ public class AdminPageController {
                        @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate fromDate,
                        @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate toDate,
                        Model model) {
-        System.out.println("page: " + page);
-        int pageSize = 20;
+        int pageSize = 10;
 
         // 1) 조회
         var resultPage = adminPageQueryService.search(page, pageSize, keyword, fromDate, toDate);

@@ -21,11 +21,5 @@ public class LocationAccessLogs extends BaseEntity {
     private Long id;
 
     @Column(nullable = false, length = 20)
-    private String handler; // 취급자
-
-    @Column(nullable = false, length = 20)
-    private String requestor; // 요청자
-
-    @Column(nullable = false, length = 50)
-    private String purpose; // 목적
+    private String adminId; // 접근권한자 식별 정보
 }

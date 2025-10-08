@@ -1,4 +1,4 @@
-package TtattaBackend.ttatta.service.AdminService;
+package TtattaBackend.ttatta.service.AdminPageService;
 
 import TtattaBackend.ttatta.domain.LocationLogs;
 import org.springframework.data.domain.Page;
