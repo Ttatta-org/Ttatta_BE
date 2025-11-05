@@ -94,6 +94,10 @@ jobs:
           sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/ttatta
           docker image prune -f
 
+    # resources/key 디렉터리 없다면 생성
+    - name: Ensure key dir
+      run: mkdir -p src/main/resources/key
+
     # jsdaniell/create-json@v1.2.2 액션을 사용하여 Firebase Admin SDK JSON 파일을 생성합니다.
     - name: create-json
       id: create-json
@@ -101,4 +105,4 @@ jobs:
       with:
         name: "firebase.json"
         json: ${{ secrets.FIREBASE_JSON }}
-        dir: 'src/main/resources/'
+        dir: 'src/main/resources/key/'
