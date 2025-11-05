@@ -94,15 +94,23 @@ jobs:
           sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/ttatta
           docker image prune -f
 
-    # resources/key 디렉터리 없다면 생성
-    - name: Ensure key dir
-      run: mkdir -p src/main/resources/key
+#    # resources/key 디렉터리 없다면 생성
+#    - name: Ensure key dir
+#      run: mkdir -p src/main/resources/key
+#
+#    # jsdaniell/create-json@v1.2.2 액션을 사용하여 Firebase Admin SDK JSON 파일을 생성합니다.
+#    - name: create-json
+#      id: create-json
+#      uses: jsdaniell/create-json@v1.2.3
+#      with:
+#        name: "firebase.json"
+#        json: ${{ secrets.FIREBASE_JSON }}
+#        dir: 'src/main/resources/key/'
 
-    # jsdaniell/create-json@v1.2.2 액션을 사용하여 Firebase Admin SDK JSON 파일을 생성합니다.
-    - name: create-json
-      id: create-json
-      uses: jsdaniell/create-json@v1.2.3
-      with:
-        name: "firebase.json"
-        json: ${{ secrets.FIREBASE_JSON }}
-        dir: 'src/main/resources/key/'
+    - name: Make firebase.json
+      run: |
+        # 디렉토리가 없으면 생성합니다.
+        mkdir -p ./src/main/resources/key/
+        # firebase.json 파일을 생성하고 GitHub Secrets 값을 파일에 씁니다.
+        echo "${{ secrets.FIREBASE_JSON }}" > ./src/main/resources/key/firebase.json
+      shell: bash
