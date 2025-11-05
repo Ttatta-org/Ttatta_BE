@@ -50,6 +50,15 @@ jobs:
         echo "${{ secrets.YML }}" > ./src/main/resources/application.yml     # github actions에서 설정한 값을 application.yml 파일에 쓰기
       shell: bash
 
+    # Github secrets로부터 데이터를 받아서, firebase.json파일 생성
+    - name: Make firebase.json
+      run: |
+        # 디렉토리가 없으면 생성합니다.
+        mkdir -p ./src/main/resources/key/
+        # firebase.json 파일을 생성하고 GitHub Secrets 값을 파일에 씁니다.
+        echo "${{ secrets.FIREBASE_JSON }}" > ./src/main/resources/key/firebase.json
+      shell: bash
+
     # gradle을 통해 소스를 빌드.
     - name: Build with Gradle
       run: |
@@ -106,11 +115,3 @@ jobs:
 #        name: "firebase.json"
 #        json: ${{ secrets.FIREBASE_JSON }}
 #        dir: 'src/main/resources/key/'
-
-    - name: Make firebase.json
-      run: |
-        # 디렉토리가 없으면 생성합니다.
-        mkdir -p ./src/main/resources/key/
-        # firebase.json 파일을 생성하고 GitHub Secrets 값을 파일에 씁니다.
-        echo "${{ secrets.FIREBASE_JSON }}" > ./src/main/resources/key/firebase.json
-      shell: bash
