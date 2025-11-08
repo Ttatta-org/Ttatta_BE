@@ -8,7 +8,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface DiaryCommandService {
-    Diaries save(DiaryRequestDTO.PostDTO postDTO, GeometryFactory geometryFactory);
+    Diaries save(DiaryRequestDTO.PostDTO postDTO);
     DiaryPhotos savePhoto(String objectKey);
     void delete(Long diaryId);
     void deletePhoto(DiaryPhotos diaryPhoto);

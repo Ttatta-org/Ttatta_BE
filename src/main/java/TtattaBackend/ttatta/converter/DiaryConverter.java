@@ -2,6 +2,7 @@ package TtattaBackend.ttatta.converter;
 
 import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.domain.DiaryPhotos;
+import TtattaBackend.ttatta.security.EncryptedLocation;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import org.locationtech.jts.geom.Point;
@@ -23,15 +24,23 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static Diaries toDiaries(DiaryRequestDTO.PostDTO request, Point pt) {
+    public static Diaries toDiaries(DiaryRequestDTO.PostDTO request, Point pt, EncryptedLocation enc) {
         return Diaries.builder()
                 .content(request.getContent())
                 .date(request.getDate())
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
+//                .latitude(request.getLatitude())
+//                .longitude(request.getLongitude())
                 .location(pt)
                 .locationName(request.getLocationName())
                 .diaryPhotosList(new ArrayList<>()) // 여기서 diaryPhotosList명시적으로 초기화!
+                // 암호화 필드
+                .latCipher(enc.getLatCipher())
+                .lngCipher(enc.getLngCipher())
+                .ivLat(enc.getIvLat())
+                .ivLng(enc.getIvLng())
+                .dekWrapped(enc.getDekWrapped())
+                .kmsKeyId(enc.getKmsKeyId())
+                .encVer(enc.getEncVer())
                 .build();
     }
 

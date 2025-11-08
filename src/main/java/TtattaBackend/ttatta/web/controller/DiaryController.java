@@ -33,8 +33,7 @@ public class DiaryController {
 
     @PostMapping(value = "/post")
     public ApiResponse<DiaryResponseDTO.PostResultDTO> diarySave(@RequestBody DiaryRequestDTO.PostDTO request){
-        GeometryFactory geometryFactory = new GeometryFactory();
-        Diaries diaries = diaryCommandService.save(request, geometryFactory);
+        Diaries diaries = diaryCommandService.save(request);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toPostResultDTO(diaries)

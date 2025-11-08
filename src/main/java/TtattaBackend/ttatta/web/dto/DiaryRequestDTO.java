@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,6 +25,8 @@ public class DiaryRequestDTO {
         private String locationName;
 
         private String objectKey;
+
+        // 임시 추가
 
     }
 
