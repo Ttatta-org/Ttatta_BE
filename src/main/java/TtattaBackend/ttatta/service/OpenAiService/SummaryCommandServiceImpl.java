@@ -50,7 +50,7 @@ public class SummaryCommandServiceImpl implements SummaryCommandService {
 
 
     @Override
-    public String summarize(DiarySummaryRequestDTO.SummarizeDTO request) {
+    public SummaryDiary summarize(DiarySummaryRequestDTO.SummarizeDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElse(null);
         LocalDate day = request.getDate();
@@ -81,11 +81,11 @@ public class SummaryCommandServiceImpl implements SummaryCommandService {
                 .build();
 
         summaryDiaryRepository.save(summaryDiary);
-        return content;
+        return summaryDiary;
     }
 
     @Override
-    public String reSummarize(DiarySummaryRequestDTO.SummarizeDTO request) {
+    public SummaryDiary reSummarize(DiarySummaryRequestDTO.SummarizeDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElse(null);
         LocalDate day = request.getDate();
@@ -110,7 +110,7 @@ public class SummaryCommandServiceImpl implements SummaryCommandService {
         String newKeyHash = generateSHA256(rawKey);
 
         if (originalKeyHash.equals(newKeyHash)) {
-            return originalSummaryDiary.getContent();
+            return originalSummaryDiary;
         }
 
         String prompt  = PromptBuilder.buildPrompt(diaries);
@@ -121,7 +121,7 @@ public class SummaryCommandServiceImpl implements SummaryCommandService {
         originalSummaryDiary.updateContentAndKeyHash(content, newKeyHash);
 
         summaryDiaryRepository.save(originalSummaryDiary);
-        return content;
+        return originalSummaryDiary;
     }
 
     @Override

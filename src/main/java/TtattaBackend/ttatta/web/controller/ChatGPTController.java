@@ -2,10 +2,12 @@ package TtattaBackend.ttatta.web.controller;
 
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.SummarizeConverter;
+import TtattaBackend.ttatta.domain.SummaryDiary;
 import TtattaBackend.ttatta.repository.DiaryRepository;
 import TtattaBackend.ttatta.service.OpenAiService.SummaryCommandService;
 import TtattaBackend.ttatta.service.OpenAiService.SummaryCommandServiceImpl;
 import TtattaBackend.ttatta.web.dto.ChatGPTResponseDTO;
+import TtattaBackend.ttatta.web.dto.DiaryReSummarizeResponseDTO;
 import TtattaBackend.ttatta.web.dto.DiarySummaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiarySummaryResponseDTO;
 import io.github.flashvayne.chatgpt.service.ChatgptService;
@@ -34,7 +36,7 @@ public class ChatGPTController {
     )
     @PostMapping("/summary")
     public ApiResponse<ChatGPTResponseDTO> summarizeDiary(@RequestBody DiarySummaryRequestDTO.SummarizeDTO request) {
-        String summary = summaryCommandService.summarize(request);
+        SummaryDiary summary = summaryCommandService.summarize(request);
         return ApiResponse.onSuccess(SummarizeConverter.toSummarizeResponseDTO(summary));
     }
 
@@ -43,9 +45,9 @@ public class ChatGPTController {
             description = "hash값으로 일기 추가 / 삭제 / 수정 감지 후 재생성하는 api 입니다."
     )
     @PutMapping("/summary/reSummary")
-    public ApiResponse<String> reSummarizeDiary(@RequestBody DiarySummaryRequestDTO.SummarizeDTO request) {
-        String summary = summaryCommandService.reSummarize(request);
-        return ApiResponse.onSuccess(summary);
+    public ApiResponse<DiaryReSummarizeResponseDTO> reSummarizeDiary(@RequestBody DiarySummaryRequestDTO.SummarizeDTO request) {
+        SummaryDiary summary = summaryCommandService.reSummarize(request);
+        return ApiResponse.onSuccess(SummarizeConverter.toReSummarizeResponseDTO(summary));
     }
 
 
