@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -18,5 +19,6 @@ public class ChatGPTResponseDTO {
     public static class Choice {
         private int index;
         private Message message;
+        private LocalDateTime createdAt;
     }
 }
