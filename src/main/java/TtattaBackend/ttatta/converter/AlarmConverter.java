@@ -33,7 +33,7 @@ public class AlarmConverter {
                 .dailySummaryAlarm(
                         AlarmResponseDTO.DailySummaryAlarm.builder()
                                 .isActive(dailySummaryAlarm != null ? dailySummaryAlarm.getIsActive() : IsActive.OFF)
-                                .alarmTime(dailySummaryAlarm != null ? (dailySummaryAlarm.getIsActive() == IsActive.ON ? dailySummaryAlarm.getAlaramTime() : null) : null)
+                                .alarmTime(dailySummaryAlarm != null ? (dailySummaryAlarm.getIsActive() == IsActive.ON ? dailySummaryAlarm.getAlarmTime() : null) : null)
                                 .build()
                 )
                 .build();
