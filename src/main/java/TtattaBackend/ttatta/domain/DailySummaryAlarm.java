@@ -22,7 +22,7 @@ public class DailySummaryAlarm extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(10)")
     private IsActive isActive;
 
-    private LocalTime alaramTime;
+    private LocalTime alarmTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -47,6 +47,6 @@ public class DailySummaryAlarm extends BaseEntity {
     }
 
     public void updateAlarmTime(LocalTime alarmTime) {
-        this.alaramTime = alarmTime;
+        this.alarmTime = alarmTime;
     }
 }
