@@ -157,7 +157,10 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
             double originLongitude = floor(decryptedLocation.lng() * 100000.0);
 
             if(originLatitude == newLatitude && originLongitude ==  newLongitude) {
-                matchedClusterId = Optional.of(latest.getClusterId());
+                Long clusterId = latest.getClusterId();
+                if(clusterId != null) {
+                    matchedClusterId = Optional.of(clusterId);
+                }
                 break;
             }
         }
@@ -170,8 +173,9 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
             Optional<Diaries> clusterDiary = diaryRepository.findTop1ClusterIdByUsersOrderByClusterIdDesc(user);
 
             if(clusterDiary.isPresent()) {
-                Long newClusterId = clusterDiary.get().getClusterId();
-                diaries.setClusterId(newClusterId + 1);
+                Long existingClusterId = clusterDiary.get().getClusterId();
+                Long newClusterId = (existingClusterId != null) ? existingClusterId + 1 : 0L;
+                diaries.setClusterId(newClusterId);
             } else {
                 // 첫 일기
                 diaries.setClusterId(0L);
