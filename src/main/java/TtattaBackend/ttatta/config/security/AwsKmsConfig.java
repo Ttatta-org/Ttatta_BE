@@ -36,9 +36,6 @@ public class AwsKmsConfig {
 
     @Bean
     public KmsClient kmsClient() {
-        System.out.println(">>> awsRegion = " + awsRegion);
-        System.out.println(">>> accessKey = " + accessKey);
-        System.out.println(">>> secretKey = " + secretKey);
 
         AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
         return KmsClient.builder()
