@@ -205,6 +205,31 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     }
 
     @Override
+    public DiaryResponseDTO.RemindDiaryDTO getRemindDiary(Long diaryId) {
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        Users user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+
+        Diaries diary = diaryRepository
+                .findByIdAndUsers(diaryId, user)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus.DIARY_NOT_FOUND));
+
+        String presignedUrl = null;
+        List<DiaryPhotos> photoList = diary.getDiaryPhotosList();
+
+        if (photoList != null && !photoList.isEmpty()) {
+            String objectKey = photoList.get(0).getImageUrl();
+            presignedUrl = s3Manager.generatePresignedUrlForView(objectKey);
+        }
+
+        Long count = diaryRepository.countByUsersAndClusterId(user, diary.getClusterId());
+
+        return DiaryConverter.toRemindDiaryDTO(diary, presignedUrl, count > 1);
+    }
+
+    @Override
     public List<LocalDateTime> getDiaryDateList() {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));

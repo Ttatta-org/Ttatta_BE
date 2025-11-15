@@ -226,6 +226,20 @@ public class DiaryConverter {
                 .build();
     }
 
+    public static DiaryResponseDTO.RemindDiaryDTO toRemindDiaryDTO(Diaries diary, String presignedUrl, boolean isSingle) {
+        return DiaryResponseDTO.RemindDiaryDTO.builder()
+                .diaryId(diary.getId())
+                .diaryCategoryId(diary.getDiaryCategories().getId())
+                .date(diary.getDate())
+                .content(diary.getContent())
+                .image(presignedUrl)
+                .color(diary.getDiaryCategories().getColor())
+                .latitude(diary.getLocation().getY())
+                .longitude(diary.getLocation().getX())
+                .isSingle(isSingle)
+                .build();
+    }
+
     public static DiaryResponseDTO.ViewOnMapResultDTO toViewOnMapResultDTO(List<Diaries> diaryList, List<String> presignedUrlList) {
         List<DiaryResponseDTO.MapResultDTO> resultList = IntStream.range(0, diaryList.size())
                 .mapToObj(i -> DiaryConverter.toMapResultDTO(diaryList.get(i), presignedUrlList.get(i)))
