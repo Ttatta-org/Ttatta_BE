@@ -65,8 +65,8 @@ public class DiaryConverter {
                 .diaryId(diaries.getId())
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .categoryColor(diaries.getDiaryCategories().getColor().toString())
-                .latitude(diaries.getLatitude())
-                .longitude(diaries.getLongitude())
+                .latitude(diaries.getLocation().getY())
+                .longitude(diaries.getLocation().getX())
                 .clusterId(diaries.getClusterId())
                 .isSingle(clusterCount == 1)
                 .build();
