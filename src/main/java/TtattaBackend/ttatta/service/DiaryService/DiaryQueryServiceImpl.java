@@ -94,13 +94,35 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
             countList = diaryRepository.countDiariesGroupByClusterIdAndCategory(user, diaryCategories);
         }
 
+        Map<Long, DecryptedLocation> locationMap = insideDiaries.stream()
+                .collect(Collectors.toMap(
+                        Diaries::getId,
+                        diary -> {
+                            try {
+                                return envelopeCryptoService.decryptLatLng(
+                                        diary.getLatCipher(),
+                                        diary.getIvLat(),
+                                        diary.getLngCipher(),
+                                        diary.getIvLng(),
+                                        diary.getDekWrapped(),
+                                        diary.getKmsKeyId(),
+                                        diary.getUsers().getId()
+                                );
+                            } catch (Exception e) {
+                                throw new ExceptionHandler(ErrorStatus.TOKEN_ERROR);
+                            }
+                        }
+                ));
+
         Map<Long, Long> countMap = countList.stream()
                 .collect(Collectors.toMap(
                         row -> (Long) row[0],
                         row -> (Long) row[1]
                 ));
 
-        return DiaryConverter.toFootprintDiaryListDTO(insideDiaries, countMap);
+        log.info(locationMap.toString());
+
+        return DiaryConverter.toFootprintDiaryListDTO(insideDiaries, countMap, locationMap);
     }
 
     public List<Diaries> filterLatestByClusterId(List<Diaries> diaries) {
@@ -296,7 +318,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
 
-        // ▶▶ WKT 문자열 생성 (경도(lng) 먼저, 위도(lat) 나중)
+        // wkt 문자열 생성 (위도, 경도) 순서
         String wkt = String.format(
                 "POLYGON((%f %f, %f %f, %f %f, %f %f, %f %f))",
                 request.getLat1(), request.getLng1(),  // NE
@@ -383,7 +405,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     }
 
     static String toPolygonWKT(List<Pt> pts) {
-        // ⚠️ WKT: "lng lat" 순서
+        // WKT: "lat lng" 순서
         String coords = pts.stream()
                 .map(p -> p.lat + " " + p.lng)
                 .collect(java.util.stream.Collectors.joining(", "));
