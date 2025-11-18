@@ -38,6 +38,7 @@ public class ChallengeResponeseDTO {
     public static class ChallengeResultDTO {
         Long challengeId;
         String title;
+        String content;
         Boolean isCompleted;
     }
   
@@ -53,18 +54,18 @@ public class ChallengeResponeseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class FailChallengeResultDTO {
+    public static class GetAllPastChallengeResultDTO {
         Long challengeId;
         String title;
         String content;
-        int term;
+        boolean isCompleted;
     }
   
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class FailChallengeListResultDTO {
-        List<FailChallengeResultDTO> failChallengeList;
+    public static class GetAllPastChallengeListResultDTO {
+        List<GetAllPastChallengeResultDTO> getAllPastChallengeResultDTOList;
     }
 }
