@@ -170,9 +170,9 @@ public class DiaryController {
                 일기의 ID로 조회 가능합니다.
                 """
     )
-    @GetMapping("/remind/{id}")
-    public ApiResponse<DiaryResponseDTO.RemindDiaryDTO> getRemindDiary (@PathVariable Long id) {
-        return ApiResponse.onSuccess(diaryQueryService.getRemindDiary(id));
+    @GetMapping("/remind/{diaryId}")
+    public ApiResponse<DiaryResponseDTO.RemindDiaryDTO> getRemindDiary (@PathVariable Long diaryId) {
+        return ApiResponse.onSuccess(diaryQueryService.getRemindDiary(diaryId));
     }
 
     @Operation(summary = "업로드용 Presigned Url",
