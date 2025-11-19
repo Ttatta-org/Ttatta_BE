@@ -91,6 +91,22 @@ public class DiaryResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class RemindDiaryDTO {
+        Long diaryId;
+        Long diaryCategoryId;
+        LocalDateTime date;
+        String content;
+        String image;
+        CategoryColor color;
+        double latitude;
+        double longitude;
+        Boolean isSingle;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SearchDiaryListDTO {
         List<SearchDiaryDTO> searchDiaryList;
     }

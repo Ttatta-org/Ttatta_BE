@@ -165,6 +165,16 @@ public class DiaryController {
         return ApiResponse.onSuccess("");
     }
 
+    @Operation(summary = "리마인드 일기 정보 조회",
+            description = """
+                일기의 ID로 조회 가능합니다.
+                """
+    )
+    @GetMapping("/remind/{diaryId}")
+    public ApiResponse<DiaryResponseDTO.RemindDiaryDTO> getRemindDiary (@PathVariable Long diaryId) {
+        return ApiResponse.onSuccess(diaryQueryService.getRemindDiary(diaryId));
+    }
+
     @Operation(summary = "업로드용 Presigned Url",
             description = """
                     파일명을 작성해주세요. \n

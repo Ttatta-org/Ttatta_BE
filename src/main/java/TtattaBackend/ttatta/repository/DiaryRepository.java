@@ -21,7 +21,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     Integer countDiariesByUsersId(Long userId);
     List<Diaries> findAllByDiaryCategories(DiaryCategories diaryCategories);
 
-    Diaries findByIdAndUsers(Long diaryId, Users user);
+    Optional<Diaries> findByIdAndUsers(Long diaryId, Users user);
     Page<Diaries> findAllByUsersOrderByDateDesc(Users user, PageRequest pageRequest);
 
     @Query("SELECT d FROM Diaries d WHERE d.users = :user AND FUNCTION('DATE', d.date) = FUNCTION('DATE', :date) ORDER BY d.date DESC")
@@ -117,6 +117,8 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             "WHERE d.users = :user AND d.diaryCategories = :category " +
             "GROUP BY d.clusterId")
     List<Object[]> countDiariesGroupByClusterIdAndCategory(@Param("user") Users user, @Param("category") DiaryCategories category);
+
+    Long countByUsersAndClusterId(Users user, Long clusterId);
 
     /**
      * 회전된 뷰포트 네 모서리 좌표를 받아
