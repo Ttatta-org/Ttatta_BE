@@ -17,7 +17,6 @@ public class UserConverter {
                 .nickname(request.getNickname())
                 .username(request.getUsername())
                 .loginType(LoginType.REGULAR)
-                .point(1000L)
                 .diaryCategoriesList(new ArrayList<>())
                 .build();
     }
