@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.ItemConverter;
 import TtattaBackend.ttatta.domain.Items;
+import TtattaBackend.ttatta.domain.enums.BodyPart;
 import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import TtattaBackend.ttatta.service.ItemService.ItemCommandService;
 import TtattaBackend.ttatta.service.ItemService.ItemQueryService;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -62,8 +64,10 @@ public class ItemController {
     @Operation(summary = "미소유 아이템 (shop) api",
             description = "shop 화면에서 사용자가 구매하지 않은 아이템을 반환하는 API 입니다.")
     @GetMapping("/shop")
-    public ApiResponse<ItemResponseDTO.ItemShopListDTO> shop () {
-        List<Items> itemsList = itemQueryService.getShopItem();
+    public ApiResponse<ItemResponseDTO.ItemShopListDTO> shop (
+            @RequestParam(required = false) Optional<BodyPart> bodyPart
+    ) {
+        List<Items> itemsList = itemQueryService.getShopItem(bodyPart);
         Long point = userCommandService.getUserPoint();
 
         return ApiResponse.onSuccess(

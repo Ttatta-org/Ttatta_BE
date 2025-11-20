@@ -15,6 +15,21 @@ import java.util.Optional;
 @Repository
 public interface ItemRepository extends JpaRepository<Items, Long> {
     @Query("SELECT i FROM Items i " +
+            "WHERE i.bodyPart = :bodyPart " +
+            "AND NOT EXISTS (SELECT o FROM OwnedItems o WHERE o.users = :user AND o.items.id = i.id)")
+    List<Items> getShopItemByBodyPartHead(@Param("user") Users user, @Param("bodyPart") Optional<BodyPart> bodyPart);
+
+    @Query("SELECT i FROM Items i " +
+            "WHERE i.bodyPart = :bodyPart " +
+            "AND NOT EXISTS (SELECT o FROM OwnedItems o WHERE o.users = :user AND o.items.id = i.id)")
+    List<Items> getShopItemByBodyPartEyes(@Param("user") Users user, @Param("bodyPart") Optional<BodyPart> bodyPart);
+
+    @Query("SELECT i FROM Items i " +
+            "WHERE i.bodyPart = :bodyPart " +
+            "AND NOT EXISTS (SELECT o FROM OwnedItems o WHERE o.users = :user AND o.items.id = i.id)")
+    List<Items> getShopItemByBodyPartTorso(@Param("user") Users user, @Param("bodyPart") Optional<BodyPart> bodyPart);
+
+    @Query("SELECT i FROM Items i " +
             "WHERE NOT EXISTS (SELECT o FROM OwnedItems o WHERE o.users = :user AND o.items.id = i.id)")
     List<Items> getShopItem(@Param("user") Users user);
 

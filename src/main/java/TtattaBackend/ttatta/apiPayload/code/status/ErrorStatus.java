@@ -59,6 +59,7 @@ public enum ErrorStatus implements BaseErrorCode {
     ITEM_NOT_EQUIPPED(HttpStatus.BAD_REQUEST,"ITEM_5004","아이템을 착용하고 있지 않습니다."),
     ITEM_ALREADY_EQUIPPED(HttpStatus.BAD_REQUEST,"ITEM_5005","동일한 아이템을 이미 착용하고 있습니다."),
     ITEM_NOT_BUY(HttpStatus.BAD_REQUEST,"ITEM_5006","구매한 아이템이 아닙니다."),
+    ITEM_BODYPART_QUERY_STRING_INVALID(HttpStatus.BAD_REQUEST,"ITEM_5007","bodyPart 쿼리 스트링이 올바르지 않습니다."),
 
     // 챌린지 관련 응답 6000
     CHALLENGE_FULL(HttpStatus.BAD_REQUEST,"CHANLLENGE_6001","챌린지 3개가 이미 생성되어 있어 새로운 챌린지를 생성할 수 없습니다."),
