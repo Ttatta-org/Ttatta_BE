@@ -2,6 +2,7 @@ package TtattaBackend.ttatta.converter;
 
 import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.domain.DiaryPhotos;
+import TtattaBackend.ttatta.security.DecryptedLocation;
 import TtattaBackend.ttatta.security.EncryptedLocation;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
@@ -226,7 +227,7 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.RemindDiaryDTO toRemindDiaryDTO(Diaries diary, String presignedUrl, boolean isSingle) {
+    public static DiaryResponseDTO.RemindDiaryDTO toRemindDiaryDTO(Diaries diary, String presignedUrl, boolean isSingle, DecryptedLocation location) {
         return DiaryResponseDTO.RemindDiaryDTO.builder()
                 .diaryId(diary.getId())
                 .diaryCategoryId(diary.getDiaryCategories().getId())
@@ -234,8 +235,8 @@ public class DiaryConverter {
                 .content(diary.getContent())
                 .image(presignedUrl)
                 .color(diary.getDiaryCategories().getColor())
-                .latitude(diary.getLocation().getY())
-                .longitude(diary.getLocation().getX())
+                .latitude(location.lat())
+                .longitude(location.lng())
                 .isSingle(isSingle)
                 .build();
     }
