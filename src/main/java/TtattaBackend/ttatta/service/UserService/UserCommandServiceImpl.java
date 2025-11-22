@@ -147,10 +147,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         Optional<Users> userSub = userRepository.findByProviderId(sub);
 
         // sub 추출 완료
-        // sub의 user 가 존재한다면 -> 로그인 처리 => access token, refresh token 리턴
+        // sub의 user 가 존재한다면 -> 로그인 처리 => Access Token, Refresh Token 리턴
         if (userSub.isPresent()) {
             Users ExistUser = userSub.get();
-            String key = ExistUser.getId().toString();
+            String key = "users:" + ExistUser.getId().toString();
             String accessToken = generateAccessToken(userSub.get().getId(), accessExpTime);
             String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
             Boolean isRegistered = ExistUser.getStatus().equals(UserStatus.PENDING) ? false : true;
@@ -190,11 +190,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 일상 카테고리 생성
         createDefaultCategory(savedUser);
 
-        // 액세스 토큰 및 리프레시 토큰 생성
-        String key = "users:" + savedUser.getId().toString();
-        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
-        String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
-        return UserConverter.toUserKaKaoFinalSignUpResultDTO(accessToken, refreshToken, savedUser);
+        return UserConverter.toUserKaKaoFinalSignUpResultDTO(savedUser);
     }
 
     private void createDefaultCategory(Users newUser) {
