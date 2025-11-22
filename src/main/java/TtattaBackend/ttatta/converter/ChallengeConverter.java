@@ -1,18 +1,9 @@
 package TtattaBackend.ttatta.converter;
 
 import TtattaBackend.ttatta.domain.Challenges;
-import TtattaBackend.ttatta.domain.Diaries;
-import TtattaBackend.ttatta.domain.DiaryPhotos;
 import TtattaBackend.ttatta.web.dto.ChallengeRequestDTO;
 import TtattaBackend.ttatta.web.dto.ChallengeResponeseDTO;
-import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
-import org.springframework.data.domain.Page;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +39,7 @@ public class ChallengeConverter {
         return ChallengeResponeseDTO.ChallengeResultDTO.builder()
                 .challengeId(challenge.getId())
                 .title(challenge.getTitle())
+                .content(challenge.getContent())
                 .isCompleted(challenge.getIsCompleted())
                 .build();
     }
@@ -61,21 +53,21 @@ public class ChallengeConverter {
                 .build();
     }
   
-    public static ChallengeResponeseDTO.FailChallengeResultDTO toFailChallengeResultDTO(Challenges challenge, int term) {
-        return ChallengeResponeseDTO.FailChallengeResultDTO.builder()
+    public static ChallengeResponeseDTO.GetAllPastChallengeResultDTO toGetAllPastChallengeResultDTO(Challenges challenge) {
+        return ChallengeResponeseDTO.GetAllPastChallengeResultDTO.builder()
                 .challengeId(challenge.getId())
                 .title(challenge.getTitle())
                 .content(challenge.getContent())
-                .term(term)
+                .isCompleted(challenge.getIsCompleted())
                 .build();
     }
 
-    public static ChallengeResponeseDTO.FailChallengeListResultDTO toFailChallengeListResultDTO(List<Challenges> challengeList) {
-        List<ChallengeResponeseDTO.FailChallengeResultDTO> challengeListDTO = challengeList.stream()
-                .map(challenge -> ChallengeConverter.toFailChallengeResultDTO(challenge, (int) ChronoUnit.DAYS.between(challenge.getCreatedAt(), LocalDateTime.now()))).collect(Collectors.toList());
+    public static ChallengeResponeseDTO.GetAllPastChallengeListResultDTO toGetAllPastChallengeListResultDTO(List<Challenges> challengeList) {
+        List<ChallengeResponeseDTO.GetAllPastChallengeResultDTO> challengeListDTO = challengeList.stream()
+                .map(challenge -> ChallengeConverter.toGetAllPastChallengeResultDTO(challenge)).collect(Collectors.toList());
 
-        return ChallengeResponeseDTO.FailChallengeListResultDTO.builder()
-                .failChallengeList(challengeListDTO)
+        return ChallengeResponeseDTO.GetAllPastChallengeListResultDTO.builder()
+                .getAllPastChallengeResultDTOList(challengeListDTO)
                 .build();
     }
 }

@@ -58,24 +58,27 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries, Map<Long, Long> count) {
+    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries, Map<Long, Long> count, Map<Long, DecryptedLocation> location) {
         Long clusterId = diaries.getClusterId();
         Long clusterCount = count.getOrDefault(clusterId, 1L);
+        DecryptedLocation diaryLocation = location.get(diaries.getId());
 
         return DiaryResponseDTO.FootprintDiaryDTO.builder()
                 .diaryId(diaries.getId())
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .categoryColor(diaries.getDiaryCategories().getColor().toString())
-                .latitude(diaries.getLatitude())
-                .longitude(diaries.getLongitude())
+                .latitude(diaryLocation.lat())
+                .longitude(diaryLocation.lng())
+//                .latitude(diaries.getLatitude())
+//                .longitude(diaries.getLongitude())
                 .clusterId(diaries.getClusterId())
                 .isSingle(clusterCount == 1)
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList, Map<Long,Long> count) {
+    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList, Map<Long,Long> count, Map<Long, DecryptedLocation> location) {
         List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
-                .map(diary -> toFootprintDiaryDTO(diary, count))
+                .map(diary -> toFootprintDiaryDTO(diary, count, location))
                 .collect(Collectors.toList());
 
         return DiaryResponseDTO.FootprintDiaryListDTO.builder()

@@ -2,16 +2,11 @@ package TtattaBackend.ttatta.web.controller;
 
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.ChallengeConverter;
-import TtattaBackend.ttatta.converter.ItemConverter;
 import TtattaBackend.ttatta.domain.Challenges;
-import TtattaBackend.ttatta.domain.Items;
 import TtattaBackend.ttatta.service.ChallengeService.ChallengeCommandService;
 import TtattaBackend.ttatta.service.ChallengeService.ChallengeQueryService;
-import TtattaBackend.ttatta.service.ItemService.ItemCommandService;
 import TtattaBackend.ttatta.web.dto.ChallengeRequestDTO;
 import TtattaBackend.ttatta.web.dto.ChallengeResponeseDTO;
-import TtattaBackend.ttatta.web.dto.ItemRequestDTO;
-import TtattaBackend.ttatta.web.dto.ItemResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -62,13 +57,13 @@ public class ChallengeController {
         );
     }
 
-    @Operation(summary = "가장 최근에 실패한 챌린지 5개 조회 api",
-            description = "가장 최근에 실패한 5개의 챌린지를 조회하는 api입니다.\n"
+    @Operation(summary = "지난 모든 챌린지 조회 api",
+            description = "지난 모든 챌린지를 조회하는 api입니다.\n"
                     + "header에 access token을 넣어주세요.")
-    @GetMapping("/fail")
-    public ApiResponse<ChallengeResponeseDTO.FailChallengeListResultDTO> getFailChallenges() {
+    @GetMapping("/all")
+    public ApiResponse<ChallengeResponeseDTO.GetAllPastChallengeListResultDTO> getAllPastChallenges() {
         return ApiResponse.onSuccess(
-                ChallengeConverter.toFailChallengeListResultDTO(challengeQueryService.getFailChallenges())
+                ChallengeConverter.toGetAllPastChallengeListResultDTO(challengeQueryService.getAllPastChallenges())
         );
     }
 }
