@@ -230,7 +230,7 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.RemindDiaryDTO toRemindDiaryDTO(Diaries diary, String presignedUrl, boolean isSingle) {
+    public static DiaryResponseDTO.RemindDiaryDTO toRemindDiaryDTO(Diaries diary, String presignedUrl, boolean isSingle, DecryptedLocation location) {
         return DiaryResponseDTO.RemindDiaryDTO.builder()
                 .diaryId(diary.getId())
                 .diaryCategoryId(diary.getDiaryCategories().getId())
@@ -238,8 +238,8 @@ public class DiaryConverter {
                 .content(diary.getContent())
                 .image(presignedUrl)
                 .color(diary.getDiaryCategories().getColor())
-                .latitude(diary.getLocation().getY())
-                .longitude(diary.getLocation().getX())
+                .latitude(location.lat())
+                .longitude(location.lng())
                 .isSingle(isSingle)
                 .build();
     }

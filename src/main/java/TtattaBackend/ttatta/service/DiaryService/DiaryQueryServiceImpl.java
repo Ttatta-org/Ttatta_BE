@@ -246,9 +246,19 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
             presignedUrl = s3Manager.generatePresignedUrlForView(objectKey);
         }
 
+        DecryptedLocation location =  envelopeCryptoService.decryptLatLng(
+            diary.getLatCipher(),
+            diary.getIvLat(),
+            diary.getLngCipher(),
+            diary.getIvLng(),
+            diary.getDekWrapped(),
+            diary.getKmsKeyId(),
+            diary.getUsers().getId()
+        );
+
         Long count = diaryRepository.countByUsersAndClusterId(user, diary.getClusterId());
 
-        return DiaryConverter.toRemindDiaryDTO(diary, presignedUrl, count > 1);
+        return DiaryConverter.toRemindDiaryDTO(diary, presignedUrl, count > 1, location);
     }
 
     @Override
