@@ -54,8 +54,10 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.KaKaoFinalSignUpResultDTO toUserKaKaoFinalSignUpResultDTO(Users users) {
+    public static UserResponseDTO.KaKaoFinalSignUpResultDTO toUserKaKaoFinalSignUpResultDTO(String accessToken, String refreshToken, Users users) {
         return UserResponseDTO.KaKaoFinalSignUpResultDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .userId(users.getId())
                 .nickname(users.getNickname())
                 .loginType(users.getLoginType())

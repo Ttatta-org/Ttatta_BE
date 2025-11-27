@@ -135,6 +135,8 @@ public class UserResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class KaKaoFinalSignUpResultDTO {
+        String accessToken;
+        String refreshToken;
         Long userId;
         String nickname;
         LoginType loginType;

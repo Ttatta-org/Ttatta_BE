@@ -190,7 +190,11 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 일상 카테고리 생성
         createDefaultCategory(savedUser);
 
-        return UserConverter.toUserKaKaoFinalSignUpResultDTO(savedUser);
+        // 액세스 토큰 및 리프레시 토큰 생성
+        String key = "users:" + savedUser.getId().toString();
+        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
+        String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
+        return UserConverter.toUserKaKaoFinalSignUpResultDTO(accessToken, refreshToken, savedUser);
     }
 
     private void createDefaultCategory(Users newUser) {
