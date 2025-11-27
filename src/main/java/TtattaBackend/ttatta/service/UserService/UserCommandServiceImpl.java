@@ -147,10 +147,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         Optional<Users> userSub = userRepository.findByProviderId(sub);
 
         // sub 추출 완료
-        // sub의 user 가 존재한다면 -> 로그인 처리 => access token, refresh token 리턴
+        // sub의 user 가 존재한다면 -> 로그인 처리 => Access Token, Refresh Token 리턴
         if (userSub.isPresent()) {
             Users ExistUser = userSub.get();
-            String key = ExistUser.getId().toString();
+            String key = "users:" + ExistUser.getId().toString();
             String accessToken = generateAccessToken(userSub.get().getId(), accessExpTime);
             String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
             Boolean isRegistered = ExistUser.getStatus().equals(UserStatus.PENDING) ? false : true;
