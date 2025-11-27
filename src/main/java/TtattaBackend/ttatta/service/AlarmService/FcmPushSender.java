@@ -2,10 +2,7 @@ package TtattaBackend.ttatta.service.AlarmService;
 
 import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +31,9 @@ public class FcmPushSender {
                     .setToken(token)
                     .putData("type", alaramType.getType())
                     .putData("diaryId", diaryId == null ? "" : String.valueOf(diaryId))
+                    .setAndroidConfig(AndroidConfig.builder()
+                            .setPriority(AndroidConfig.Priority.HIGH) // 우선 순위를 HIGH로 설정
+                            .build())
                     .build());
             System.out.println("Sending push notification to token: " + token);
         } catch (FirebaseMessagingException e) { // FCM 전송 실패 시 예외 처리 : 어떻게 동작하는지 확인하기 상위 메서드의 runnable에서 예외처리 안해주고 있는데 그러면 에러나면 해당 스레드 죽는것이지, 죽는다면 runnalbe에서 예외처리해주어야됨.

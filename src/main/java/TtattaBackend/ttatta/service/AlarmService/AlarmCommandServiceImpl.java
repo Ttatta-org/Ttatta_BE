@@ -140,25 +140,28 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
     private void reserveSendPushNotificationByFcm(LocalDateTime alarmTime, Users user, AlaramType alaramType, Map<Long, ScheduledFuture<?>> scheduledTasks, String memoryDiaryAlarmDaysAgo, Long diaryId) {
         ScheduledFuture<?> future = taskScheduler.schedule(() -> {
             try {
-                ZoneId zoneId = ZoneId.of("Asia/Seoul");
-                LocalDate today = LocalDate.now(zoneId);
-                List<Diaries> diaries = diaryRepository.findAllByCreatedAtBetween(
-                        today.atStartOfDay(),                  // 오늘 00:00:00
-                        today.plusDays(1).atStartOfDay()       // 내일 00:00:00
-                );
-
                 if (scheduledTasks.containsKey(user.getId())) {
                     // 이미 예약된 알림이 있는 경우, 기존 예약 취소
                     scheduledTasks.get(user.getId()).cancel(false);
                     scheduledTasks.remove(user.getId());
                 }
-                if (alaramType == AlaramType.DAILY_SUMMARY && diaries.size() < 2) return; // 일일 요약 알림은 오늘 작성한 일기가 2개 미만이면 보내지 않음
-                else if (alaramType == AlaramType.DAILY_SUMMARY && diaries.size() >= 2) {
-                    summaryCommandService.summarize(
-                            DiarySummaryRequestDTO.SummarizeDTO.builder()
-                                    .date(today)
-                                    .build()
+                if (alaramType == AlaramType.DAILY_SUMMARY) {
+                    ZoneId zoneId = ZoneId.of("Asia/Seoul");
+                    LocalDate today = LocalDate.now(zoneId);
+                    List<Diaries> diaries = diaryRepository.findAllByCreatedAtBetween(
+                            today.atStartOfDay(),                  // 오늘 00:00:00
+                            today.plusDays(1).atStartOfDay()       // 내일 00:00:00
                     );
+                    if (diaries.size() < 2) {
+                        return; // 오늘 작성한 일기가 2개 미만이면 일일 요약 알림 보내지 않음
+                    } else {
+                        summaryCommandService.summarizeByDailySummaryAlarm(
+                                user.getId(),
+                                DiarySummaryRequestDTO.SummarizeDTO.builder()
+                                        .date(today)
+                                        .build()
+                        );
+                    }
                 }
                 fcmPushSender.sendPushNotification(user.getFcmToken(), alaramType, memoryDiaryAlarmDaysAgo, diaryId);
             } finally {
@@ -348,6 +351,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         }
         if (getDailySummaryAlarm.getAlarmTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
             LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getDailySummaryAlarm.getAlarmTime());
+            System.out.println("하루 요약 알림 예약!!!");
             reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.DAILY_SUMMARY, dailySummaryAlarmScheduledTasks);
         }
 

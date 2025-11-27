@@ -85,6 +85,40 @@ public class SummaryCommandServiceImpl implements SummaryCommandService {
     }
 
     @Override
+    public SummaryDiary summarizeByDailySummaryAlarm(Long userId, DiarySummaryRequestDTO.SummarizeDTO request) {
+        Users user = userRepository.findById(userId).orElse(null);
+        LocalDate day = request.getDate();
+
+        LocalDateTime todayStart = day.atStartOfDay();
+        LocalDateTime todayEnd = day.atTime(LocalTime.MAX);
+
+        List<Diaries> diaries = diaryRepository.findAllByUserIdAndDate(user, todayStart, todayEnd);
+        String prompt  = PromptBuilder.buildPrompt(diaries);
+
+        ChatGPTRequestDTO gptRequest = new ChatGPTRequestDTO(model, prompt);
+        ChatGPTResponseDTO responseDTO = restTemplate.postForObject(apiUrl, gptRequest, ChatGPTResponseDTO.class);
+
+        String content = responseDTO.getChoices().get(0).getMessage().getContent();
+
+        String rawKey = diaries.stream()
+                .map(d -> d.getId() + ":" + d.getUpdatedAt().toString())
+                .sorted()
+                .collect(Collectors.joining(","));
+
+        String diaryKeyHash = generateSHA256(rawKey);
+
+        SummaryDiary summaryDiary = SummaryDiary.builder()
+                .date(day)
+                .content(content)
+                .users(user)
+                .diaryKeyHash(diaryKeyHash)
+                .build();
+
+        summaryDiaryRepository.save(summaryDiary);
+        return summaryDiary;
+    }
+
+    @Override
     public SummaryDiary reSummarize(DiarySummaryRequestDTO.SummarizeDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElse(null);
