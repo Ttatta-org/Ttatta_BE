@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     Integer countDiariesByUsersId(Long userId);
     List<Diaries> findAllByDiaryCategories(DiaryCategories diaryCategories);
 
-    Diaries findByIdAndUsers(Long diaryId, Users user);
+    Optional<Diaries> findByIdAndUsers(Long diaryId, Users user);
     Page<Diaries> findAllByUsersOrderByDateDesc(Users user, PageRequest pageRequest);
 
     @Query("SELECT d FROM Diaries d WHERE d.users = :user AND FUNCTION('DATE', d.date) = FUNCTION('DATE', :date) ORDER BY d.date DESC")
@@ -59,6 +60,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             "AND FLOOR(d.latitude * 100000.0) = FLOOR(:latitude * 100000.0) " +
             "AND FLOOR(d.longitude * 100000.0) = FLOOR(:longitude * 100000.0)")
     Optional<Long> findFirstClusterIdByUsersAndLatitudeAndLongitude(@Param("user") Users user, @Param("latitude") double latitude, @Param("longitude") double longitude);
+
 
     Optional<Diaries> findTop1ClusterIdByUsersOrderByClusterIdDesc(@Param("user") Users user);
 
@@ -116,6 +118,8 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
             "GROUP BY d.clusterId")
     List<Object[]> countDiariesGroupByClusterIdAndCategory(@Param("user") Users user, @Param("category") DiaryCategories category);
 
+    Long countByUsersAndClusterId(Users user, Long clusterId);
+
     /**
      * 회전된 뷰포트 네 모서리 좌표를 받아
      * SQL 내부에서 POLYGON WKT를 만들어 ST_Contains로 필터링합니다.
@@ -130,6 +134,44 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
         AND d.user_id = :userId
         """, nativeQuery = true)
     List<Diaries> findAllByUserIdAndCoordinates(
+            @Param("wkt") String wkt,
+            @Param("userId") Long userId
+    );
+
+
+    @Query(value = """
+        SELECT d
+        FROM Diaries d
+        WHERE d.users = :user
+        AND d.clusterId IN (
+            SELECT d2.clusterId
+            FROM Diaries d2
+            WHERE d2.users = :user
+            GROUP BY d2.clusterId
+            HAVING count(d2) = 1
+        )
+        AND d.createdAt = (
+            SELECT max(d3.createdAt)
+            FROM Diaries d3
+            WHERE d3.users = :user
+                AND d3.clusterId = d.clusterId
+        )
+        ORDER BY d.createdAt DESC 
+""")
+    List<Diaries> findLatestUniqueClusterIdDiary(
+            @Param("user") Users user
+    );
+
+    @Query(value = """
+        SELECT d.*
+        FROM diaries d
+        WHERE ST_Contains(
+          ST_GeomFromText(:wkt, 4326),
+          d.location
+        )
+        AND d.user_id = :userId
+        """, nativeQuery = true)
+    List<Diaries> findNearDiariesCandidates(
             @Param("wkt") String wkt,
             @Param("userId") Long userId
     );

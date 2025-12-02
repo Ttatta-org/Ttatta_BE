@@ -91,9 +91,13 @@ dependencies {
 	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4'
 	implementation 'org.springframework.boot:spring-boot-starter-tomcat'
 
+
     // 공간 데이터 처리 필수
     implementation("org.hibernate.orm:hibernate-spatial")
     implementation("org.locationtech.jts:jts-core:1.19.0")
+
+    // 위도 경도 암호화
+    implementation("software.amazon.awssdk:kms:2.25.+")
 }
 
 tasks.named('test') {

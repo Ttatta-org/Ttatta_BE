@@ -5,7 +5,7 @@ import TtattaBackend.ttatta.web.dto.DiarySummaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiarySummaryResponseDTO;
 
 public interface SummaryCommandService {
-    public String summarize(DiarySummaryRequestDTO.SummarizeDTO request);
-    public String reSummarize(DiarySummaryRequestDTO.SummarizeDTO request);
+    public SummaryDiary summarize(DiarySummaryRequestDTO.SummarizeDTO request);
+    public SummaryDiary reSummarize(DiarySummaryRequestDTO.SummarizeDTO request);
     public DiarySummaryResponseDTO.DiarySummaryResultDTO getSummary(DiarySummaryRequestDTO.GetDiarySummaryDTO request);
 }

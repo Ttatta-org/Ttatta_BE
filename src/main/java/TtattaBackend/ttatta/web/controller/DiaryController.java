@@ -33,8 +33,7 @@ public class DiaryController {
 
     @PostMapping(value = "/post")
     public ApiResponse<DiaryResponseDTO.PostResultDTO> diarySave(@RequestBody DiaryRequestDTO.PostDTO request){
-        GeometryFactory geometryFactory = new GeometryFactory();
-        Diaries diaries = diaryCommandService.save(request, geometryFactory);
+        Diaries diaries = diaryCommandService.save(request);
 
         return ApiResponse.onSuccess(
                 DiaryConverter.toPostResultDTO(diaries)
@@ -164,6 +163,16 @@ public class DiaryController {
     ) {
         diaryQueryService.findRemindDiary(request);
         return ApiResponse.onSuccess("");
+    }
+
+    @Operation(summary = "리마인드 일기 정보 조회",
+            description = """
+                일기의 ID로 조회 가능합니다.
+                """
+    )
+    @GetMapping("/remind/{diaryId}")
+    public ApiResponse<DiaryResponseDTO.RemindDiaryDTO> getRemindDiary (@PathVariable Long diaryId) {
+        return ApiResponse.onSuccess(diaryQueryService.getRemindDiary(diaryId));
     }
 
     @Operation(summary = "업로드용 Presigned Url",

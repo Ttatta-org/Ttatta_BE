@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +18,7 @@ public interface DailySummaryAlarmRepository extends JpaRepository<DailySummaryA
     Optional<DailySummaryAlarm> findByUsers(Users getUser);
     @Query("SELECT a FROM DailySummaryAlarm a JOIN FETCH a.users WHERE a.isActive = :isActive")
     List<DailySummaryAlarm> findAllByIsActiveUsingFetchJoin(@Param("isActive")IsActive isActive);
+
+    @Query("SELECT d FROM DailySummaryAlarm d WHERE d.alarmTime = :alarmTime")
+    List<DailySummaryAlarm> findByAlarmTime(@Param("alarmTime") LocalTime alarmTime);
 }

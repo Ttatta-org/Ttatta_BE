@@ -94,25 +94,25 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
     public void scheduleDailyAlarm() {
         for (WrittingDiaryAlarm writtingDiaryAlarm : writingDiaryAlarmRepository.findAllByIsActiveUsingFetchJoin(IsActive.ON)) {
             if (writtingDiaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
-                LocalDateTime alarmTime = getAlarmLocalDateTime(writtingDiaryAlarm.getAlaramTime());
+                LocalDateTime alarmTime = getReservationAlarmLocalDateTime(writtingDiaryAlarm.getAlaramTime());
                 reserveSendPushNotificationByFcm(alarmTime, writtingDiaryAlarm.getUsers(), AlaramType.WRITE_DIARY, writingDiaryAlarmScheduledTasks);
             }
         }
         for (ChallengeRemindAlarm challengeRemindAlarm : challengeRemindAlarmRepository.findAllByIsActiveUsingFetchJoin(IsActive.ON)) {
             if (challengeRemindAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
-                LocalDateTime alarmTime = getAlarmLocalDateTime(challengeRemindAlarm.getAlaramTime());
+                LocalDateTime alarmTime = getReservationAlarmLocalDateTime(challengeRemindAlarm.getAlaramTime());
                 reserveSendPushNotificationByFcm(alarmTime, challengeRemindAlarm.getUsers(), AlaramType.CHALLENGE_REMIND, challengeRemindAlarmScheduledTasks);
             }
         }
         for (DailySummaryAlarm dailySummaryAlarm : dailySummaryAlarmRepository.findAllByIsActiveUsingFetchJoin(IsActive.ON)) {
-            if (dailySummaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
-                LocalDateTime alarmTime = getAlarmLocalDateTime(dailySummaryAlarm.getAlaramTime());
+            if (dailySummaryAlarm.getAlarmTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
+                LocalDateTime alarmTime = getReservationAlarmLocalDateTime(dailySummaryAlarm.getAlarmTime());
                 reserveSendPushNotificationByFcm(alarmTime, dailySummaryAlarm.getUsers(), AlaramType.DAILY_SUMMARY, dailySummaryAlarmScheduledTasks);
             }
         }
     }
 
-    private LocalDateTime getAlarmLocalDateTime(LocalTime alarmTime) {
+    private LocalDateTime getReservationAlarmLocalDateTime(LocalTime alarmTime) {
         if (alarmTime.isAfter(STANDARD_SETTING_ALARM_TIME)) {
             // 새벽 3시 이후 알림인 경우
             return LocalDateTime.of(
@@ -126,6 +126,13 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                     alarmTime
             );
         }
+    }
+
+    private LocalDateTime getAlarmLocalDateTime(LocalTime alarmTime) {
+        return LocalDateTime.of(
+                LocalDate.now(),
+                alarmTime
+        );
     }
 
     private void reserveSendPushNotificationByFcm(LocalDateTime alarmTime, Users user, AlaramType alaramType, Map<Long, ScheduledFuture<?>> scheduledTasks) {
@@ -335,7 +342,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                 .orElseGet(() -> dailySummaryAlarmRepository.save(
                         DailySummaryAlarm.builder()
                                 .users(getUser)
-                                .alaramTime(DEFAULT_ALARM_TIME)
+                                .alarmTime(DEFAULT_ALARM_TIME)
                                 .isActive(IsActive.ON)
                                 .build()
                 )); // orElseGet은 비었을 때만 실행되어 불필요한 save 방지
@@ -343,13 +350,13 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         if (getDailySummaryAlarm.getIsActive() != IsActive.ON) {
             getDailySummaryAlarm.updateIsActive(IsActive.ON);
         }
-        if (getDailySummaryAlarm.getAlaramTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
-            LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getDailySummaryAlarm.getAlaramTime());
+        if (getDailySummaryAlarm.getAlarmTime().isAfter(LocalTime.now())) { // 현재 시간보다 이전 알림 시간은 예약하지 않음
+            LocalDateTime ALARM_TIME = getAlarmLocalDateTime(getDailySummaryAlarm.getAlarmTime());
             reserveSendPushNotificationByFcm(ALARM_TIME, getUser, AlaramType.DAILY_SUMMARY, dailySummaryAlarmScheduledTasks);
         }
 
         return AlarmResponseDTO.DailySummaryAlarmOnResponseDTO.builder()
-                .alarmTime(getDailySummaryAlarm.getAlaramTime())
+                .alarmTime(getDailySummaryAlarm.getAlarmTime())
                 .build();
     }
 
@@ -372,7 +379,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         }
         // 새 알림 예약
         if (request.getAlarmTime().isAfter(LocalTime.now())) {
-            LocalDateTime alarmTime = getAlarmLocalDateTime(getDailySummaryAlarm.getAlaramTime());
+            LocalDateTime alarmTime = getAlarmLocalDateTime(getDailySummaryAlarm.getAlarmTime());
             reserveSendPushNotificationByFcm(alarmTime, getUser, AlaramType.DAILY_SUMMARY, dailySummaryAlarmScheduledTasks);
         }
     }

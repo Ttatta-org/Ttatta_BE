@@ -50,6 +50,26 @@ jobs:
         echo "${{ secrets.YML }}" > ./src/main/resources/application.yml     # github actions에서 설정한 값을 application.yml 파일에 쓰기
       shell: bash
 
+    # Github secrets로부터 데이터를 받아서, firebase.json파일 생성
+    # resources/key 디렉터리 없다면 생성
+    - name: Ensure key dir
+      run: mkdir -p src/main/resources/key
+    # jsdaniell/create-json@v1.2.2 액션을 사용하여 Firebase Admin SDK JSON 파일을 생성합니다.
+    - name: create-json
+      id: create-json
+      uses: jsdaniell/create-json@v1.2.3
+      with:
+        name: "firebase.json"
+        json: ${{ secrets.FIREBASE_JSON }}
+        dir: 'src/main/resources/key/'
+#    - name: Make firebase.json
+#      run: |
+#        # 디렉토리가 없으면 생성합니다.
+#        mkdir -p ./src/main/resources/key/
+#        # firebase.json 파일을 생성하고 GitHub Secrets 값을 파일에 씁니다.
+#        echo "${{ secrets.FIREBASE_JSON }}" > ./src/main/resources/key/firebase.json
+#      shell: bash
+
     # gradle을 통해 소스를 빌드.
     - name: Build with Gradle
       run: |
@@ -91,14 +111,5 @@ jobs:
           
           # 최신 이미지 pull 후 실행
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ttatta
-          sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/ttatta
+          sudo docker run -d -p 8080:8080 -e TZ=Asia/Seoul ${{ secrets.DOCKER_USERNAME }}/ttatta
           docker image prune -f
-
-    # jsdaniell/create-json@v1.2.2 액션을 사용하여 Firebase Admin SDK JSON 파일을 생성합니다.
-    - name: create-json
-      id: create-json
-      uses: jsdaniell/create-json@v1.2.3
-      with:
-        name: "firebase.json"
-        json: ${{ secrets.FIREBASE_JSON }}
-        dir: 'src/main/resources/'

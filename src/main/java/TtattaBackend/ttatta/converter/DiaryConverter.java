@@ -2,6 +2,8 @@ package TtattaBackend.ttatta.converter;
 
 import TtattaBackend.ttatta.domain.Diaries;
 import TtattaBackend.ttatta.domain.DiaryPhotos;
+import TtattaBackend.ttatta.security.DecryptedLocation;
+import TtattaBackend.ttatta.security.EncryptedLocation;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
 import org.locationtech.jts.geom.Point;
@@ -23,15 +25,23 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static Diaries toDiaries(DiaryRequestDTO.PostDTO request, Point pt) {
+    public static Diaries toDiaries(DiaryRequestDTO.PostDTO request, Point pt, EncryptedLocation enc) {
         return Diaries.builder()
                 .content(request.getContent())
                 .date(request.getDate())
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
+//                .latitude(request.getLatitude())
+//                .longitude(request.getLongitude())
                 .location(pt)
                 .locationName(request.getLocationName())
                 .diaryPhotosList(new ArrayList<>()) // 여기서 diaryPhotosList명시적으로 초기화!
+                // 암호화 필드
+                .latCipher(enc.getLatCipher())
+                .lngCipher(enc.getLngCipher())
+                .ivLat(enc.getIvLat())
+                .ivLng(enc.getIvLng())
+                .dekWrapped(enc.getDekWrapped())
+                .kmsKeyId(enc.getKmsKeyId())
+                .encVer(enc.getEncVer())
                 .build();
     }
 
@@ -48,24 +58,27 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries, Map<Long, Long> count) {
+    public static DiaryResponseDTO.FootprintDiaryDTO toFootprintDiaryDTO(Diaries diaries, Map<Long, Long> count, Map<Long, DecryptedLocation> location) {
         Long clusterId = diaries.getClusterId();
         Long clusterCount = count.getOrDefault(clusterId, 1L);
+        DecryptedLocation diaryLocation = location.get(diaries.getId());
 
         return DiaryResponseDTO.FootprintDiaryDTO.builder()
                 .diaryId(diaries.getId())
                 .diaryCategoryId(diaries.getDiaryCategories().getId())
                 .categoryColor(diaries.getDiaryCategories().getColor().toString())
-                .latitude(diaries.getLatitude())
-                .longitude(diaries.getLongitude())
+                .latitude(diaryLocation.lat())
+                .longitude(diaryLocation.lng())
+//                .latitude(diaries.getLatitude())
+//                .longitude(diaries.getLongitude())
                 .clusterId(diaries.getClusterId())
                 .isSingle(clusterCount == 1)
                 .build();
     }
 
-    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList, Map<Long,Long> count) {
+    public static DiaryResponseDTO.FootprintDiaryListDTO toFootprintDiaryListDTO(List<Diaries> diariesList, Map<Long,Long> count, Map<Long, DecryptedLocation> location) {
         List<DiaryResponseDTO.FootprintDiaryDTO> footprintDiaryDTOList = diariesList.stream()
-                .map(diary -> toFootprintDiaryDTO(diary, count))
+                .map(diary -> toFootprintDiaryDTO(diary, count, location))
                 .collect(Collectors.toList());
 
         return DiaryResponseDTO.FootprintDiaryListDTO.builder()
@@ -214,6 +227,20 @@ public class DiaryConverter {
                 .image(presignedUrl)
                 .firstDiary(false) // 사용 안 하거나 false 고정
                 .lastDiary(false)
+                .build();
+    }
+
+    public static DiaryResponseDTO.RemindDiaryDTO toRemindDiaryDTO(Diaries diary, String presignedUrl, boolean isSingle, DecryptedLocation location) {
+        return DiaryResponseDTO.RemindDiaryDTO.builder()
+                .diaryId(diary.getId())
+                .diaryCategoryId(diary.getDiaryCategories().getId())
+                .date(diary.getDate())
+                .content(diary.getContent())
+                .image(presignedUrl)
+                .color(diary.getDiaryCategories().getColor())
+                .latitude(location.lat())
+                .longitude(location.lng())
+                .isSingle(isSingle)
                 .build();
     }
 
