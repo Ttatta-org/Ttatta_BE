@@ -170,6 +170,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
           d.location
         )
         AND d.user_id = :userId
+        AND d.memory_diary_alarm_cool_time = 0
         """, nativeQuery = true)
     List<Diaries> findNearDiariesCandidates(
             @Param("wkt") String wkt,
