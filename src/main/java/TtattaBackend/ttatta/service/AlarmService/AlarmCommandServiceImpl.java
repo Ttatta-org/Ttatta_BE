@@ -148,7 +148,8 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                 if (alaramType == AlaramType.DAILY_SUMMARY) {
                     ZoneId zoneId = ZoneId.of("Asia/Seoul");
                     LocalDate today = LocalDate.now(zoneId);
-                    List<Diaries> diaries = diaryRepository.findAllByCreatedAtBetween(
+                    List<Diaries> diaries = diaryRepository.findAllByUsersAndCreatedAtBetween(
+                            user,
                             today.atStartOfDay(),                  // 오늘 00:00:00
                             today.plusDays(1).atStartOfDay()       // 내일 00:00:00
                     );
