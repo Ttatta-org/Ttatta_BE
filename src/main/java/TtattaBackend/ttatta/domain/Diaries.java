@@ -87,6 +87,8 @@ public class Diaries extends BaseEntity {
     @Column(name = "enc_ver", nullable = false)
     private short encVer = 1;
 
+    @Column(nullable = false)
+    private int memoryDiaryAlarmCoolTime;
 
     public void setUsers(Users users) {
         // 기존에 이미 등록되어 있던 관계를 제거
@@ -122,4 +124,7 @@ public class Diaries extends BaseEntity {
         this.content = content;
     }
 
+    public void updateMemoryDiaryAlarmCoolTime(int memoryDiaryAlarmCoolTime) {
+        this.memoryDiaryAlarmCoolTime = memoryDiaryAlarmCoolTime;
+    }
 }
