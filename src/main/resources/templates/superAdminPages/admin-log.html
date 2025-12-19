@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>접근 로그 조회</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root { --bg:#f6f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb; --accent:#3b82f6; --radius:12px; }
+        html,body{height:100%}*{box-sizing:border-box}
+        body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic","Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);}
+        .wrap{max-width:1000px;margin:32px auto;padding:0 20px;}
+        .title{font-size:24px;font-weight:800;margin:8px 0 18px;}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 10px 24px rgba(0,0,0,.06);}
+        .card-header{display:flex;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);background:#fbfbfd;}
+        .filter-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+        .filter-form input{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;}
+        .btn{appearance:none;border:1px solid var(--border);background:#fff;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;}
+        .btn-primary{border-color:transparent;background:var(--accent);color:#fff;}
+        .table-wrap{width:100%;overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;min-width:600px;}
+        thead th{background:#f9fafb;font-size:12px;color:#374151;text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);}
+        tbody td{padding:10px;border-bottom:1px solid var(--border);font-size:13px;}
+        .mono{font-family:ui-monospace,monospace;}
+        .empty{padding:24px;color:var(--muted);text-align:center;font-size:14px;}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="title">접근 로그 조회</div>
+
+    <div class="card">
+        <!-- 검색/필터 -->
+        <div class="card-header">
+            <form class="filter-form" th:action="@{/admin/access-log}" method="get">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="검색어 (접근자ID)" />
+                <input type="date" name="fromDate" th:value="${fromDate}" />
+                <span>~</span>
+                <input type="date" name="toDate" th:value="${toDate}" />
+                <input type="hidden" name="page" th:value="${page}" />
+                <button type="submit" class="btn btn-primary">검색</button>
+            </form>
+
+            <div class="toolbar">
+                <button class="btn" type="button" onclick="document.getElementById('deleteForm').submit()">선택 삭제</button>
+            </div>
+        </div>
+
+        <!-- 삭제 form -->
+        <form id="deleteForm" th:action="@{/admin/access-log/delete}" method="post">
+            <input type="hidden" name="keyword"  th:value="${keyword}" />
+            <input type="hidden" name="fromDate" th:value="${fromDate}" />
+            <input type="hidden" name="toDate"   th:value="${toDate}" />
+            <input type="hidden" name="page"     th:value="${page}" />
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th><input type="checkbox" id="checkAll"/></th>
+                        <th>접근권한자 식별 정보</th>
+                        <th>접속일시</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="log,iter : ${logs}">
+                        <td><input type="checkbox" name="ids" th:value="${log.id}"/></td>
+                        <td th:text="${log.adminId}">admin01</td>
+                        <td class="mono" th:text="${#temporals.format(log.updatedAt, 'yyyy-MM-dd HH:mm:ss')}">2025-10-01 12:00:00</td>
+                    </tr>
+                    <tr th:if="${logs == null or #lists.isEmpty(logs)}">
+                        <td colspan="3" class="empty">표시할 기록이 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+
+    <!-- (옵션) 페이지네이션 -->
+    <div class="wrap" th:if="${totalPage != null and totalPage > 1}">
+        <nav aria-label="페이지 이동"
+             style="display:flex; gap:6px; justify-content:center; margin-top:14px; align-items:center;">
+
+            <!-- 이전 버튼: 첫 페이지일 땐 비활성화 -->
+            <a class="btn"
+               th:if="${page > 0}"
+               th:href="@{/super/admin/admin-log(
+                   page=${page - 1},
+                   keyword=${keyword},
+                   fromDate=${fromDate},
+                   toDate=${toDate}
+               )}">&lt;</a>
+            <span th:if="${page == 0}" class="btn" style="pointer-events:none; opacity:.5;">&lt;</span>
+
+            <!-- 현재 페이지 / 전체 페이지 -->
+            <span th:text="${page + 1}"></span>
+            <span>/</span>
+            <span th:text="${totalPage}"></span>
+
+            <!-- 다음 버튼: 마지막 페이지일 땐 비활성화 -->
+            <a class="btn"
+               th:if="${page + 1 < totalPage}"
+               th:href="@{/super/admin/admin-log(
+                   page=${page + 1},
+                   keyword=${keyword},
+                   fromDate=${fromDate},
+                   toDate=${toDate}
+               )}">&gt;</a>
+            <span th:if="${page + 1 == totalPage}" class="btn" style="pointer-events:none; opacity:.5;">&gt;</span>
+        </nav>
+    </div>
+</div>
+
+<script>
+    const checkAll = document.getElementById('checkAll');
+    if (checkAll) {
+        checkAll.addEventListener('change', e => {
+            document.querySelectorAll('input[name="ids"]').forEach(cb => cb.checked = e.target.checked);
+        });
+    }
+</script>
+</body>
+</html>

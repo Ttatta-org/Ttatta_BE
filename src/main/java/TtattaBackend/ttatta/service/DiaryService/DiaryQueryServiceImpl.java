@@ -6,12 +6,10 @@ import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.aws.s3.AmazonS3Manager;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryConverter;
+import TtattaBackend.ttatta.converter.LocationLogConverter;
 import TtattaBackend.ttatta.domain.*;
 import TtattaBackend.ttatta.domain.enums.IsActive;
-import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
-import TtattaBackend.ttatta.repository.DiaryRepository;
-import TtattaBackend.ttatta.repository.MemoryDiaryAlarmRepository;
-import TtattaBackend.ttatta.repository.UserRepository;
+import TtattaBackend.ttatta.repository.*;
 import TtattaBackend.ttatta.service.AlarmService.AlarmCommandService;
 import TtattaBackend.ttatta.security.DecryptedLocation;
 import TtattaBackend.ttatta.security.EnvelopeCryptoService;
@@ -35,8 +33,6 @@ import java.util.stream.Collectors;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
-import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -48,6 +44,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     private final AmazonS3Manager s3Manager;
     private final AlarmCommandService alarmCommandService;
     private final MemoryDiaryAlarmRepository memoryDiaryAlarmRepository;
+    private final LocationLogRepository locationLogRepository;
 
     static final double M_PER_DEG_LAT = 111_320.0; // 검색 범위 설정
     private static final int SEARCH_RANGE = 100;    // 검색 범위 설정 (100m)
@@ -224,7 +221,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
             String objectKey = photoList.get(0).getImageUrl();
             presignedUrl = s3Manager.generatePresignedUrlForView(objectKey);
         }
-
+        saveLocationLog(user, "지도 일기 페이징 조회 서비스", user.getId().toString());
         return DiaryConverter.toMapDiaryDTO(diariesPage, presignedUrl);
     }
 
@@ -275,7 +272,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     public void findRemindDiary(DiaryRequestDTO.RemindDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElseThrow(
-                () -> new ExceptionHandler(USER_NOT_FOUND));
+                () -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
 
         // 위치 기반 추억 회상 알림이 꺼져있는 경우
         MemoryDiaryAlarm memoryDiaryAlarm = memoryDiaryAlarmRepository.findByUsers(user)
@@ -334,6 +331,9 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
 
         // 알림 보내기
         alarmCommandService.sendMemoryDiaryAlarm(user, timeMessage, nearestDiary.get().getId());
+
+        // 위치 정보 이용 로그 저장
+        locationLogRepository.save(LocationLogConverter.toLocationsLogs(user, "위치기반리마인드 알림 서비스", user.getId().toString()));
     }
 
     private void setMemoryDiaryAlarmCoolTime(Long userId, Diaries currentDiary, int coolTime) {
@@ -414,6 +414,10 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
 //        System.out.println("쿼리 실행 시간: " + (end - start) + "ms");
 
         return viewOnMapDiaries;
+    }
+
+    private void saveLocationLog(Users user, String provisionalService, String Receipient) {
+        locationLogRepository.save(LocationLogConverter.toLocationsLogs(user, provisionalService, Receipient));
     }
 
     // 화면상의 네 꼭지점 받아옴

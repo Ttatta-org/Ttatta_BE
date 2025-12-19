@@ -4,6 +4,7 @@ import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.aws.s3.AmazonS3Manager;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.DiaryConverter;
+import TtattaBackend.ttatta.converter.LocationLogConverter;
 import TtattaBackend.ttatta.domain.*;
 import TtattaBackend.ttatta.repository.*;
 import TtattaBackend.ttatta.security.DecryptedLocation;
@@ -29,15 +30,13 @@ import static java.lang.Math.round;
 @Service
 @RequiredArgsConstructor
 public class DiaryCommandServiceImpl implements DiaryCommandService {
+
     private final DiaryRepository diaryRepository;
-
     private final UserRepository userRepository;
-
     private final DiaryCategoryRepository diaryCategoryRepository;
-
     private final AmazonS3Manager s3Manager;
-
     private final DiaryPhotosRepository diaryPhotosRepository;
+    private final LocationLogRepository locationLogRepository;
 
     // 암호화 저장용
     private final EnvelopeCryptoService envelopeCryptoService;
@@ -86,6 +85,8 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         diaryPhotos.setDiaries(savedDiaries);
         diaryPhotosRepository.save(diaryPhotos);
 
+        // 위치정보 활용 로그 저장
+        locationLogRepository.save(LocationLogConverter.toLocationsLogs(user, "위치기반 일기 저장 서비스", null));
         return savedDiaries;
     }
 

@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.converter;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.IsAvailable;
 import TtattaBackend.ttatta.domain.enums.LoginType;
+import TtattaBackend.ttatta.domain.enums.UserRole;
 import TtattaBackend.ttatta.domain.enums.UserStatus;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
@@ -18,6 +19,7 @@ public class UserConverter {
                 .username(request.getUsername())
                 .loginType(LoginType.REGULAR)
                 .diaryCategoriesList(new ArrayList<>())
+                .role(UserRole.USER)
                 .build();
     }
 
@@ -31,6 +33,7 @@ public class UserConverter {
                 .diaryCategoriesList(new ArrayList<>())
                 .providerId(sub)
                 .loginType(LoginType.KAKAO)
+                .role(UserRole.USER)
                 .build();
     }
 

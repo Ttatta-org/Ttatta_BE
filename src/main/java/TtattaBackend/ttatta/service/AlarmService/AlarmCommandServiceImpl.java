@@ -4,6 +4,7 @@ import TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus;
 import TtattaBackend.ttatta.apiPayload.exception.handler.ExceptionHandler;
 import TtattaBackend.ttatta.config.security.SecurityUtil;
 import TtattaBackend.ttatta.converter.AlarmConverter;
+import TtattaBackend.ttatta.converter.LocationLogConverter;
 import TtattaBackend.ttatta.domain.*;
 import TtattaBackend.ttatta.domain.enums.MemoryDiaryAlarmStatus;
 import TtattaBackend.ttatta.domain.enums.IsActive;
@@ -44,6 +45,7 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
     private final MemoryDiaryAlarmRepository memoryDiaryAlarmRepository;
     private final ChallengeRemindAlarmRepository challengeRemindAlarmRepository;
     private final DailySummaryAlarmRepository dailySummaryAlarmRepository;
+    private final LocationLogRepository locationLogRepository;
 
     @Override
     @Transactional
@@ -231,9 +233,11 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
         if (memoryDiaryAlarmStatus == MemoryDiaryAlarmStatus.ON) {
             // 현재 상태가 OFF 상태인지 확인하는 로직이 필요할까
             getMemoryDiaryAlarm.updateIsActive(IsActive.ON);
+            locationLogRepository.save(LocationLogConverter.toLocationsLogs(getUser, "위치기반리마인드 알림 서비스 / 알림 on", null));
         } else if (memoryDiaryAlarmStatus == MemoryDiaryAlarmStatus.OFF) {
             // 현재상태가 ON 상태인지 확인하는 로직이 필요할까
             getMemoryDiaryAlarm.updateIsActive(IsActive.OFF);
+            locationLogRepository.save(LocationLogConverter.toLocationsLogs(getUser, "위치기반리마인드 알림 서비스 / 알림 off", null));
         }
     }
 

@@ -13,16 +13,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -57,10 +55,12 @@ public class JwtUtils {
         Map<String, Object> claims = validateToken(token);
         System.out.println("userId type: " + (claims.get("userId") != null ? claims.get("userId").getClass().getName() : "null"));
 
-//        String email = (String) claims.get("email");
         Long userId = ((Integer) claims.get("userId")).longValue();
+        String userRole = "ROLE_" + ((String) claims.get("role")).toString();
+        List<GrantedAuthority> authorities =
+                Collections.singletonList(new SimpleGrantedAuthority(userRole));
 
-        return new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+        return new UsernamePasswordAuthenticationToken(userId, null, authorities);
     }
 
     public Map<String, Object> validateToken(String token) { // static 제거

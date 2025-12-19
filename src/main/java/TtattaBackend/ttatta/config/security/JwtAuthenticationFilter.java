@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
-@Slf4j //???
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Value("${jwt.JWT_HEADER}")
@@ -42,11 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/items",
             "/users/verificate/kakao",
             "/users/admin/**",
+            "/admin/login",
+            "/loginProc"
 //            "/refresh", "/",
 //            "/index.html"
     };
     private final JwtUtils jwtUtils;
     private final RedisTemplate<String, String> redisTemplate;
+    private final String cookieName = "ACCESS_TOKEN";
 
     private static void checkAuthorizationHeader(String header) {
         if(header == null) {
@@ -104,8 +108,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             log.info("------------------------------------------------------");
-            checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
-            String accessToken = JwtUtils.getTokenFromHeader(authHeader);
+            // 타임리프 페이지 인가 처리
+            String accessToken = resolveToken(request);
             jwtUtils.validateToken(accessToken); // 토큰 검증
             jwtUtils.isTokenBlacklisted(authHeader); // 🚨 블랙리스트 확인
         } catch (Exception e) {
@@ -129,8 +133,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("--------------------------- JwtVerifyFilter ---------------------------");
 
         try {
-            checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
-            String token = JwtUtils.getTokenFromHeader(authHeader);
+            // 타임리프 페이지 인가 처리
+            String token = resolveToken(request);
+
             jwtUtils.validateToken(token); // 토큰 검증
             jwtUtils.isExpired(token); // 토큰 만료 검증
 
@@ -153,5 +158,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             printWriter.println(json);
             printWriter.close();
         }
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        // 1) Authorization 헤더: Bearer
+        String authHeader = request.getHeader(jwtHeader);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
+            return JwtUtils.getTokenFromHeader(authHeader);
+        }
+        // 2) 쿠키: ACCESS_TOKEN
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if (cookieName.equals(c.getName())) {
+                    // 쿠키에 바로 토큰을 담은 경우
+                    return c.getValue();
+                }
+            }
+        }
+        return null;
     }
 }
