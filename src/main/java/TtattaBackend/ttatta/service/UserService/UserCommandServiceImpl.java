@@ -11,12 +11,10 @@ import TtattaBackend.ttatta.domain.DiaryCategories;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.UsersWithdrawals;
 import TtattaBackend.ttatta.domain.enums.*;
+import TtattaBackend.ttatta.domain.mapping.OwnedItems;
 import TtattaBackend.ttatta.jwt.JwtUtils;
 import TtattaBackend.ttatta.oidc.*;
-import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
-import TtattaBackend.ttatta.repository.DiaryRepository;
-import TtattaBackend.ttatta.repository.UserRepository;
-import TtattaBackend.ttatta.repository.UserWithdrawalRepository;
+import TtattaBackend.ttatta.repository.*;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
@@ -40,9 +38,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
@@ -52,19 +48,14 @@ import static TtattaBackend.ttatta.apiPayload.code.status.ErrorStatus.*;
 @Slf4j
 public class UserCommandServiceImpl implements UserCommandService {
 
-    private final OauthOIDCHelper oauthOIDCHelper;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     @Value("${jwt.ACCESS_EXP_TIME}")
     private int accessExpTime;
     @Value("${jwt.REFRESH_EXP_TIME}")
     private int refreshExpTime;
-
     @Value("${oidc.iss}")
     private String iss;
-
     @Value("${oidc.aud}")
     private String aud;
-
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryCategoryRepository diaryCategoryRepository;
@@ -79,6 +70,10 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final KakaoOauthHelper kakaoOauthHelper;
     private final JwtOIDCProvider jwtOIDCProvider;
     private final AmazonS3Manager s3Manager;
+    private final OauthOIDCHelper oauthOIDCHelper;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ItemRepository itemRepository;
+    private final OwnedItemRepository ownedItemRepository;
 
     @Override
     public Users createTestUser() {
@@ -101,17 +96,38 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Override
     @Transactional // ???
     public Users signUp(UserRequestDTO.SignUpRequestDTO request) {
-        // 아이디 중복 확인
+        Users newUser = UserConverter.toUsers(request);
         IsAvailable usernameAvailable = verifyUsernameOverlap(request.getUsername());
+
+        // 아이디 중복 확인
         if (usernameAvailable.equals(IsAvailable.UNAVAILABLE)) {
             throw new ExceptionHandler(ErrorStatus.USERNAME_ALREADY_EXIST);
         }
-
-        Users newUser = UserConverter.toUsers(request);
         newUser.encodePassword(passwordEncoder.encode(request.getPassword()));
         // 일상 카테고리 생성
         createDefaultCategory(newUser);
+        // 기본 아이템 착용
+        saveAndEquipDefaultOwnedItems(newUser);
+
         return userRepository.save(newUser);
+    }
+
+    private void saveAndEquipDefaultOwnedItems(Users newUser) {
+        List<OwnedItems> ownedItemsList = new ArrayList<>();
+
+        ownedItemsList.add(createDefaultOwnedItems(newUser, 1L));
+        ownedItemsList.add(createDefaultOwnedItems(newUser, 4L));
+        ownedItemsList.add(createDefaultOwnedItems(newUser, 7L));
+        ownedItemsList.add(createDefaultOwnedItems(newUser, 9L));
+        ownedItemRepository.saveAll(ownedItemsList);
+    }
+
+    private OwnedItems createDefaultOwnedItems(Users newUser, Long itemId) {
+        return OwnedItems.builder()
+                .users(newUser)
+                .items(itemRepository.findById(itemId).get()) // 머리
+                .isEquipped(true)
+                .build();
     }
 
     @Override
@@ -182,6 +198,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         Long userId = SecurityUtil.getCurrentUserId();
         Users savedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
+        // 액세스 토큰 및 리프레시 토큰 생성
+        String key = "users:" + savedUser.getId().toString();
+        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
+        String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
 
         // 해당 닉네임을 업데이트
         savedUser.updateNickname(request.getNickname());
@@ -189,11 +209,9 @@ public class UserCommandServiceImpl implements UserCommandService {
         savedUser.updateStatus(UserStatus.ACTIVE);
         // 일상 카테고리 생성
         createDefaultCategory(savedUser);
+        // 기본 아이템 착용
+        saveAndEquipDefaultOwnedItems(savedUser);
 
-        // 액세스 토큰 및 리프레시 토큰 생성
-        String key = "users:" + savedUser.getId().toString();
-        String accessToken = generateAccessToken(savedUser.getId(), accessExpTime);
-        String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
         return UserConverter.toUserKaKaoFinalSignUpResultDTO(accessToken, refreshToken, savedUser);
     }
 
