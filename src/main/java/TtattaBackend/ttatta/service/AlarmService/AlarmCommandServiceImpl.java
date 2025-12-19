@@ -421,12 +421,6 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     @Transactional
     public void decreaseMemoryDiaryAlarmCoolTime() {
-        List<Diaries> diariesList = diaryRepository.findAll();
-        for (Diaries diary : diariesList) {
-            int currentCoolTime = diary.getMemoryDiaryAlarmCoolTime();
-            if (currentCoolTime > 0) {
-                diary.updateMemoryDiaryAlarmCoolTime(currentCoolTime - 1);
-            }
-        }
+        diaryRepository.decreaseCoolTimeOnMemoryDiaries();
     }
 }
