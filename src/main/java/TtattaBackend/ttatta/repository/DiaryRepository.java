@@ -6,6 +6,7 @@ import TtattaBackend.ttatta.domain.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -169,6 +170,7 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
           d.location
         )
         AND d.user_id = :userId
+        AND d.memory_diary_alarm_cool_time = 0
         """, nativeQuery = true)
     List<Diaries> findNearDiariesCandidates(
             @Param("wkt") String wkt,
@@ -176,4 +178,8 @@ public interface DiaryRepository extends JpaRepository<Diaries, Long> {
     );
 
     List<Diaries> findAllByUsersAndCreatedAtBetween(Users user, LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+    @Modifying
+    @Query("UPDATE Diaries d SET d.memoryDiaryAlarmCoolTime = d.memoryDiaryAlarmCoolTime - 1 WHERE d.memoryDiaryAlarmCoolTime > 0")
+    void decreaseCoolTimeOnMemoryDiaries();
 }

@@ -17,6 +17,7 @@ import TtattaBackend.ttatta.security.DecryptedLocation;
 import TtattaBackend.ttatta.security.EnvelopeCryptoService;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
 import TtattaBackend.ttatta.web.dto.DiaryResponseDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
@@ -52,6 +53,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     private static final int SEARCH_RANGE = 100;    // 검색 범위 설정 (100m)
     private final GeometryFactory geometryFactory;
     private final EnvelopeCryptoService envelopeCryptoService;
+    private static final int MEMORY_DIARY_COOL_TIME_AREA_RANGE = 500;    // 검색 범위 설정 (100m)
 
     @Override
     public DiaryResponseDTO.FootprintDiaryListDTO getFootprintDiaryList(Long diaryCategoryId, DiaryRequestDTO.ViewOnMapDTO request){
@@ -269,6 +271,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     }
 
     @Override
+    @Transactional
     public void findRemindDiary(DiaryRequestDTO.RemindDTO request) {
         Long userId = SecurityUtil.getCurrentUserId();
         Users user = userRepository.findById(userId).orElseThrow(
@@ -310,6 +313,8 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
                 ));
         System.out.println("nearestDiaries real Candidates: " + nearestDiary.get().getId());
 
+        // 반환한 일기(nearestDiary) 주변 500m반경 내의 일기들의 위치기반 추억 알림 쿨타임을 한달(30일)로 설정
+        setMemoryDiaryAlarmCoolTime(userId, nearestDiary.get(), 30);
 
         // 시간 계산
         long days = ChronoUnit.DAYS.between(nearestDiary.get().getDate().toLocalDate(), LocalDate.now());
@@ -329,6 +334,37 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
 
         // 알림 보내기
         alarmCommandService.sendMemoryDiaryAlarm(user, timeMessage, nearestDiary.get().getId());
+    }
+
+    private void setMemoryDiaryAlarmCoolTime(Long userId, Diaries currentDiary, int coolTime) {
+        // 1. 일기 주변 500m 반경 내 일기들 조회
+        Decoded decoded = tryDecode(currentDiary, userId);
+        Double currentLatitude = decoded.lat();
+        Double currentLongitude = decoded.lng();
+        List<Pt> square = buildSquare(currentLatitude, currentLongitude, 600.0);
+        String wkt = toPolygonWKT(square);
+        List<Diaries> nearDiariesCandidates = diaryRepository.findNearDiariesCandidates(wkt, userId);
+        // 서버 로그에서 확인하기 위함
+        for (Diaries diary : nearDiariesCandidates) {
+            System.out.println("nearDiariesCandidates id: " + diary.getId());
+        }
+
+        if (nearDiariesCandidates.isEmpty()) {    // 검색 범위 내에 일기가 없는 경우
+            return;
+        }
+
+        // 검색 범위(정사각형) 내 복호화를 진행하고, 실제로 일기 위도 경도에서 100m 원 안에 있는 일기 중 가장 최신 일기 반환
+        // 영 이상하면 getDate -> getCreatedAt으로 수정 (마지막줄)
+        List<Diaries> nearestDiary = nearDiariesCandidates
+                .parallelStream()
+                .map(d -> tryDecode(d, userId))   // Decoded(diaries, lat, lng, ok)
+                .filter(Decoded::ok)
+                .filter(dd -> haversineMeters(currentLatitude, currentLongitude, dd.lat(), dd.lng()) <= MEMORY_DIARY_COOL_TIME_AREA_RANGE)
+                .map(Decoded::diary)
+                .toList();
+
+        // 2. 각 엔티티 값 수정 -> 트랜잭션 커밋 때 DB에 UPDATE됨(Managed라면)
+        nearestDiary.forEach(d -> d.updateMemoryDiaryAlarmCoolTime(coolTime));
     }
 
     @Override

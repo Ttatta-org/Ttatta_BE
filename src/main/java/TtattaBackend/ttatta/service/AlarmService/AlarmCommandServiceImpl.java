@@ -421,4 +421,11 @@ public class AlarmCommandServiceImpl implements AlarmCommandService {
                 getDailySummaryAlarm
         );
     }
+
+    // 매일 자정에 위치기반 알림 쿨타임 차감 on 알림들 예약하는 메소드 실행
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+    @Transactional
+    public void decreaseMemoryDiaryAlarmCoolTime() {
+        diaryRepository.decreaseCoolTimeOnMemoryDiaries();
+    }
 }
