@@ -111,7 +111,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 타임리프 페이지 인가 처리
             String accessToken = resolveToken(request);
             jwtUtils.validateToken(accessToken); // 토큰 검증
-            jwtUtils.isTokenBlacklisted(authHeader); // 🚨 블랙리스트 확인
+            jwtUtils.isTokenBlacklisted(accessToken); // 🚨 블랙리스트 확인
         } catch (Exception e) {
             Gson gson = new Gson();
             String json = "";
@@ -163,9 +163,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
         // 1) Authorization 헤더: Bearer
         String authHeader = request.getHeader(jwtHeader);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
-            return JwtUtils.getTokenFromHeader(authHeader);
+        if (authHeader != null) {
+            if (authHeader.startsWith("Bearer ")){
+                checkAuthorizationHeader(authHeader);   // header 가 올바른 형식인지 체크
+                return JwtUtils.getTokenFromHeader(authHeader);
+            }
         }
         // 2) 쿠키: ACCESS_TOKEN
         if (request.getCookies() != null) {

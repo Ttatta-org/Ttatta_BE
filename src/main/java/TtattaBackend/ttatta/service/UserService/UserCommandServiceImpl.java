@@ -258,6 +258,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     public void logout(String accessToken) {
+        String accessTokenWithoutBearer = accessToken.split(" ")[1];
         // 로그아웃시킬 회원의 refresh token redis에서 삭제
         Long userId = SecurityUtil.getCurrentUserId();
         String key = "users:" + userId.toString();
@@ -266,7 +267,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         // 로그아웃시킬 회원의 access token redis의 블랙리스트로 저장
         key = "blackList:" + userId.toString();
         long tokenRemainTimeSecond = jwtUtils.tokenRemainTimeSecond(accessToken);
-        redisTemplate.opsForValue().set(key, accessToken, tokenRemainTimeSecond, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key, accessTokenWithoutBearer, tokenRemainTimeSecond, TimeUnit.SECONDS);
 
     }
 
