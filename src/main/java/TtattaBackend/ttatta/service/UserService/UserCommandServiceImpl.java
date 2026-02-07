@@ -605,7 +605,8 @@ public class UserCommandServiceImpl implements UserCommandService {
         String inputCode = request.getVerificationCode();
 
         verifyVerificationCode(inputEmail, inputCode);
-        Users getUser = userRepository.findById(userId).get();
+        Users getUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
         getUser.updateEmail(inputEmail);
     }
 }
