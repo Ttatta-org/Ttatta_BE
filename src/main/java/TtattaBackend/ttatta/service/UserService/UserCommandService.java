@@ -36,4 +36,5 @@ public interface UserCommandService {
     UserResponseDTO.GetPinResultDTO getPin();
     void deletePin();
     void mypageSendVerificationCode(UserRequestDTO.MypageSendVerificationCodeRequestDTO request);
+    void mypageVerifyVerificationCodeAndUpdateEmail(UserRequestDTO.MypageVerifyVerificationCodeAndUpdateEmailRequestDTO request);
 }

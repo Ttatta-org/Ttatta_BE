@@ -395,16 +395,22 @@ public class UserCommandServiceImpl implements UserCommandService {
         String inputEmail = request.getEmail();
         String inputCode = request.getCode();
 
-        // 입력한 이메일로 저장된 인증번호 가져오기
-        String code = redisTemplate.opsForValue().get(inputEmail);
+        verifyVerificationCode(inputEmail, inputCode);
+    }
 
+    private void verifyVerificationCode(String email, String verificationCode) {
+        // 입력한 이메일로 저장된 인증번호 가져오기
+        String code = redisTemplate.opsForValue().get(email);
+        // 코드가 Redis에 존재하지 않을 경우 (만료되었거나 생성되지 않은 경우)
+        if (code == null) {
+            throw new ExceptionHandler(FAIL_VERIFY_CODE);
+        }
         // 인증번호 일치 여부 확인
-        if (code == null || !code.equals(inputCode)) {
+        if (!code.equals(verificationCode)) {
             throw new ExceptionHandler(CODE_NOT_EQUAL);
         }
-
         // 인증번호 삭제
-        redisTemplate.delete(inputEmail);
+        redisTemplate.delete(email);
     }
 
     @Override
@@ -589,6 +595,18 @@ public class UserCommandServiceImpl implements UserCommandService {
         }
         // 인증번호 전송
         sendMail(request.getEmail(), 3);
+    }
+
+    @Override
+    @Transactional
+    public void mypageVerifyVerificationCodeAndUpdateEmail(UserRequestDTO.MypageVerifyVerificationCodeAndUpdateEmailRequestDTO request) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        String inputEmail = request.getEmail();
+        String inputCode = request.getVerificationCode();
+
+        verifyVerificationCode(inputEmail, inputCode);
+        Users getUser = userRepository.findById(userId).get();
+        getUser.updateEmail(inputEmail);
     }
 }
 
