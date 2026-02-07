@@ -19,7 +19,7 @@ public interface UserCommandService {
     UserResponseDTO.UserInfoResultDTO getUserInfo();
     Users editUserInfo(UserRequestDTO.EditRequestDTO request);
     UserResponseDTO.UserDeleteResultDTO deleteUser(UserRequestDTO.DeleteRequestDTO request);
-    void sendMail(String email);
+    void sendMail(String email, int time);
     void sendVerificationMailSignUp(UserRequestDTO.SendVerificationMailSignUpRequestDTO request);
     void checkVerificationCode(UserRequestDTO.CheckVerificationCodeRequestDTO request);
     void sendVerificationMailFindId(UserRequestDTO.SendVerificationMailFindIdRequestDTO request);
@@ -35,4 +35,5 @@ public interface UserCommandService {
     UserResponseDTO.ChangePinResultDTO changePin(UserRequestDTO.ChangePinRequestDTO request);
     UserResponseDTO.GetPinResultDTO getPin();
     void deletePin();
+    void mypageSendVerificationCode(UserRequestDTO.MypageSendVerificationCodeRequestDTO request);
 }

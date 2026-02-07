@@ -338,10 +338,21 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public void sendMail(String email) {
+    public void sendMail(String email, int time) {
         // 인증 번호 (6자리 난수) 생성
-        int verificationCode = (int)(Math.random() * 899999) + 100000;
+        int verificationCode = createVerificationCode();
+        // 이메일 내용 설정 & 메일 전송
+        setAndSendVerificationCodeToEmail(email, verificationCode);
+        // 인증번호 Redis 저장 (유효시간 10분)
+        redisTemplate.opsForValue().set(email, String.valueOf(verificationCode), time, TimeUnit.MINUTES);
+    }
 
+    private int createVerificationCode() {
+        // 인증 번호 (6자리 난수) 생성
+        return (int)(Math.random() * 899999) + 100000;
+    }
+
+    private void setAndSendVerificationCodeToEmail(String email, int verificationCode) {
         // 이메일 내용 설정
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -361,9 +372,6 @@ public class UserCommandServiceImpl implements UserCommandService {
             // 템플릿에 들어가는 이미지 cid로 삽입
             messageHelper.addInline("image", new ClassPathResource("img/ttatta_logo.png"));
 
-            // 인증번호 Redis 저장 (유효시간 10분)
-            redisTemplate.opsForValue().set(email, String.valueOf(verificationCode), 10, TimeUnit.MINUTES);
-
             javaMailSender.send(message);
         } catch (Exception e) {
             e.printStackTrace();
@@ -379,7 +387,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             throw new ExceptionHandler(EMAIL_ALREADY_EXIST);
         }
 
-        sendMail(inputEmail);
+        sendMail(inputEmail, 10);
     }
 
     @Override
@@ -413,7 +421,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             throw new ExceptionHandler(NAME_NOT_EQUAL);
         }
 
-        sendMail(inputEmail);
+        sendMail(inputEmail, 10);
     }
 
     @Override
@@ -458,7 +466,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             throw new ExceptionHandler(ID_NOT_EQUAL);
         }
 
-        sendMail(inputEmail);
+        sendMail(inputEmail, 10);
     }
 
     @Override
@@ -571,6 +579,16 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         user.updatePinHash(null);
         userRepository.save(user);
+    }
+
+    @Override
+    public void mypageSendVerificationCode(UserRequestDTO.MypageSendVerificationCodeRequestDTO request) {
+        // 이미 가입한 이메일인 경우
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ExceptionHandler(ErrorStatus.EMAIL_ALREADY_EXIST);
+        }
+        // 인증번호 전송
+        sendMail(request.getEmail(), 3);
     }
 }
 

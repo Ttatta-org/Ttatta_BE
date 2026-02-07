@@ -313,4 +313,15 @@ public class UserController {
         userCommandService.deletePin();
         return ApiResponse.onSuccess("");
     }
+
+    @Operation(summary = "마이페이지 이메일 수정 중 인증번호 발송", description =
+            "# 마이페이지 이메일 수정 중 수정하려는 이메일에 인증번호를 발송하는 API입니다."
+    )
+    @PostMapping("/mypage/send/code")
+    public ApiResponse<?> mypageSendVerificationCode(
+            @RequestBody @Valid UserRequestDTO.MypageSendVerificationCodeRequestDTO request
+    ) {
+        userCommandService.mypageSendVerificationCode(request);
+        return ApiResponse.onSuccess("");
+    }
 }
