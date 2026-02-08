@@ -338,10 +338,21 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public void sendMail(String email) {
+    public void sendMail(String email, int time) {
         // 인증 번호 (6자리 난수) 생성
-        int verificationCode = (int)(Math.random() * 899999) + 100000;
+        int verificationCode = createVerificationCode();
+        // 이메일 내용 설정 & 메일 전송
+        setAndSendVerificationCodeToEmail(email, verificationCode);
+        // 인증번호 Redis 저장 (유효시간 10분)
+        redisTemplate.opsForValue().set(email, String.valueOf(verificationCode), time, TimeUnit.MINUTES);
+    }
 
+    private int createVerificationCode() {
+        // 인증 번호 (6자리 난수) 생성
+        return (int)(Math.random() * 899999) + 100000;
+    }
+
+    private void setAndSendVerificationCodeToEmail(String email, int verificationCode) {
         // 이메일 내용 설정
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -361,9 +372,6 @@ public class UserCommandServiceImpl implements UserCommandService {
             // 템플릿에 들어가는 이미지 cid로 삽입
             messageHelper.addInline("image", new ClassPathResource("img/ttatta_logo.png"));
 
-            // 인증번호 Redis 저장 (유효시간 10분)
-            redisTemplate.opsForValue().set(email, String.valueOf(verificationCode), 10, TimeUnit.MINUTES);
-
             javaMailSender.send(message);
         } catch (Exception e) {
             e.printStackTrace();
@@ -379,7 +387,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             throw new ExceptionHandler(EMAIL_ALREADY_EXIST);
         }
 
-        sendMail(inputEmail);
+        sendMail(inputEmail, 10);
     }
 
     @Override
@@ -387,16 +395,22 @@ public class UserCommandServiceImpl implements UserCommandService {
         String inputEmail = request.getEmail();
         String inputCode = request.getCode();
 
-        // 입력한 이메일로 저장된 인증번호 가져오기
-        String code = redisTemplate.opsForValue().get(inputEmail);
+        verifyVerificationCode(inputEmail, inputCode);
+    }
 
+    private void verifyVerificationCode(String email, String verificationCode) {
+        // 입력한 이메일로 저장된 인증번호 가져오기
+        String code = redisTemplate.opsForValue().get(email);
+        // 코드가 Redis에 존재하지 않을 경우 (만료되었거나 생성되지 않은 경우)
+        if (code == null) {
+            throw new ExceptionHandler(FAIL_VERIFY_CODE);
+        }
         // 인증번호 일치 여부 확인
-        if (code == null || !code.equals(inputCode)) {
+        if (!code.equals(verificationCode)) {
             throw new ExceptionHandler(CODE_NOT_EQUAL);
         }
-
         // 인증번호 삭제
-        redisTemplate.delete(inputEmail);
+        redisTemplate.delete(email);
     }
 
     @Override
@@ -413,7 +427,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             throw new ExceptionHandler(NAME_NOT_EQUAL);
         }
 
-        sendMail(inputEmail);
+        sendMail(inputEmail, 10);
     }
 
     @Override
@@ -458,7 +472,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             throw new ExceptionHandler(ID_NOT_EQUAL);
         }
 
-        sendMail(inputEmail);
+        sendMail(inputEmail, 10);
     }
 
     @Override
@@ -571,6 +585,29 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         user.updatePinHash(null);
         userRepository.save(user);
+    }
+
+    @Override
+    public void mypageSendVerificationCode(UserRequestDTO.MypageSendVerificationCodeRequestDTO request) {
+        // 이미 가입한 이메일인 경우
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ExceptionHandler(ErrorStatus.EMAIL_ALREADY_EXIST);
+        }
+        // 인증번호 전송
+        sendMail(request.getEmail(), 3);
+    }
+
+    @Override
+    @Transactional
+    public void mypageVerifyVerificationCodeAndUpdateEmail(UserRequestDTO.MypageVerifyVerificationCodeAndUpdateEmailRequestDTO request) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        String inputEmail = request.getEmail();
+        String inputCode = request.getVerificationCode();
+
+        verifyVerificationCode(inputEmail, inputCode);
+        Users getUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(USER_NOT_FOUND));
+        getUser.updateEmail(inputEmail);
     }
 }
 
