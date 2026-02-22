@@ -1,11 +1,9 @@
 package TtattaBackend.ttatta.jwt;
 
-import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.jwt.exception.CustomExpiredJwtException;
 import TtattaBackend.ttatta.jwt.exception.CustomJwtException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -86,8 +85,9 @@ public class JwtUtils {
 
 //        String email = (String) claims.get("email");
         Long userId = ((Integer) claims.get("userId")).longValue();
+        String role = (String)claims.get("role");
 
-        return new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+        return new UsernamePasswordAuthenticationToken(userId, null, AuthorityUtils.createAuthorityList(role));
     }
 
     public Claims validateTokenOnlySignature(String token) { // static 제거
