@@ -127,4 +127,9 @@ public class Diaries extends BaseEntity {
     public void updateMemoryDiaryAlarmCoolTime(int memoryDiaryAlarmCoolTime) {
         this.memoryDiaryAlarmCoolTime = memoryDiaryAlarmCoolTime;
     }
+
+    public void updateLocation(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 }

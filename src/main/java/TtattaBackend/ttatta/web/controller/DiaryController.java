@@ -3,6 +3,7 @@ package TtattaBackend.ttatta.web.controller;
 import TtattaBackend.ttatta.apiPayload.ApiResponse;
 import TtattaBackend.ttatta.converter.DiaryConverter;
 import TtattaBackend.ttatta.domain.Diaries;
+import TtattaBackend.ttatta.security.EnvelopeCryptoService;
 import TtattaBackend.ttatta.service.DiaryService.DiaryCommandService;
 import TtattaBackend.ttatta.service.DiaryService.DiaryQueryService;
 import TtattaBackend.ttatta.web.dto.DiaryRequestDTO;
@@ -23,6 +24,7 @@ public class DiaryController {
 
     private final DiaryCommandService diaryCommandService;
     private final DiaryQueryService diaryQueryService;
+    private final EnvelopeCryptoService envelopeCryptoService;
 
     @Operation(summary = "일기 작성",
             description = """
@@ -84,6 +86,12 @@ public class DiaryController {
         return ApiResponse.onSuccess(
                 diaryQueryService.getFootprintDiaryList(diaryCategoryId, request)
         );
+    }
+
+    @PostMapping("/decrypt")
+    public ApiResponse<Integer> decryptLatLng() {
+        int processedCount = envelopeCryptoService.decrypt();
+        return ApiResponse.onSuccess(processedCount);
     }
 
 
