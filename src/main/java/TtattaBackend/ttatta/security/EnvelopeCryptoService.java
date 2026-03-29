@@ -1,8 +1,12 @@
 package TtattaBackend.ttatta.security;
 
+import TtattaBackend.ttatta.domain.Diaries;
+import TtattaBackend.ttatta.repository.DiaryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.DataKeySpec;
@@ -14,14 +18,17 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EnvelopeCryptoService {
 
     private final KmsClient kms;
     private static final SecureRandom RNG = new SecureRandom();
     private final KmsClient kmsClient;
+    private final DiaryRepository diaryRepository;
 
     @Value("${kms.key.arn}")
     private String kmsKeyArn;
@@ -125,6 +132,44 @@ public class EnvelopeCryptoService {
         double lng = aesGcmDecryptToDouble(lngCipher, ivLng, dek, aadLng);
 
         return new DecryptedLocation(lat, lng);
+    }
+
+
+    @Transactional
+    public int decrypt() { // 파라미터 필요 없음!
+        List<Diaries> allDiaries = diaryRepository.findAll();
+        int successCount = 0;
+
+        for (Diaries diary : allDiaries) {
+            try {
+                // 1) DB 컬럼에 저장된 해당 데이터의 KMS Key ID를 가져옵니다.
+                String kmsKeyId = diary.getKmsKeyId();
+                byte[] individualDekWrapped = diary.getDekWrapped();
+
+                // 2) 해당 키 ID를 지정하여 DEK 복호화
+                byte[] dek = kmsClient.decrypt(r -> r.ciphertextBlob(SdkBytes.fromByteArray(individualDekWrapped))
+                                .keyId(kmsKeyId))
+                        .plaintext().asByteArray();
+
+                // 3) AES-GCM 복호화 (userId 포함)
+                Long userId = (diary.getUsers() != null) ? diary.getUsers().getId() : null;
+                byte[] aadBase = (userId == null) ? null : ByteBuffer.allocate(8).putLong(userId).array();
+                byte[] aadLat = mixAad("lat", aadBase);
+                byte[] aadLng = mixAad("lng", aadBase);
+
+                double lat = aesGcmDecryptToDouble(diary.getLatCipher(), diary.getIvLat(), dek, aadLat);
+                double lng = aesGcmDecryptToDouble(diary.getLngCipher(), diary.getIvLng(), dek, aadLng);
+
+                // 4) 평문 업데이트 및 성공 카운트 증가
+                diary.updateLocation(lat, lng);
+                successCount++;
+
+                log.info("성공 - Diary ID: {}, 사용된 Key: {}", diary.getId(), kmsKeyId);
+            } catch (Exception e) {
+                log.error("실패 - Diary ID: {} | 사유: {}", diary.getId(), e.getMessage());
+            }
+        }
+        return successCount; // 처리된 총 개수 반환
     }
 
     private double aesGcmDecryptToDouble(byte[] cipher, byte[] iv, byte[] dek, byte[] aad) {
