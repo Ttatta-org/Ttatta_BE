@@ -88,6 +88,12 @@ public class DiaryController {
         );
     }
 
+    @Operation(summary = "위도, 경도 복호화",
+            description = """
+            위도, 경도를 복호화해서 컬럼에 저장합니다.\n
+            DB 마이그레이션 시 사용합니다.
+            """
+    )
     @PostMapping("/decrypt")
     public ApiResponse<Integer> decryptLatLng() {
         int processedCount = envelopeCryptoService.decrypt();
