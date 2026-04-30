@@ -108,8 +108,10 @@ jobs:
             echo "Killing process on port 8080..."
             sudo kill -9 $PID
           fi
+
+          # 새 이미지를 받기 전에 안 쓰는 이미지/컨테이너/네트워크를 싹 비워 용량을 확보합니다.
+          docker system prune -a -f
           
           # 최신 이미지 pull 후 실행
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ttatta
           sudo docker run -d -p 8080:8080 -e TZ=Asia/Seoul ${{ secrets.DOCKER_USERNAME }}/ttatta
-          docker image prune -f
