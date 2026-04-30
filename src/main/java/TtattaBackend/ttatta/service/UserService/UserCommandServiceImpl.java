@@ -118,7 +118,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         Users savedUser = userRepository.save(newUser);
 
         // 디스코드 알림 전송
-        discordService.sendSignUpNotification(savedUser.getUsername(), "일반");
+        discordService.sendSignUpNotification(savedUser.getNickname(), "일반");
 
         return savedUser;
     }
@@ -205,7 +205,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
 
         // 디스코드 알림 전송
-        discordService.sendSignUpNotification(savedUser.getUsername(), "카카오");
+        discordService.sendSignUpNotification(savedUser.getNickname(), "카카오");
 
         return UserConverter.toUserKaKaoFinalSignUpResultDTO(accessToken, refreshToken, savedUser);
     }
