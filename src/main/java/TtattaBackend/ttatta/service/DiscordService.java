@@ -29,10 +29,13 @@ public class DiscordService {
         Map<String, String> message = new HashMap<>();
         message.put("content", "새로운 회원 " + username + "님이 " + type + " 가입하셨습니다!");
 
+        log.info("🚀 디스코드 전송 시도! URL: {}", webhookUrl);
+
         try {
             restTemplate.postForEntity(webhookUrl, message, String.class);
+            log.info("✅ 디스코드 전송 성공!");
         } catch (Exception e) {
-            log.error("디스코드 웹훅 전송 실패: {}", e.getMessage());
+            log.error("❌ 디스코드 웹훅 전송 실패: {}", e.getMessage());
         }
     }
 }
