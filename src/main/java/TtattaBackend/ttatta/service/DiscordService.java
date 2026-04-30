@@ -3,12 +3,14 @@ package TtattaBackend.ttatta.service;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@Slf4j
 public class DiscordService {
 
     @Value("${discord.webhook.url}")
@@ -30,8 +32,7 @@ public class DiscordService {
         try {
             restTemplate.postForEntity(webhookUrl, message, String.class);
         } catch (Exception e) {
-            // 예외 처리 (로그 기록 등)
-            System.err.println("Discord 알림 전송 실패: " + e.getMessage());
+            log.error("디스코드 웹훅 전송 실패: {}", e.getMessage());
         }
     }
 }
