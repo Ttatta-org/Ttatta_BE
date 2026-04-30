@@ -17,6 +17,7 @@ import TtattaBackend.ttatta.repository.DiaryCategoryRepository;
 import TtattaBackend.ttatta.repository.DiaryRepository;
 import TtattaBackend.ttatta.repository.UserRepository;
 import TtattaBackend.ttatta.repository.UserWithdrawalRepository;
+import TtattaBackend.ttatta.service.DiscordService;
 import TtattaBackend.ttatta.web.dto.DiaryCategoryRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserRequestDTO;
 import TtattaBackend.ttatta.web.dto.UserResponseDTO;
@@ -80,6 +81,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final KakaoOauthHelper kakaoOauthHelper;
     private final JwtOIDCProvider jwtOIDCProvider;
     private final AmazonS3Manager s3Manager;
+    private final DiscordService discordService;
 
     @Override
     public Users createTestUser() {
@@ -112,7 +114,13 @@ public class UserCommandServiceImpl implements UserCommandService {
         newUser.encodePassword(passwordEncoder.encode(request.getPassword()));
         // 일상 카테고리 생성
         createDefaultCategory(newUser);
-        return userRepository.save(newUser);
+
+        Users savedUser = userRepository.save(newUser);
+
+        // 디스코드 알림 전송
+        discordService.sendSignUpNotification(savedUser.getUsername(), "일반");
+
+        return savedUser;
     }
 
     @Override
@@ -179,7 +187,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Override
     @Transactional
     public UserResponseDTO.KaKaoFinalSignUpResultDTO kakaoSignUp(UserRequestDTO.SignUpKakaoRequestDTO request) {
-        
+
         Long userId = SecurityUtil.getCurrentUserId();
         Users savedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus.USER_NOT_FOUND));
@@ -195,6 +203,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         String key = "users:" + savedUser.getId().toString();
         String accessToken = generateAccessToken(savedUser.getId(), savedUser.getRole(), accessExpTime);
         String refreshToken = generateAndSaveRefreshToken(key, refreshExpTime);
+
+        // 디스코드 알림 전송
+        discordService.sendSignUpNotification(savedUser.getUsername(), "카카오");
+
         return UserConverter.toUserKaKaoFinalSignUpResultDTO(accessToken, refreshToken, savedUser);
     }
 
