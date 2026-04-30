@@ -114,4 +114,4 @@ jobs:
           
           # 최신 이미지 pull 후 실행
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ttatta
-          sudo docker run -d -p 8080:8080 -e TZ=Asia/Seoul ${{ secrets.DOCKER_USERNAME }}/ttatta
+          sudo docker run -d --name ttatta-server -p 8080:8080 -e TZ=Asia/Seoul ${{ secrets.DOCKER_USERNAME }}/ttatta
