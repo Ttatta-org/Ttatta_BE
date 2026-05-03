@@ -14,10 +14,12 @@ import software.amazon.awssdk.services.kms.model.GenerateDataKeyRequest;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse;
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -25,7 +27,6 @@ import java.util.List;
 @Slf4j
 public class EnvelopeCryptoService {
 
-    private final KmsClient kms;
     private static final SecureRandom RNG = new SecureRandom();
     private final KmsClient kmsClient;
     private final DiaryRepository diaryRepository;
@@ -33,8 +34,43 @@ public class EnvelopeCryptoService {
     @Value("${kms.key.arn}")
     private String kmsKeyArn;
 
+    @Value("${aes.secret-key}")
+    private String aesSecret;
+
+    // AES-256 암호화
+    public EncryptedLocation aesEncryptLatLng(double latitude, double longitude, Long userId) {
+        byte[] key = Base64.getDecoder().decode(aesSecret);
+        byte[] ivLat = randomIV();
+        byte[] ivLng = randomIV();
+        byte[] aadBase = ByteBuffer.allocate(8).putLong(userId).array();
+        byte[] latCt = aesGcmEncrypt(key, ivLat, doubleToBytes(latitude), mixAad("lat", aadBase));
+        byte[] lngCt = aesGcmEncrypt(key, ivLng, doubleToBytes(longitude), mixAad("lng", aadBase));
+        return EncryptedLocation.builder()
+                .latCipher(latCt).lngCipher(lngCt)
+                .ivLat(ivLat).ivLng(ivLng)
+                .encVer((short) 2)
+                .build();
+    }
+
+    // AES-256 복호화
+    public DecryptedLocation aesDecryptLatLng(
+            byte[] latCipher, byte[] ivLat,
+            byte[] lngCipher, byte[] ivLng,
+            Long userId) {
+        byte[] key = Base64.getDecoder().decode(aesSecret);
+        byte[] aadBase = ByteBuffer.allocate(8).putLong(userId).array();
+        double lat = aesGcmDecryptToDouble(latCipher, ivLat, key, mixAad("lat", aadBase));
+        double lng = aesGcmDecryptToDouble(lngCipher, ivLng, key, mixAad("lng", aadBase));
+        return new DecryptedLocation(lat, lng);
+    }
+
+
+    /**
+     *
+     * AWS KMS 암호화
+     */
     public DataKeyPair generateDataKeyPair() {
-        GenerateDataKeyResponse res = kms.generateDataKey(
+        GenerateDataKeyResponse res = kmsClient.generateDataKey(
                 GenerateDataKeyRequest.builder()
                         .keyId(kmsKeyArn)
                         .keySpec(DataKeySpec.AES_256)

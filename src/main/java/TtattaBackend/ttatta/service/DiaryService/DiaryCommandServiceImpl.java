@@ -63,9 +63,9 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
 
         pt.setSRID(4326);
 
-        // 암호화 (AAD로 userId 등 고정 식별자를 얹음?? -> 확인 필요)
-        EncryptedLocation enc = envelopeCryptoService.encryptLatLng(
-                request.getLatitude(),request.getLongitude(),user.getId()
+        // 암호화
+        EncryptedLocation enc = envelopeCryptoService.aesEncryptLatLng(
+                request.getLatitude(), request.getLongitude(), user.getId()
         );
 
 
@@ -153,7 +153,10 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         // clusterId중 가장 최신 일기의 위도 경도만 복호화 후 비교
         Optional<Long> matchedClusterId = Optional.empty();
         for(Diaries latest : latestDiaries) {
-            DecryptedLocation decryptedLocation = envelopeCryptoService.decryptLatLng(latest.getLatCipher(), latest.getIvLat(), latest.getLngCipher(), latest.getIvLng(), latest.getDekWrapped(), latest.getKmsKeyId(), latest.getUsers().getId());
+            DecryptedLocation decryptedLocation = envelopeCryptoService.aesDecryptLatLng(
+                    latest.getLatCipher(), latest.getIvLat(),
+                    latest.getLngCipher(), latest.getIvLng(),
+                    latest.getUsers().getId());
             double originLatitude = floor(decryptedLocation.lat() * 100000.0);
             double originLongitude = floor(decryptedLocation.lng() * 100000.0);
 
