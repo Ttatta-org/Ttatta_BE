@@ -41,3 +41,6 @@ application.yml
 ### firebase key ###
 ttatta-6a48f-firebase-adminsdk-fbsvc-9e3ca02822.json
 firebase.json
+
+### env ###
+.env

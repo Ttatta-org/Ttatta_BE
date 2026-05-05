@@ -98,15 +98,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
                         Diaries::getId,
                         diary -> {
                             try {
-                                return envelopeCryptoService.decryptLatLng(
-                                        diary.getLatCipher(),
-                                        diary.getIvLat(),
-                                        diary.getLngCipher(),
-                                        diary.getIvLng(),
-                                        diary.getDekWrapped(),
-                                        diary.getKmsKeyId(),
-                                        diary.getUsers().getId()
-                                );
+                                return envelopeCryptoService.smartDecrypt(diary);
                             } catch (Exception e) {
                                 throw new ExceptionHandler(ErrorStatus.TOKEN_ERROR);
                             }
@@ -245,15 +237,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
             presignedUrl = s3Manager.generatePresignedUrlForView(objectKey);
         }
 
-        DecryptedLocation location =  envelopeCryptoService.decryptLatLng(
-            diary.getLatCipher(),
-            diary.getIvLat(),
-            diary.getLngCipher(),
-            diary.getIvLng(),
-            diary.getDekWrapped(),
-            diary.getKmsKeyId(),
-            diary.getUsers().getId()
-        );
+        DecryptedLocation location = envelopeCryptoService.smartDecrypt(diary);
 
         Long count = diaryRepository.countByUsersAndClusterId(user, diary.getClusterId());
 
@@ -439,17 +423,7 @@ public class DiaryQueryServiceImpl implements DiaryQueryService{
     // 복호화 래퍼 (실패 안전)
     private Decoded tryDecode(Diaries d, Long userId) {
         try {
-            log.info("▶ decode start: diaryId={}, kmsKeyId='{}', dekWrappedLen={}",
-                    d.getId(),
-                    d.getKmsKeyId(),
-                    d.getDekWrapped() == null ? null : d.getDekWrapped().length);
-            // 구현에 맞는 decrypt 메서드 사용
-            DecryptedLocation loc = envelopeCryptoService.decryptLatLng(
-                    d.getLatCipher(), d.getIvLat(),
-                    d.getLngCipher(), d.getIvLng(),
-                    d.getDekWrapped(), d.getKmsKeyId(),
-                    userId // AAD seed
-            );
+            DecryptedLocation loc = envelopeCryptoService.smartDecrypt(d);
             return new Decoded(d, loc.lat(), loc.lng(), true);
         } catch (Exception e) {
             log.warn("decode failed for diary id={}", d.getId(), e);
