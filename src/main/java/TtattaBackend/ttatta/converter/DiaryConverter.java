@@ -39,8 +39,8 @@ public class DiaryConverter {
                 .lngCipher(enc.getLngCipher())
                 .ivLat(enc.getIvLat())
                 .ivLng(enc.getIvLng())
-                .dekWrapped(enc.getDekWrapped())
-                .kmsKeyId(enc.getKmsKeyId())
+//                .dekWrapped(enc.getDekWrapped())
+//                .kmsKeyId(enc.getKmsKeyId())
                 .encVer(enc.getEncVer())
                 .build();
     }

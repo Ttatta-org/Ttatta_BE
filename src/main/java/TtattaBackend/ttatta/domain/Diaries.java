@@ -76,11 +76,11 @@ public class Diaries extends BaseEntity {
     // 실제 AES-GCM 암호화에 사용된 데이터 암호화 키(DEK)를 AWS KMS로 래핑한 결과
     // DB에는 평문 DEK가 절대 저장되지 않고, 암호화된 DEK만 저장됨.
     // 복호화 시에는 KMS에 dekWrapped를 보내서 평문 DEK를 다시 얻는다.
-    @Lob @Column(name = "dek_wrapped", nullable = false, columnDefinition = "LONGBLOB")
+    @Lob @Column(name = "dek_wrapped", nullable = true, columnDefinition = "LONGBLOB")
     private byte[] dekWrapped;
 
     // 어떤 KMS를 사용해 DEK를 래핑했는지 식별하기 위한 ARN
-    @Column(name = "kms_key_id", nullable = false, length = 200)
+    @Column(name = "kms_key_id", nullable = true, length = 200)
     private String kmsKeyId;
 
     // 암호화 버전

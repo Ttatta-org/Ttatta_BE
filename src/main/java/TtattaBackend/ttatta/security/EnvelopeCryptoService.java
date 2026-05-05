@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.annotation.PostConstruct;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.DataKeySpec;
@@ -36,15 +37,20 @@ public class EnvelopeCryptoService {
 
     @Value("${aes.secret-key}")
     private String aesSecret;
+    private byte[] aesKey;
+
+    @PostConstruct
+    private void init() {
+        this.aesKey = Base64.getDecoder().decode(aesSecret);
+    }
 
     // AES-256 암호화
     public EncryptedLocation aesEncryptLatLng(double latitude, double longitude, Long userId) {
-        byte[] key = Base64.getDecoder().decode(aesSecret);
         byte[] ivLat = randomIV();
         byte[] ivLng = randomIV();
         byte[] aadBase = ByteBuffer.allocate(8).putLong(userId).array();
-        byte[] latCt = aesGcmEncrypt(key, ivLat, doubleToBytes(latitude), mixAad("lat", aadBase));
-        byte[] lngCt = aesGcmEncrypt(key, ivLng, doubleToBytes(longitude), mixAad("lng", aadBase));
+        byte[] latCt = aesGcmEncrypt(aesKey, ivLat, doubleToBytes(latitude), mixAad("lat", aadBase));
+        byte[] lngCt = aesGcmEncrypt(aesKey, ivLng, doubleToBytes(longitude), mixAad("lng", aadBase));
         return EncryptedLocation.builder()
                 .latCipher(latCt).lngCipher(lngCt)
                 .ivLat(ivLat).ivLng(ivLng)
@@ -57,10 +63,9 @@ public class EnvelopeCryptoService {
             byte[] latCipher, byte[] ivLat,
             byte[] lngCipher, byte[] ivLng,
             Long userId) {
-        byte[] key = Base64.getDecoder().decode(aesSecret);
         byte[] aadBase = ByteBuffer.allocate(8).putLong(userId).array();
-        double lat = aesGcmDecryptToDouble(latCipher, ivLat, key, mixAad("lat", aadBase));
-        double lng = aesGcmDecryptToDouble(lngCipher, ivLng, key, mixAad("lng", aadBase));
+        double lat = aesGcmDecryptToDouble(latCipher, ivLat, aesKey, mixAad("lat", aadBase));
+        double lng = aesGcmDecryptToDouble(lngCipher, ivLng, aesKey, mixAad("lng", aadBase));
         return new DecryptedLocation(lat, lng);
     }
 
@@ -118,8 +123,8 @@ public class EnvelopeCryptoService {
                     .lngCipher(lngCt)
                     .ivLat(ivLat)
                     .ivLng(ivLng)
-                    .dekWrapped(dk.getDekWrapped())
-                    .kmsKeyId(kmsKeyArn)
+//                    .dekWrapped(dk.getDekWrapped())
+//                    .kmsKeyId(kmsKeyArn)
                     .encVer((short)1)
                     .build();
         } finally {

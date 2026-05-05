@@ -10,7 +10,7 @@ public class EncryptedLocation {
     byte[] lngCipher;
     byte[] ivLat;
     byte[] ivLng;
-    byte[] dekWrapped;
-    String kmsKeyId;
+//    byte[] dekWrapped;
+//    String kmsKeyId;
     short encVer;
 }
