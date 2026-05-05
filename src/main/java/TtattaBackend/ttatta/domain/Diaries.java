@@ -132,4 +132,12 @@ public class Diaries extends BaseEntity {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    public void updateEncryption(byte[] latCipher, byte[] lngCipher, byte[] ivLat, byte[] ivLng, short encVer) {
+        this.latCipher = latCipher;
+        this.lngCipher = lngCipher;
+        this.ivLat = ivLat;
+        this.ivLng = ivLng;
+        this.encVer = encVer;
+    }
 }

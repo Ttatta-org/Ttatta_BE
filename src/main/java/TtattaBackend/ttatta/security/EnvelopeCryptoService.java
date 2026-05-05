@@ -64,6 +64,18 @@ public class EnvelopeCryptoService {
         return new DecryptedLocation(lat, lng);
     }
 
+    // encVer에 따라 복호화 분기
+    public DecryptedLocation smartDecrypt(Diaries diary) {
+        if (diary.getEncVer() == 1) {
+            return new DecryptedLocation(diary.getLatitude(), diary.getLongitude());
+        }
+        return aesDecryptLatLng(
+                diary.getLatCipher(), diary.getIvLat(),
+                diary.getLngCipher(), diary.getIvLng(),
+                diary.getUsers().getId()
+        );
+    }
+
 
     /**
      *
@@ -170,6 +182,25 @@ public class EnvelopeCryptoService {
         return new DecryptedLocation(lat, lng);
     }
 
+
+    @Transactional
+    public int migrateToAes() {
+        List<Diaries> allDiaries = diaryRepository.findAll();
+        int successCount = 0;
+        for (Diaries diary : allDiaries) {
+            try {
+                if (diary.getEncVer() == 2) continue;
+                Long userId = diary.getUsers().getId();
+                EncryptedLocation enc = aesEncryptLatLng(diary.getLatitude(), diary.getLongitude(), userId);
+                diary.updateEncryption(enc.getLatCipher(), enc.getLngCipher(), enc.getIvLat(), enc.getIvLng(), (short) 2);
+                successCount++;
+                log.info("마이그레이션 성공 - Diary ID: {}", diary.getId());
+            } catch (Exception e) {
+                log.error("마이그레이션 실패 - Diary ID: {} | 사유: {}", diary.getId(), e.getMessage());
+            }
+        }
+        return successCount;
+    }
 
     @Transactional
     public int decrypt() { // 파라미터 필요 없음!

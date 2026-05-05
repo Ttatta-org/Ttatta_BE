@@ -153,10 +153,7 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
         // clusterId중 가장 최신 일기의 위도 경도만 복호화 후 비교
         Optional<Long> matchedClusterId = Optional.empty();
         for(Diaries latest : latestDiaries) {
-            DecryptedLocation decryptedLocation = envelopeCryptoService.aesDecryptLatLng(
-                    latest.getLatCipher(), latest.getIvLat(),
-                    latest.getLngCipher(), latest.getIvLng(),
-                    latest.getUsers().getId());
+            DecryptedLocation decryptedLocation = envelopeCryptoService.smartDecrypt(latest);
             double originLatitude = floor(decryptedLocation.lat() * 100000.0);
             double originLongitude = floor(decryptedLocation.lng() * 100000.0);
 

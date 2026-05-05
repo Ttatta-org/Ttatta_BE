@@ -88,6 +88,18 @@ public class DiaryController {
         );
     }
 
+    @Operation(summary = "AES-256 암호화 마이그레이션",
+            description = """
+            latitude, longitude 평문값을 AES-256으로 재암호화하여 저장합니다.\n
+            DB 마이그레이션 시 1회 사용합니다.
+            """
+    )
+    @PostMapping("/migrate")
+    public ApiResponse<Integer> migrateToAes() {
+        int processedCount = envelopeCryptoService.migrateToAes();
+        return ApiResponse.onSuccess(processedCount);
+    }
+
     @Operation(summary = "위도, 경도 복호화",
             description = """
             위도, 경도를 복호화해서 컬럼에 저장합니다.\n
