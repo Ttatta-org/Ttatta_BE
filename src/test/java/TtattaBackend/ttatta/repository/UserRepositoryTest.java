@@ -3,37 +3,67 @@ package TtattaBackend.ttatta.repository;
 import TtattaBackend.ttatta.domain.Users;
 import TtattaBackend.ttatta.domain.enums.LoginType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
 public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
     private Users savedUser;
+    private static Users testUser;
 
     @BeforeEach
     void setUp() {
-        this.savedUser = userRepository.save(
-                Users.builder()
-                        .name("testName")
-                        .nickname("testNick")
-                        .username("testUsername")
-                        .password("testPassword")
-                        .loginType(LoginType.REGULAR)
-                        .email("test@gmail.com")
-                        .profileImage("testProfileImage")
-                        .point(1000L)
-                        .providerId("providerTest")
-                        .build()
-        );  // 테스트용 유저 생성
+        testUser = Users.builder()
+                .name("testName")
+                .nickname("testNick")
+                .username("testUsername")
+                .password("testPassword")
+                .loginType(LoginType.REGULAR)
+                .email("test@gmail.com")
+                .profileImage("testProfileImage")
+                .point(1000L)
+                .providerId("providerTest")
+                .diariesList(new ArrayList<>())
+                .diaryCategoriesList(new ArrayList<>())
+                .ownItemsList(new ArrayList<>())
+                .challengesList(new ArrayList<>())
+                .build();
+
+        this.savedUser = userRepository.save(testUser);
+    }
+
+    @Test
+    @DisplayName("회원가입 테스트")
+    public void signUpTest() {
+        // given-----------------------------------------------------------------------------------------
+        // static testUser 사용
+
+        // when------------------------------------------------------------------------------------------
+        // UserRepository에 저장
+        // Users saveUser = userRepository.save(testUser);
+
+        // then------------------------------------------------------------------------------------------
+        //Answer
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getNickname().equals(testUser.getNickname()));
+        assertThat(savedUser.getUsername().equals(testUser.getUsername()));
+        assertThat(savedUser.getPassword().equals(testUser.getPassword()));
+        assertThat(savedUser.getLoginType().equals(LoginType.REGULAR));
+        assertThat(savedUser.getEmail().equals(testUser.getEmail()));
+        assertThat(savedUser.getProfileImage().equals(testUser.getProfileImage()));
+        assertThat(savedUser.getPoint().equals(testUser.getPoint()));
+        assertThat(savedUser.getProviderId().equals(testUser.getProviderId()));
     }
 
     @Test
